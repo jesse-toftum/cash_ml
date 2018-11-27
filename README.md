@@ -1,11 +1,8 @@
 # auto_ml
 > Automated machine learning for production and analytics
 
-[![Build Status](https://travis-ci.org/ClimbsRocks/auto_ml.svg?branch=master)](https://travis-ci.org/ClimbsRocks/auto_ml)
-[![Documentation Status](http://readthedocs.org/projects/auto-ml/badge/?version=latest)](http://auto-ml.readthedocs.io/en/latest/?badge=latest)
-[![PyPI version](https://badge.fury.io/py/auto_ml.svg)](https://badge.fury.io/py/auto_ml)
-[![Coverage Status](https://coveralls.io/repos/github/ClimbsRocks/auto_ml/badge.svg?branch=master&cacheBuster=1)](https://coveralls.io/github/ClimbsRocks/auto_ml?branch=master&cacheBuster=1)
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg)]((https://img.shields.io/github/license/mashape/apistatus.svg))
+[![Build Status](https://travis-ci.org/above-c-level/auto_ml.svg?branch=master)](https://travis-ci.org/above-c-level/auto_ml)
+[![Coverage Status](https://coveralls.io/repos/github/above-c-level/auto_ml/badge.svg?branch=master)](https://coveralls.io/github/above-c-level/auto_ml?branch=master)
 <!-- Stars badge?! -->
 
 ## Installation
