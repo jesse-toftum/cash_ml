@@ -1,11 +1,13 @@
-from setuptools import setup, find_packages
 from codecs import open
 from os import path
+
+from setuptools import setup
 
 here = path.abspath(path.dirname(__file__))
 try:
     # Try to format our PyPi page as rst so it displays properly
     import pypandoc
+
     with open('README.md', 'rb') as read_file:
         readme_text = read_file.readlines()
     # Change our README for pypi so we can get analytics tracking information for that separately
@@ -63,21 +65,24 @@ setup(
     ],
     packages=['auto_ml'],
 
-    # We will allow the user to install XGBoost themselves. However, since it can be difficult to
+    # We will allow the user to install XGBoost themselves. Since it can be difficult to
     # install, we will not force them to go through that install challenge if they're just
     # checking out the package and want to get running with it quickly.
+
+    # Removed redundant dependencies:
+    # lightgbm requires scikit-learn
+    # scikit-learn requires numpy and scipy
+    # pandas requires python-dateutil
     install_requires=[
-        'dill>=0.2.5, <0.3',
-        'h5py>=2.7.0, <3.0',
-        'lightgbm>=2.0.11, <2.1',
-        'numpy>=1.11.0, <2.0',
-        'pandas>=0.18.0, <1.0',
-        'pathos>=0.2.1, <0.3.0',
-        'python-dateutil>=2.6.1, <3.0',
-        'scikit-learn>=0.18.1, <1.0',
-        'scipy>=0.14.0, <2.0',
-        'sklearn-deap2>=0.2.1, <0.3',
-        'tabulate>=0.7.5, <1.0',
+        'coveralls>=1.5.0',
+        'dill>=0.2.5',
+        'h5py>=2.7.0',
+        'lightgbm>=2.0.11',
+        'nose>=1.3.0',
+        'pandas>=0.18.0',
+        'pathos>=0.2.1',
+        'sklearn-deap2>=0.2.1',
+        'tabulate>=0.7.5',
     ],
     test_suite='nose.collector',
     tests_require=['nose', 'coveralls'])
