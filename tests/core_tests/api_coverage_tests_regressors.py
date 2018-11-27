@@ -18,7 +18,7 @@ from nose.tools import assert_equal, assert_not_equal, with_setup
 import numpy as np
 from sklearn.model_selection import train_test_split
 
-import utils_testing as utils
+import tests.utils_testing as utils
 
 
 # Tests on regression models:

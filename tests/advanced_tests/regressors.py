@@ -12,7 +12,7 @@ from nose.tools import assert_equal, assert_not_equal, with_setup
 import numpy as np
 from sklearn.model_selection import train_test_split
 
-import utils_testing as utils
+import tests.utils_testing as utils
 
 def optimize_final_model_regression(model_name=None):
     np.random.seed(0)

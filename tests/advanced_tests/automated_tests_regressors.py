@@ -5,8 +5,7 @@ import sys
 sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
 os.environ['is_test_suite'] = 'True'
 
-import classifiers as classifier_tests
-import regressors as regressor_tests
+import tests.advanced_tests.regressors as regressor_tests
 
 
 training_parameters = {

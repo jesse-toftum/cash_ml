@@ -1,6 +1,6 @@
-import sys, os
-sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
-os.environ['is_test_suite'] = 'True'
+import datetime
+import os
+import sys
 
 import pandas as pd
 from sklearn.datasets import load_boston
@@ -8,6 +8,10 @@ from sklearn.metrics import brier_score_loss, mean_squared_error
 from sklearn.model_selection import train_test_split
 
 from auto_ml import Predictor
+
+sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
+os.environ['is_test_suite'] = 'True'
+
 
 def get_boston_regression_dataset():
     boston = load_boston()
@@ -17,8 +21,8 @@ def get_boston_regression_dataset():
     df_boston_train, df_boston_test = train_test_split(df_boston, test_size=0.33, random_state=42)
     return df_boston_train, df_boston_test
 
-def get_titanic_binary_classification_dataset(basic=True):
 
+def get_titanic_binary_classification_dataset(basic=True):
     dir_name = os.path.abspath(os.path.dirname(__file__))
     file_name = os.path.join(dir_name, 'titanic.csv')
     print('file_name')
@@ -40,45 +44,44 @@ def get_titanic_binary_classification_dataset(basic=True):
     if basic == True:
         df_titanic = df_titanic.drop(['name', 'ticket', 'cabin', 'home.dest'], axis=1)
 
-    df_titanic_train, df_titanic_test = train_test_split(df_titanic, test_size=0.33, random_state=42)
+    df_titanic_train, df_titanic_test = train_test_split(
+        df_titanic, test_size=0.33, random_state=42)
     return df_titanic_train, df_titanic_test
 
 
 def train_basic_binary_classifier(df_titanic_train):
     column_descriptions = {
-        'survived': 'output'
-        , 'sex': 'categorical'
-        , 'embarked': 'categorical'
-        , 'pclass': 'categorical'
+        'survived': 'output',
+        'sex': 'categorical',
+        'embarked': 'categorical',
+        'pclass': 'categorical'
     }
 
-    ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+    ml_predictor = Predictor(
+        type_of_estimator='classifier', column_descriptions=column_descriptions)
     ml_predictor.train(df_titanic_train)
 
     return ml_predictor
 
 
 def train_basic_regressor(df_boston_train):
-    column_descriptions = {
-        'MEDV': 'output'
-        , 'CHAS': 'categorical'
-    }
+    column_descriptions = {'MEDV': 'output', 'CHAS': 'categorical'}
 
     ml_predictor = Predictor(type_of_estimator='regressor', column_descriptions=column_descriptions)
 
     ml_predictor.train(df_boston_train, verbose=False)
     return ml_predictor
 
+
 def calculate_rmse(actuals, preds):
     return mean_squared_error(actuals, preds)**0.5 * -1
+
 
 def calculate_brier_score_loss(actuals, probas):
     return -1 * brier_score_loss(actuals, probas)
 
 
-
 def get_twitter_sentiment_multilabel_classification_dataset():
-
     file_name = os.path.join('tests', 'twitter_sentiment.h5')
 
     try:
@@ -97,35 +100,38 @@ def get_twitter_sentiment_multilabel_classification_dataset():
 
     df_twitter['tweet_created'] = pd.to_datetime(df_twitter.tweet_created)
 
-    df_twitter_train, df_twitter_test = train_test_split(df_twitter, test_size=0.33, random_state=42)
+    df_twitter_train, df_twitter_test = train_test_split(
+        df_twitter, test_size=0.33, random_state=42)
     return df_twitter_train, df_twitter_test
 
 
 def train_basic_multilabel_classifier(df_twitter_train):
     column_descriptions = {
-        'airline_sentiment': 'output'
-        , 'airline': 'categorical'
-        , 'text': 'ignore'
-        , 'tweet_location': 'categorical'
-        , 'user_timezone': 'categorical'
-        , 'tweet_created': 'date'
+        'airline_sentiment': 'output',
+        'airline': 'categorical',
+        'text': 'ignore',
+        'tweet_location': 'categorical',
+        'user_timezone': 'categorical',
+        'tweet_created': 'date'
     }
 
-    ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+    ml_predictor = Predictor(
+        type_of_estimator='classifier', column_descriptions=column_descriptions)
     ml_predictor.train(df_twitter_train)
 
     return ml_predictor
 
 
-import pandas as pd
-import datetime
 def make_test_df():
     today = datetime.datetime.today()
     raw_input = {
-        'a': [1,2,3,4,5]
-        , 'b': [6,7,8,9,10]
-        , 'text_col': ['hi', 'there', 'mesmerizingly', 'intriguing', 'world']
-        , 'date_col': [today, today - datetime.timedelta(days=1), today - datetime.timedelta(days=2), today - datetime.timedelta(days=3), today - datetime.timedelta(days=4)]
+        'a': [1, 2, 3, 4, 5],
+        'b': [6, 7, 8, 9, 10],
+        'text_col': ['hi', 'there', 'mesmerizingly', 'intriguing', 'world'],
+        'date_col': [
+            today, today - datetime.timedelta(days=1), today - datetime.timedelta(days=2),
+            today - datetime.timedelta(days=3), today - datetime.timedelta(days=4)
+        ]
     }
     df = pd.DataFrame(raw_input)
     return df

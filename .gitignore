@@ -23,3 +23,13 @@ old_data/*
 t2.py
 venv/*
 xgboost/*
+
+# For PyCharm
+.idea/
+
+# Ignore any kind of backup files
+*.bak
+*.gho
+*.ori
+*.orig
+*.tmp

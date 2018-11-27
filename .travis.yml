@@ -6,7 +6,7 @@ cache: pip
 
 env:
   - TESTS_TO_RUN=tests/advanced_tests/automated_tests_regressors.py
-  - TESTS_TO_RUN=tests/advanced_tests/automated_tests.py
+  - TESTS_TO_RUN=tests/advanced_tests/automated_tests_classifiers.py
   - TESTS_TO_RUN=tests/advanced_tests/advanced_install_tests.py
   - TESTS_TO_RUN=tests/core_tests
 

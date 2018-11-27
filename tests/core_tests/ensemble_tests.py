@@ -15,7 +15,7 @@ from sklearn.metrics import accuracy_score
 
 import dill
 import numpy as np
-import utils_testing as utils
+import tests.utils_testing as utils
 
 
 def ensemble_classifier_basic_test(model_name=None):

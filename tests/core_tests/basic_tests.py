@@ -20,7 +20,7 @@ from sklearn.metrics import accuracy_score
 
 import dill
 import numpy as np
-import utils_testing as utils
+import tests.utils_testing as utils
 
 
 def test_linear_model_analytics_classification(model_name=None):

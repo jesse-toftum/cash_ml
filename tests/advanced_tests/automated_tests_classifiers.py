@@ -1,11 +1,10 @@
 from collections import OrderedDict
 import os
 import sys
+import tests.advanced_tests.classifiers as classifier_tests
 sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
 os.environ['is_test_suite'] = 'True'
 
-import classifiers as classifier_tests
-import regressors as regressor_tests
 
 
 training_parameters = {

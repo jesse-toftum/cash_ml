@@ -8,7 +8,7 @@ from auto_ml import Predictor, __version__ as auto_ml_version
 from auto_ml.utils_models import load_ml_model
 import dill
 import numpy as np
-import utils_testing as utils
+import tests.utils_testing as utils
 
 
 if 'backwards_compatibility' in os.environ.get('TESTS_TO_RUN', 'blank'):
