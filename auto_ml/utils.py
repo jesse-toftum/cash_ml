@@ -2,23 +2,28 @@ import csv
 import datetime
 import numbers
 import os
-import pkg_resources
 
 import numpy as np
 import pandas as pd
+import pkg_resources
 import scipy
 from sklearn.datasets import load_boston
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder
-from sklearn.utils.metaestimators import if_delegate_has_method
 from sklearn.utils import column_or_1d
+from sklearn.utils.metaestimators import if_delegate_has_method
 
 from auto_ml._version import __version__ as auto_ml_version
 
 
 def is_linear_model(model_names):
-    linear_models = set(['RANSACRegressor', 'LinearRegression', 'Ridge', 'Lasso', 'ElasticNet', 'LassoLars', 'OrthogonalMatchingPursuit', 'BayesianRidge', 'ARDRegression', 'SGDRegressor', 'PassiveAggressiveRegressor', 'LogisticRegression', 'RidgeClassifier', 'SGDClassifier', 'Perceptron', 'PassiveAggressiveClassifier'])
+    linear_models = {
+        'RANSACRegressor', 'LinearRegression', 'Ridge', 'Lasso', 'ElasticNet', 'LassoLars',
+        'OrthogonalMatchingPursuit', 'BayesianRidge', 'ARDRegression', 'SGDRegressor',
+        'PassiveAggressiveRegressor', 'LogisticRegression', 'RidgeClassifier', 'SGDClassifier',
+        'Perceptron', 'PassiveAggressiveClassifier'
+    }
 
     if len(linear_models & (set(model_names))) > 0:
         return True
@@ -27,7 +32,6 @@ def is_linear_model(model_names):
 
 
 def write_gs_param_results_to_file(trained_gs, most_recent_filename):
-
     timestamp_time = datetime.datetime.now()
     write_most_recent_gs_result_to_file(trained_gs, most_recent_filename, timestamp_time)
 
@@ -48,7 +52,6 @@ def write_gs_param_results_to_file(trained_gs, most_recent_filename):
 
 
 def write_most_recent_gs_result_to_file(trained_gs, most_recent_filename, timestamp):
-
     timestamp_time = timestamp
     grid_scores = trained_gs.grid_scores_
     scorer = trained_gs.scorer_
@@ -76,7 +79,6 @@ def write_most_recent_gs_result_to_file(trained_gs, most_recent_filename, timest
         rows_to_write.append(row)
         make_header = False
 
-
     with open(file_name, 'a') as results_file:
         writer = csv.writer(results_file, dialect='excel')
         if write_header:
@@ -102,7 +104,8 @@ def drop_duplicate_columns(df):
         if item in df.columns[:idx]:
             print('#####################################################')
             print('We found a duplicate column, and will be removing it')
-            print('If you intended to send in two different pieces of information, please make sure they have different column names')
+            print('If you intended to send in two different pieces of information, please make '
+                  'sure they have different column names.')
             print('Here is the duplicate column:')
             print(item)
             print('#####################################################')
@@ -124,7 +127,12 @@ def get_boston_dataset():
     df_boston_train, df_boston_test = train_test_split(df_boston, test_size=0.2, random_state=42)
     return df_boston_train, df_boston_test
 
-bad_vals_as_strings = set([str(float('nan')), str(float('inf')), str(float('-inf')), 'None', 'none', 'NaN', 'NAN', 'nan', 'NULL', 'null', '', 'inf', '-inf'])
+
+bad_vals_as_strings = {
+    str(float('nan')),
+    str(float('inf')),
+    str(float('-inf')), 'None', 'none', 'NaN', 'NAN', 'nan', 'NULL', 'null', '', 'inf', '-inf'
+}
 
 
 def delete_rows_csr(mat, indices):
@@ -140,7 +148,6 @@ def delete_rows_csr(mat, indices):
 
 
 def drop_missing_y_vals(df, y, output_column=None):
-
     y = list(y)
     indices_to_drop = []
     indices_to_keep = []
@@ -169,7 +176,9 @@ def drop_missing_y_vals(df, y, output_column=None):
             print(y[df_idx])
         print('We will remove these values, and continue with training on the cleaned dataset')
 
-        support_mask = [True if idx not in set_of_indices_to_drop else False for idx in range(df.shape[0]) ]
+        support_mask = [
+            True if idx not in set_of_indices_to_drop else False for idx in range(df.shape[0])
+        ]
         if isinstance(df, pd.DataFrame):
             df.drop(df.index[indices_to_drop], axis=0, inplace=True)
             # df = df.loc[support_mask,]
@@ -179,15 +188,13 @@ def drop_missing_y_vals(df, y, output_column=None):
             df = np.delete(df, indices_to_drop, axis=0)
         y = [val for idx, val in enumerate(y) if idx not in set_of_indices_to_drop]
 
-
     return df, y
 
 
-class CustomLabelEncoder():
+class CustomLabelEncoder:
 
     def __init__(self):
         self.label_map = {}
-
 
     def fit(self, list_of_labels):
         if not isinstance(list_of_labels, pd.Series):
@@ -202,12 +209,12 @@ class CustomLabelEncoder():
             self.label_map[val] = idx
         return self
 
-
     def transform(self, in_vals):
         return_vals = []
         for val in in_vals:
             if not isinstance(val, str):
-                if isinstance(val, float) or isinstance(val, int) or val is None or isinstance(val, np.generic):
+                if isinstance(val, float) or isinstance(val, int) or val is None or isinstance(
+                        val, np.generic):
                     val = str(val)
                 else:
                     val = val.encode('utf-8').decode('utf-8')
@@ -238,12 +245,12 @@ class ExtendedLabelEncoder(LabelEncoder):
 
 
 def get_versions():
+    libraries_to_check = [
+        'dill', 'h5py', 'keras', 'lightgbm', 'numpy', 'pandas', 'pathos', 'python', 'scikit-learn',
+        'scipy', 'sklearn-deap2', 'tabulate', 'tensorflow', 'xgboost'
+    ]
 
-    libraries_to_check = ['dill', 'h5py', 'keras', 'lightgbm', 'numpy', 'pandas', 'pathos', 'python', 'scikit-learn', 'scipy', 'sklearn-deap2', 'tabulate', 'tensorflow', 'xgboost']
-
-    versions = {
-        'auto_ml': auto_ml_version
-    }
+    versions = {'auto_ml': auto_ml_version}
 
     for lib in libraries_to_check:
         try:
@@ -264,7 +271,6 @@ class ExtendedPipeline(Pipeline):
         self.feature_importances_ = None
         self.training_features = training_features
 
-
     @if_delegate_has_method(delegate='_final_estimator')
     def predict_uncertainty(self, X):
         Xt = X
@@ -272,7 +278,6 @@ class ExtendedPipeline(Pipeline):
             if transform is not None:
                 Xt = transform.transform(Xt)
         return self.steps[-1][-1].predict_uncertainty(Xt)
-
 
     @if_delegate_has_method(delegate='_final_estimator')
     def score_uncertainty(self, X):
@@ -282,7 +287,6 @@ class ExtendedPipeline(Pipeline):
                 Xt = transform.transform(Xt)
         return self.steps[-1][-1].score_uncertainty(Xt)
 
-
     @if_delegate_has_method(delegate='_final_estimator')
     def transform_only(self, X):
         Xt = X
@@ -290,7 +294,6 @@ class ExtendedPipeline(Pipeline):
             if transform is not None:
                 Xt = transform.transform(Xt)
         return self.steps[-1][-1].transform_only(Xt)
-
 
     @if_delegate_has_method(delegate='_final_estimator')
     def predict_intervals(self, X, return_type=None):

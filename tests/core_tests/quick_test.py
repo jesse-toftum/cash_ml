@@ -3,27 +3,22 @@
 # nosetests --verbosity=2 --detailed-errors --nologcapture --processes=4 --process-restartworker --process-timeout=1000 tests/quick_test.py
 # """
 
-import datetime
 import os
-import random
 import sys
-sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
-sys.path = [os.path.abspath(os.path.dirname(os.path.dirname(__file__)))] + sys.path
 
-os.environ['is_test_suite'] = 'True'
-# os.environ['KERAS_BACKEND'] = 'theano'
-
-from auto_ml import Predictor
-from auto_ml.utils_models import load_ml_model
-
-from nose.tools import assert_equal, assert_not_equal, with_setup
-from sklearn.metrics import accuracy_score
-
-import dill
 import numpy as np
 import pandas as pd
 from sklearn.datasets import load_boston
 from sklearn.model_selection import train_test_split
+
+from auto_ml import Predictor
+
+sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
+sys.path = [os.path.abspath(os.path.dirname(os.path.dirname(__file__)))] + sys.path
+
+os.environ['is_test_suite'] = 'True'
+
+# os.environ['KERAS_BACKEND'] = 'theano'
 
 
 def get_boston_regression_dataset():
@@ -36,7 +31,8 @@ def get_boston_regression_dataset():
 
 
 def regression_test():
-    # a random seed of 42 has ExtraTreesRegressor getting the best CV score, and that model doesn't generalize as well as GradientBoostingRegressor.
+    # a random seed of 42 has ExtraTreesRegressor getting the best CV score,
+    # and that model doesn't generalize as well as GradientBoostingRegressor.
     np.random.seed(0)
     model_name = 'LGBMRegressor'
 
@@ -46,11 +42,7 @@ def regression_test():
         many_dfs.append(df_boston_train)
     df_boston_train = pd.concat(many_dfs)
 
-
-    column_descriptions = {
-        'MEDV': 'output'
-        , 'CHAS': 'categorical'
-    }
+    column_descriptions = {'MEDV': 'output', 'CHAS': 'categorical'}
 
     ml_predictor = Predictor(type_of_estimator='regressor', column_descriptions=column_descriptions)
 
@@ -88,7 +80,8 @@ def get_titanic_binary_classification_dataset(basic=True):
     if basic == True:
         df_titanic = df_titanic.drop(['name', 'ticket', 'cabin', 'home.dest'], axis=1)
 
-    df_titanic_train, df_titanic_test = train_test_split(df_titanic, test_size=0.33, random_state=42)
+    df_titanic_train, df_titanic_test = train_test_split(
+        df_titanic, test_size=0.33, random_state=42)
     return df_titanic_train, df_titanic_test
 
 
@@ -101,15 +94,16 @@ def classification_test():
     df_titanic_train['DELETE_THIS_FIELD'] = 1
 
     column_descriptions = {
-        'survived': 'output'
-        , 'embarked': 'categorical'
-        , 'pclass': 'categorical'
-        , 'sex': 'categorical'
-        , 'this_does_not_exist': 'ignore'
-        , 'DELETE_THIS_FIELD': 'ignore'
+        'survived': 'output',
+        'embarked': 'categorical',
+        'pclass': 'categorical',
+        'sex': 'categorical',
+        'this_does_not_exist': 'ignore',
+        'DELETE_THIS_FIELD': 'ignore'
     }
 
-    ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+    ml_predictor = Predictor(
+        type_of_estimator='classifier', column_descriptions=column_descriptions)
 
     ml_predictor.train(df_titanic_train, model_names=model_name)
 
@@ -125,6 +119,7 @@ def classification_test():
         lower_bound = -0.225
 
     assert lower_bound < test_score < -0.135
+
 
 if __name__ == '__main__':
     classification_test()

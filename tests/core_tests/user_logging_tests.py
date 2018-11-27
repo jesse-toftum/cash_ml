@@ -266,9 +266,8 @@ def test_unmarked_categorical_column_throws_warning():
 
     with warnings.catch_warnings(record=True) as caught_w:
         ml_predictor.train(df_titanic_train)
-        print(
-            'we should be throwing a warning for the user to give them useful feedback on the unlabeled categorical column'
-        )
+        print('we should be throwing a warning for the user to give them useful feedback on the '
+              'unlabeled categorical column ')
         assert len(caught_w) == 1
 
     ml_predictor.predict(df_titanic_test)

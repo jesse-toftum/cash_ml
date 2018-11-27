@@ -6,17 +6,17 @@ import pathos
 from sklearn.base import BaseEstimator, TransformerMixin
 
 
-
-
 class Ensembler(BaseEstimator, TransformerMixin):
 
-
-    def __init__(self, ensemble_predictors, type_of_estimator, ensemble_method='average', num_classes=None):
+    def __init__(self,
+                 ensemble_predictors,
+                 type_of_estimator,
+                 ensemble_method='average',
+                 num_classes=None):
         self.ensemble_predictors = ensemble_predictors
         self.type_of_estimator = type_of_estimator
         self.ensemble_method = ensemble_method
         self.num_classes = num_classes
-
 
     # ################################
     # Get a dataframe that is all the predictions from all the sub-models
@@ -36,17 +36,20 @@ class Ensembler(BaseEstimator, TransformerMixin):
             return_obj = {estimator_name: predictions}
             return return_obj
 
-
         # Don't bother parallelizing if this is a single dictionary
         if X.shape[0] == 1:
-            predictions_from_all_estimators = map(lambda predictor: get_predictions_for_one_estimator(predictor, X), self.ensemble_predictors)
+            predictions_from_all_estimators = map(
+                lambda predictor: get_predictions_for_one_estimator(predictor, X),
+                self.ensemble_predictors)
 
         else:
 
-            # Pathos doesn't like datasets beyond a certain size. So fall back on single, non-parallel predictions instead.
-            # try:
+            # Pathos doesn't like datasets beyond a certain size. So fall back on single,
+            # non-parallel predictions instead. try:
             if os.environ.get('is_test_suite', False) == 'True':
-                predictions_from_all_estimators = map(lambda predictor: get_predictions_for_one_estimator(predictor, X), self.ensemble_predictors)
+                predictions_from_all_estimators = map(
+                    lambda predictor: get_predictions_for_one_estimator(predictor, X),
+                    self.ensemble_predictors)
 
             else:
                 # Open a new multiprocessing pool
@@ -57,9 +60,12 @@ class Ensembler(BaseEstimator, TransformerMixin):
                     pool.restart()
                 except AssertionError as e:
                     pass
-                predictions_from_all_estimators = pool.map(lambda predictor: get_predictions_for_one_estimator(predictor, X), self.ensemble_predictors)
+                predictions_from_all_estimators = pool.map(
+                    lambda predictor: get_predictions_for_one_estimator(predictor, X),
+                    self.ensemble_predictors)
 
-                # Once we have gotten all we need from the pool, close it so it's not taking up unnecessary memory
+                # Once we have gotten all we need from the pool, close it so it's not taking up
+                # unnecessary memory
                 pool.close()
                 try:
                     pool.join()
@@ -72,7 +78,8 @@ class Ensembler(BaseEstimator, TransformerMixin):
         for result_dict in predictions_from_all_estimators:
             results.update(result_dict)
 
-        # if this is a single row we are getting predictions from, just return a dictionary with single values for all the predictions
+        # if this is a single row we are getting predictions from, just return a dictionary with
+        # single values for all the predictions
         if X.shape[0] == 1:
             return results
         else:
@@ -80,14 +87,12 @@ class Ensembler(BaseEstimator, TransformerMixin):
 
             return predictions_df
 
-
-
     def fit(self, X, y):
         return self
 
-
     # ################################
-    # Public API to get a single prediction from each row, where that single prediction is somehow an ensemble of all our trained subpredictors
+    # Public API to get a single prediction from each row,
+    # where that single prediction is somehow an ensemble of all our trained sub-predictors
     # ################################
 
     def predict(self, X):
@@ -96,11 +101,14 @@ class Ensembler(BaseEstimator, TransformerMixin):
 
         # If this is just a single dictionary we're getting predictions from:
         if X.shape[0] == 1:
-            # predictions is just a dictionary where all the values are the predicted values from one of our subpredictors. we'll want that as a list
+            # predictions is just a dictionary where all the values are the predicted values from
+            #  one of our subpredictors. we'll want that as a list
             predicted_vals = list(predictions.values())
             if self.ensemble_method == 'median':
                 return np.median(predicted_vals)
-            elif self.ensemble_method == 'average' or self.ensemble_method == 'mean' or self.ensemble_method == 'avg':
+            elif self.ensemble_method == 'average' \
+                    or self.ensemble_method == 'mean' \
+                    or self.ensemble_method == 'avg':
                 return np.average(predicted_vals)
             elif self.ensemble_method == 'max':
                 return np.max(predicted_vals)
@@ -118,8 +126,6 @@ class Ensembler(BaseEstimator, TransformerMixin):
             elif self.ensemble_method == 'min':
                 return predictions.apply(np.min, axis=1).values
 
-
-
     def get_predictions_by_class(self, predictions):
         predictions_by_class = []
         for class_idx in range(self.num_classes):
@@ -128,15 +134,14 @@ class Ensembler(BaseEstimator, TransformerMixin):
 
         return predictions_by_class
 
-
     def predict_proba(self, X):
 
         predictions = self.get_all_predictions(X)
 
-
         # If this is just a single dictionary we're getting predictions from:
         if X.shape[0] == 1:
-            # predictions is just a dictionary where all the values are the predicted values from one of our subpredictors. we'll want that as a list
+            # predictions is just a dictionary where all the values are the predicted values from
+            #  one of our subpredictors. we'll want that as a list
             predicted_vals = list(predictions.values())
             predicted_vals = self.get_predictions_by_class(predicted_vals)
 
@@ -160,4 +165,3 @@ class Ensembler(BaseEstimator, TransformerMixin):
                 return classed_predictions.apply(np.max, axis=1)
             elif self.ensemble_method == 'min':
                 return classed_predictions.apply(np.min, axis=1)
-

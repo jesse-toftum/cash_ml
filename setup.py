@@ -58,8 +58,7 @@ setup(
         'regression', 'classification', 'classifiers', 'classifier', 'estimators', 'predictors',
         'XGBoost', 'Random Forest', 'sklearn', 'scikit-learn', 'analytics', 'analysts',
         'coefficients', 'feature importances'
-                        'analytics', 'artificial intelligence', 'subpredictors', 'ensembling',
-        'stacking',
+        'analytics', 'artificial intelligence', 'subpredictors', 'ensembling', 'stacking',
         'blending', 'feature engineering', 'feature extraction', 'feature selection', 'production',
         'pandas', 'dataframes', 'machinejs', 'deep learning', 'tensorflow', 'deeplearning',
         'lightgbm', 'gradient boosting', 'gbm', 'keras', 'production ready', 'test coverage'
@@ -79,6 +78,7 @@ setup(
         'pandas>=0.18.0',
         'pathos>=0.2.1',
         'scikit-learn>=0.18.1',
+        'scipy>=0.14.0',
         'sklearn-deap2>=0.2.1',
         'tabulate>=0.7.5',
     ],

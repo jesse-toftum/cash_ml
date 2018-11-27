@@ -1,22 +1,23 @@
+import scipy
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-
-
-import scipy
-import itertools
 from sklearn.feature_selection import GenericUnivariateSelect, RFECV, SelectFromModel
 
 
 def get_feature_selection_model_from_name(type_of_estimator, model_name):
     model_map = {
         'classifier': {
-            'SelectFromModel': SelectFromModel(RandomForestClassifier(n_jobs=-1, max_depth=10, n_estimators=15), threshold='20*mean'),
+            'SelectFromModel': SelectFromModel(
+                RandomForestClassifier(n_jobs=-1, max_depth=10, n_estimators=15),
+                threshold='20*mean'),
             'RFECV': RFECV(estimator=RandomForestClassifier(n_jobs=-1), step=0.1),
             'GenericUnivariateSelect': GenericUnivariateSelect(),
             'KeepAll': 'KeepAll'
         },
         'regressor': {
-            'SelectFromModel': SelectFromModel(RandomForestRegressor(n_jobs=-1, max_depth=10, n_estimators=15), threshold='0.7*mean'),
+            'SelectFromModel': SelectFromModel(
+                RandomForestRegressor(n_jobs=-1, max_depth=10, n_estimators=15),
+                threshold='0.7*mean'),
             'RFECV': RFECV(estimator=RandomForestRegressor(n_jobs=-1), step=0.1),
             'GenericUnivariateSelect': GenericUnivariateSelect(),
             'KeepAll': 'KeepAll'
@@ -29,7 +30,8 @@ def get_feature_selection_model_from_name(type_of_estimator, model_name):
 class FeatureSelectionTransformer(BaseEstimator, TransformerMixin):
 
 
-    def __init__(self, type_of_estimator, column_descriptions, feature_selection_model='SelectFromModel'):
+    def __init__(self, type_of_estimator, column_descriptions,
+                 feature_selection_model='SelectFromModel'):
 
         self.column_descriptions = column_descriptions
         self.type_of_estimator = type_of_estimator
@@ -46,8 +48,8 @@ class FeatureSelectionTransformer(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
         print('Performing feature selection')
 
-
-        self.selector = get_feature_selection_model_from_name(self.type_of_estimator, self.feature_selection_model)
+        self.selector = get_feature_selection_model_from_name(self.type_of_estimator,
+                                                              self.feature_selection_model)
 
         if self.selector == 'KeepAll':
             if scipy.sparse.issparse(X):
@@ -55,7 +57,7 @@ class FeatureSelectionTransformer(BaseEstimator, TransformerMixin):
             else:
                 num_cols = len(X[0])
 
-            self.support_mask = [True for col_idx in range(num_cols) ]
+            self.support_mask = [True for col_idx in range(num_cols)]
         else:
             if self.feature_selection_model == 'SelectFromModel':
                 num_cols = X.shape[1]
@@ -63,7 +65,8 @@ class FeatureSelectionTransformer(BaseEstimator, TransformerMixin):
                 if self.type_of_estimator == 'regressor':
                     self.estimator = RandomForestRegressor(n_jobs=-1, max_depth=10, n_estimators=15)
                 else:
-                    self.estimator = RandomForestClassifier(n_jobs=-1, max_depth=10, n_estimators=15)
+                    self.estimator = RandomForestClassifier(n_jobs=-1, max_depth=10,
+                                                            n_estimators=15)
 
                 self.estimator.fit(X, y)
 
@@ -115,4 +118,3 @@ class FeatureSelectionTransformer(BaseEstimator, TransformerMixin):
         else:
             X = X[:, self.index_mask]
             return X
-

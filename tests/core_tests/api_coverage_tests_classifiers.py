@@ -1,25 +1,24 @@
-# This file is just to test passing a bunch of different parameters into train to make sure that things work
-# At first, it is not necessarily testing whether those things have the intended effect or not
+# This file is just to test passing a bunch of different parameters into train to make sure that
+# things work At first, it is not necessarily testing whether those things have the intended
+# effect or not
 
 import datetime
 import os
 import random
 import sys
+
+import numpy as np
+from sklearn.metrics import accuracy_score
+
+import tests.utils_testing as utils
+from auto_ml import Predictor
+from auto_ml.utils_models import load_ml_model
+
 sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
 sys.path = [os.path.abspath(os.path.dirname(os.path.dirname(__file__)))] + sys.path
 
 os.environ['is_test_suite'] = 'True'
 
-from auto_ml import Predictor
-from auto_ml.utils_models import load_ml_model
-
-import dill
-import numpy as np
-from nose.tools import assert_equal, assert_not_equal, with_setup
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
-
-import tests.utils_testing as utils
 
 def test_perform_feature_selection_false_classification():
     np.random.seed(0)
@@ -33,7 +32,8 @@ def test_perform_feature_selection_false_classification():
         , 'pclass': 'categorical'
     }
 
-    ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+    ml_predictor = Predictor(type_of_estimator='classifier',
+                             column_descriptions=column_descriptions)
 
     ml_predictor.train(df_titanic_train, perform_feature_selection=False)
 
@@ -44,10 +44,14 @@ def test_perform_feature_selection_false_classification():
 
     assert -0.16 < test_score < -0.135
 
+
 # For some reason, this test now causes a Segmentation Default on travis when run on python 3.5.
-# home/travis/.travis/job_stages: line 53:  8810 Segmentation fault      (core dumped) nosetests -v --with-coverage --cover-package auto_ml tests
+# home/travis/.travis/job_stages: line 53:  8810 Segmentation fault
+# (core dumped) nosetests -v --with-coverage --cover-package auto_ml tests
 # It didn't error previously
-# It appears to be an environment issue (possibly cuased by running too many parallelized things, which only happens in a test suite), not an issue with auto_ml. So we'll run this test to make sure the library functionality works, but only on some environments
+# It appears to be an environment issue (possibly caused by running too many parallelized things,
+# which only happens in a test suite), not an issue with auto_ml.
+# So we'll run this test to make sure the library functionality works, but only on some environments
 if os.environ.get('TRAVIS_PYTHON_VERSION', '0') != '3.5':
     def test_compare_all_models_classification():
         np.random.seed(0)
@@ -61,7 +65,8 @@ if os.environ.get('TRAVIS_PYTHON_VERSION', '0') != '3.5':
             , 'pclass': 'categorical'
         }
 
-        ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+        ml_predictor = Predictor(type_of_estimator='classifier',
+                                 column_descriptions=column_descriptions)
 
         ml_predictor.train(df_titanic_train, compare_all_models=True)
 
@@ -71,7 +76,6 @@ if os.environ.get('TRAVIS_PYTHON_VERSION', '0') != '3.5':
         print(test_score)
 
         assert -0.16 < test_score < -0.135
-
 
 
 
@@ -87,7 +91,8 @@ def test_perform_feature_selection_true_classification():
         , 'pclass': 'categorical'
     }
 
-    ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+    ml_predictor = Predictor(type_of_estimator='classifier',
+                             column_descriptions=column_descriptions)
 
     ml_predictor.train(df_titanic_train, perform_feature_selection=True)
 
@@ -111,7 +116,8 @@ def test_perform_feature_scaling_true_classification():
         , 'pclass': 'categorical'
     }
 
-    ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+    ml_predictor = Predictor(type_of_estimator='classifier',
+                             column_descriptions=column_descriptions)
 
     ml_predictor.train(df_titanic_train, perform_feature_scaling=True)
 
@@ -121,6 +127,7 @@ def test_perform_feature_scaling_true_classification():
     print(test_score)
 
     assert -0.16 < test_score < -0.135
+
 
 def test_perform_feature_scaling_false_classification():
     np.random.seed(0)
@@ -134,7 +141,8 @@ def test_perform_feature_scaling_false_classification():
         , 'pclass': 'categorical'
     }
 
-    ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+    ml_predictor = Predictor(type_of_estimator='classifier',
+                             column_descriptions=column_descriptions)
 
     ml_predictor.train(df_titanic_train, perform_feature_scaling=False)
 
@@ -178,10 +186,10 @@ def test_user_input_func_classification():
         , 'age_bucket': 'categorical'
     }
 
-    ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+    ml_predictor = Predictor(type_of_estimator='classifier',
+                             column_descriptions=column_descriptions)
 
     ml_predictor.train(df_titanic_train, user_input_func=age_bucketing)
-
 
     file_name = ml_predictor.save(str(random.random()))
 
@@ -193,7 +201,6 @@ def test_user_input_func_classification():
         os.remove(keras_file_name)
     except:
         pass
-
 
     df_titanic_test_dictionaries = df_titanic_test.to_dict('records')
 
@@ -228,14 +235,15 @@ def test_user_input_func_classification():
     print(duration.total_seconds())
 
     # It's very difficult to set a benchmark for speed that will work across all machines.
-    # On my 2013 bottom of the line 15" MacBook Pro, this runs in about 0.8 seconds for 1000 predictions
+    # On my 2013 bottom of the line 15" MacBook Pro,
+    # this runs in about 0.8 seconds for 1000 predictions
     # That's about 1 millisecond per prediction
     # Assuming we might be running on a test box that's pretty weak, multiply by 3
     # Also make sure we're not running unreasonably quickly
     assert 0.2 < duration.total_seconds() < 15
 
-
-    # 3. make sure we're not modifying the dictionaries (the score is the same after running a few experiments as it is the first time)
+    # 3. make sure we're not modifying the dictionaries (the score is the same after
+    # running a few experiments as it is the first time)
 
     predictions = []
     for row in df_titanic_test_dictionaries:
@@ -256,7 +264,6 @@ def test_user_input_func_classification():
 def test_binary_classification_predict_on_Predictor_instance():
     np.random.seed(0)
 
-
     df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
     ml_predictor = utils.train_basic_binary_classifier(df_titanic_train)
 
@@ -272,7 +279,8 @@ def test_multilabel_classification_predict_on_Predictor_instance():
     np.random.seed(0)
 
     df_twitter_train, df_twitter_test = utils.get_twitter_sentiment_multilabel_classification_dataset()
-    # Note that this does not take 'text' into account, intentionally (as that takes a while longer to train)
+    # Note that this does not take 'text' into account, intentionally
+    # (as that takes a while longer to train)
     ml_predictor = utils.train_basic_multilabel_classifier(df_twitter_train)
 
     predictions = ml_predictor.predict(df_twitter_test)
@@ -285,7 +293,6 @@ def test_multilabel_classification_predict_on_Predictor_instance():
 
 def test_binary_classification_predict_proba_on_Predictor_instance():
     np.random.seed(0)
-
 
     df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
     ml_predictor = utils.train_basic_binary_classifier(df_titanic_train)
@@ -311,7 +318,8 @@ def test_pass_in_list_of_dictionaries_train_classification():
         , 'pclass': 'categorical'
     }
 
-    ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+    ml_predictor = Predictor(type_of_estimator='classifier',
+                             column_descriptions=column_descriptions)
 
     list_titanic_train = df_titanic_train.to_dict('records')
 
@@ -337,7 +345,8 @@ def test_pass_in_list_of_dictionaries_predict_classification():
         , 'pclass': 'categorical'
     }
 
-    ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+    ml_predictor = Predictor(type_of_estimator='classifier',
+                             column_descriptions=column_descriptions)
 
     list_titanic_train = df_titanic_train.to_dict('records')
 
@@ -363,7 +372,8 @@ def test_include_bad_y_vals_train_classification():
         , 'pclass': 'categorical'
     }
 
-    ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+    ml_predictor = Predictor(type_of_estimator='classifier',
+                             column_descriptions=column_descriptions)
 
     df_titanic_train.iloc[1]['survived'] = None
     df_titanic_train.iloc[8]['survived'] = None
@@ -392,7 +402,8 @@ def test_include_bad_y_vals_predict_classification():
         , 'pclass': 'categorical'
     }
 
-    ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+    ml_predictor = Predictor(type_of_estimator='classifier',
+                             column_descriptions=column_descriptions)
 
     df_titanic_test.iloc[1]['survived'] = float('nan')
     df_titanic_test.iloc[8]['survived'] = float('inf')
@@ -421,7 +432,8 @@ def test_list_of_single_model_name_classification():
         , 'pclass': 'categorical'
     }
 
-    ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+    ml_predictor = Predictor(type_of_estimator='classifier',
+                             column_descriptions=column_descriptions)
 
     ml_predictor.train(df_titanic_train, model_names=[model_name])
 
@@ -431,6 +443,7 @@ def test_list_of_single_model_name_classification():
     print(test_score)
 
     assert -0.16 < test_score < -0.135
+
 
 if os.environ.get('TRAVIS_PYTHON_VERSION', '0') != '3.5':
     def test_getting_single_predictions_nlp_date_multilabel_classification():
@@ -448,7 +461,8 @@ if os.environ.get('TRAVIS_PYTHON_VERSION', '0') != '3.5':
             , 'tweet_created': 'date'
         }
 
-        ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+        ml_predictor = Predictor(type_of_estimator='classifier',
+                                 column_descriptions=column_descriptions)
         ml_predictor.train(df_twitter_train)
 
         file_name = ml_predictor.save(str(random.random()))
@@ -499,7 +513,6 @@ if os.environ.get('TRAVIS_PYTHON_VERSION', '0') != '3.5':
         # Also make sure we're not running unreasonably quickly
         assert 0.2 < duration.total_seconds() < 15
 
-
         # 3. make sure we're not modifying the dictionaries (the score is the same after running a few experiments as it is the first time)
 
         predictions = []
@@ -515,4 +528,3 @@ if os.environ.get('TRAVIS_PYTHON_VERSION', '0') != '3.5':
         print(second_score)
         # Make sure our score is good, but not unreasonably good
         assert lower_bound < second_score < 0.79
-

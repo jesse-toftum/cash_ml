@@ -1,21 +1,16 @@
 import os
 import sys
+
+import numpy as np
+import pandas as pd
+
+import tests.utils_testing as utils
+from auto_ml import Predictor
+
 sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
 sys.path = [os.path.abspath(os.path.dirname(os.path.dirname(__file__)))] + sys.path
 
-
 os.environ['is_test_suite'] = 'True'
-
-from auto_ml import Predictor
-
-import dill
-from nose.tools import assert_equal, assert_not_equal, with_setup
-import numpy as np
-import pandas as pd
-from sklearn.model_selection import train_test_split
-
-import tests.utils_testing as utils
-
 
 
 def test_predict_uncertainty_true():
@@ -23,10 +18,7 @@ def test_predict_uncertainty_true():
 
     df_boston_train, df_boston_test = utils.get_boston_regression_dataset()
 
-    column_descriptions = {
-        'MEDV': 'output'
-        , 'CHAS': 'categorical'
-    }
+    column_descriptions = {'MEDV': 'output', 'CHAS': 'categorical'}
 
     ml_predictor = Predictor(type_of_estimator='regressor', column_descriptions=column_descriptions)
 
@@ -74,10 +66,7 @@ def test_prediction_intervals_actually_work():
 
     df_boston_train, df_boston_test = utils.get_boston_regression_dataset()
 
-    column_descriptions = {
-        'MEDV': 'output'
-        , 'CHAS': 'categorical'
-    }
+    column_descriptions = {'MEDV': 'output', 'CHAS': 'categorical'}
 
     ml_predictor = Predictor(type_of_estimator='regressor', column_descriptions=column_descriptions)
 
@@ -112,10 +101,7 @@ def test_prediction_intervals_lets_the_user_specify_number_of_intervals():
 
     df_boston_train, df_boston_test = utils.get_boston_regression_dataset()
 
-    column_descriptions = {
-        'MEDV': 'output'
-        , 'CHAS': 'categorical'
-    }
+    column_descriptions = {'MEDV': 'output', 'CHAS': 'categorical'}
 
     ml_predictor = Predictor(type_of_estimator='regressor', column_descriptions=column_descriptions)
 
@@ -131,10 +117,7 @@ def test_predict_intervals_should_fail_if_not_trained():
 
     df_boston_train, df_boston_test = utils.get_boston_regression_dataset()
 
-    column_descriptions = {
-        'MEDV': 'output'
-        , 'CHAS': 'categorical'
-    }
+    column_descriptions = {'MEDV': 'output', 'CHAS': 'categorical'}
 
     ml_predictor = Predictor(type_of_estimator='regressor', column_descriptions=column_descriptions)
 
@@ -147,17 +130,12 @@ def test_predict_intervals_should_fail_if_not_trained():
         assert True
 
 
-
-
 def test_predict_intervals_takes_in_custom_intervals():
     np.random.seed(0)
 
     df_boston_train, df_boston_test = utils.get_boston_regression_dataset()
 
-    column_descriptions = {
-        'MEDV': 'output'
-        , 'CHAS': 'categorical'
-    }
+    column_descriptions = {'MEDV': 'output', 'CHAS': 'categorical'}
 
     ml_predictor = Predictor(type_of_estimator='regressor', column_descriptions=column_descriptions)
 
@@ -190,7 +168,6 @@ def test_predict_intervals_takes_in_custom_intervals():
     assert df_intervals.shape[0] == df_boston_test.shape[0]
     assert isinstance(df_intervals, pd.DataFrame)
 
-
     # Now make sure that the interval values are actually different
     ml_predictor = Predictor(type_of_estimator='regressor', column_descriptions=column_descriptions)
 
@@ -198,7 +175,8 @@ def test_predict_intervals_takes_in_custom_intervals():
 
     default_intervals = ml_predictor.predict_intervals(df_boston_test, return_type='list')
 
-    # This is a super flaky test, because we've got such a small datasize, and we're trying to get distributions from it
+    # This is a super flaky test, because we've got such a small datasize,
+    # and we're trying to get distributions from it
     len_intervals = len(custom_intervals)
     num_failures = 0
     for idx, custom_row in enumerate(custom_intervals):

@@ -1,22 +1,22 @@
-import dill
 import os
-import random
-import sys
 
-from auto_ml import utils
-from auto_ml import utils_categorical_ensembling
-
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, ExtraTreesRegressor, AdaBoostRegressor, GradientBoostingRegressor, GradientBoostingClassifier, ExtraTreesClassifier, AdaBoostClassifier
-
-from sklearn.linear_model import RANSACRegressor, LinearRegression, Ridge, Lasso, ElasticNet, LassoLars, OrthogonalMatchingPursuit, BayesianRidge, ARDRegression, SGDRegressor, PassiveAggressiveRegressor, LogisticRegression, RidgeClassifier, SGDClassifier, Perceptron, PassiveAggressiveClassifier
-
+import dill
+from sklearn.cluster import MiniBatchKMeans
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, ExtraTreesRegressor, \
+    AdaBoostRegressor, GradientBoostingRegressor, GradientBoostingClassifier, ExtraTreesClassifier, \
+    AdaBoostClassifier
+from sklearn.linear_model import RANSACRegressor, LinearRegression, Ridge, Lasso, ElasticNet, \
+    LassoLars, OrthogonalMatchingPursuit, BayesianRidge, ARDRegression, SGDRegressor, \
+    PassiveAggressiveRegressor, LogisticRegression, RidgeClassifier, SGDClassifier, Perceptron, \
+    PassiveAggressiveClassifier
 from sklearn.svm import LinearSVC, LinearSVR
 
-from sklearn.cluster import MiniBatchKMeans
+from auto_ml import utils_categorical_ensembling
 
 xgb_installed = False
 try:
     from xgboost import XGBClassifier, XGBRegressor
+
     xgb_installed = True
 except ImportError:
     pass
@@ -24,6 +24,7 @@ except ImportError:
 lgb_installed = False
 try:
     from lightgbm import LGBMRegressor, LGBMClassifier
+
     lgb_installed = True
 except ImportError:
     pass
@@ -33,10 +34,10 @@ except OSError:
 catboost_installed = False
 try:
     from catboost import CatBoostRegressor, CatBoostClassifier
+
     catboost_installed = True
 except ImportError:
     pass
-
 
 keras_imported = False
 maxnorm = None
@@ -54,10 +55,10 @@ KerasRegressor = None
 KerasClassifier = None
 Activation = None
 
-# Note: it's important that importing tensorflow come last. We can run into OpenCL issues if we import it ahead of some other packages. At the moment, it's a known behavior with tensorflow, but everyone's ok with this workaround.
 
-
-
+# Note: it's important that importing tensorflow come last. We can run into OpenCL issues if we
+# import it ahead of some other packages. At the moment, it's a known behavior with tensorflow,
+# but everyone's ok with this workaround.
 
 
 def get_model_from_name(model_name, training_params=None, is_hp_search=False):
@@ -66,8 +67,8 @@ def get_model_from_name(model_name, training_params=None, is_hp_search=False):
     # For Keras
     epochs = 1000
     # if os.environ.get('is_test_suite', 0) == 'True' and model_name[:12] == 'DeepLearning':
-    #     print('Heard that this is the test suite. Limiting number of epochs, which will increase training speed dramatically at the expense of model accuracy')
-    #     epochs = 100
+    # print('Heard that this is the test suite. Limiting number of epochs, which will increase
+    # training speed dramatically at the expense of model accuracy') epochs = 100
 
     all_model_params = {
         'LogisticRegression': {},
@@ -87,8 +88,10 @@ def get_model_from_name(model_name, training_params=None, is_hp_search=False):
         'SGDRegressor': {'shuffle': False},
         'PassiveAggressiveRegressor': {'shuffle': False},
         'AdaBoostRegressor': {},
-        'LGBMRegressor': {'n_estimators': 2000, 'learning_rate': 0.15, 'num_leaves': 8, 'lambda_l2': 0.001, 'histogram_pool_size': 16384},
-        'LGBMClassifier': {'n_estimators': 2000, 'learning_rate': 0.15, 'num_leaves': 8, 'lambda_l2': 0.001, 'histogram_pool_size': 16384},
+        'LGBMRegressor': {'n_estimators': 2000, 'learning_rate': 0.15, 'num_leaves': 8,
+                          'lambda_l2': 0.001, 'histogram_pool_size': 16384},
+        'LGBMClassifier': {'n_estimators': 2000, 'learning_rate': 0.15, 'num_leaves': 8,
+                           'lambda_l2': 0.001, 'histogram_pool_size': 16384},
         'DeepLearningRegressor': {'epochs': epochs, 'batch_size': 50, 'verbose': 2},
         'DeepLearningClassifier': {'epochs': epochs, 'batch_size': 50, 'verbose': 2},
         'CatBoostRegressor': {},
@@ -108,15 +111,16 @@ def get_model_from_name(model_name, training_params=None, is_hp_search=False):
         if model_name[:4] == 'LGBM':
             model_params['n_estimators'] = 500
 
-
     if training_params is not None:
         print('Now using the model training_params that you passed in:')
         print(training_params)
-        # Overwrite our stock params with what the user passes in (i.e., if the user wants 10,000 trees, we will let them do it)
+        # Overwrite our stock params with what the user passes in (i.e., if the user wants 10,
+        # 000 trees, we will let them do it)
         model_params.update(training_params)
-        print('After overwriting our defaults with your values, here are the final params that will be used to initialize the model:')
+        print(
+            'After overwriting our defaults with your values, here are the final params that will '
+            'be used to initialize the model:')
         print(model_params)
-
 
     model_map = {
         # Classifiers
@@ -154,9 +158,11 @@ def get_model_from_name(model_name, training_params=None, is_hp_search=False):
     try:
         model_map['SGDClassifier'] = SGDClassifier(max_iter=1000, tol=0.001)
         model_map['Perceptron'] = Perceptron(max_iter=1000, tol=0.001)
-        model_map['PassiveAggressiveClassifier'] = PassiveAggressiveClassifier(max_iter=1000, tol=0.001)
+        model_map['PassiveAggressiveClassifier'] = PassiveAggressiveClassifier(max_iter=1000,
+                                                                               tol=0.001)
         model_map['SGDRegressor'] = SGDRegressor(max_iter=1000, tol=0.001)
-        model_map['PassiveAggressiveRegressor'] = PassiveAggressiveRegressor(max_iter=1000, tol=0.001)
+        model_map['PassiveAggressiveRegressor'] = PassiveAggressiveRegressor(max_iter=1000,
+                                                                             tol=0.001)
     except TypeError:
         model_map['SGDClassifier'] = SGDClassifier()
         model_map['Perceptron'] = Perceptron()
@@ -178,7 +184,8 @@ def get_model_from_name(model_name, training_params=None, is_hp_search=False):
 
     if model_name[:12] == 'DeepLearning':
         if keras_imported == False:
-            # Suppress some level of logs if TF is installed (but allow it to not be installed, and use Theano instead)
+            # Suppress some level of logs if TF is installed (but allow it to not be installed,
+            # and use Theano instead)
             try:
                 os.environ['TF_CPP_MIN_VLOG_LEVEL'] = '3'
                 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -196,23 +203,20 @@ def get_model_from_name(model_name, training_params=None, is_hp_search=False):
             global Activation
             global KerasRegressor, KerasClassifier
 
-            from keras.constraints import maxnorm
-            from keras.layers import Activation, Dense, Dropout
-            from keras.layers.advanced_activations import LeakyReLU, PReLU, ThresholdedReLU, ELU
-            from keras.models import Sequential
-            from keras.models import load_model as keras_load_model
-            from keras import regularizers, optimizers
             from keras.wrappers.scikit_learn import KerasRegressor, KerasClassifier
             keras_imported = True
 
-        model_map['DeepLearningClassifier'] = KerasClassifier(build_fn=make_deep_learning_classifier)
+        model_map['DeepLearningClassifier'] = KerasClassifier(
+            build_fn=make_deep_learning_classifier)
         model_map['DeepLearningRegressor'] = KerasRegressor(build_fn=make_deep_learning_model)
 
     try:
         model_without_params = model_map[model_name]
     except KeyError as e:
-        print('It appears you are trying to use a library that is not available when we try to import it, or using a value for model_names that we do not recognize')
-        raise(e)
+        print(
+            'It appears you are trying to use a library that is not available when we try to '
+            'import it, or using a value for model_names that we do not recognize')
+        raise (e)
 
     if os.environ.get('is_test_suite', False) == 'True':
         if 'n_jobs' in model_params:
@@ -302,6 +306,7 @@ def get_name_from_model(model):
         if isinstance(model, CatBoostRegressor):
             return 'CatBoostRegressor'
 
+
 # Hyperparameter search spaces for each model
 def get_search_params(model_name):
     grid_search_params = {
@@ -333,8 +338,11 @@ def get_search_params(model_name):
                 # [1, 2, 2, 1]
             ]
             , 'dropout_rate': [0.0, 0.2, 0.4, 0.6, 0.8]
-            , 'kernel_initializer': ['uniform', 'lecun_uniform', 'normal', 'zero', 'glorot_normal', 'glorot_uniform', 'he_normal', 'he_uniform']
-            , 'activation': ['tanh', 'softmax', 'elu', 'softplus', 'softsign', 'relu', 'sigmoid', 'hard_sigmoid', 'linear', 'LeakyReLU', 'PReLU', 'ELU', 'ThresholdedReLU']
+            , 'kernel_initializer': ['uniform', 'lecun_uniform', 'normal', 'zero', 'glorot_normal',
+                                     'glorot_uniform', 'he_normal', 'he_uniform']
+            , 'activation': ['tanh', 'softmax', 'elu', 'softplus', 'softsign', 'relu', 'sigmoid',
+                             'hard_sigmoid', 'linear', 'LeakyReLU', 'PReLU', 'ELU',
+                             'ThresholdedReLU']
             , 'batch_size': [16, 32, 64, 128, 256, 512]
             , 'optimizer': ['SGD', 'RMSprop', 'Adagrad', 'Adadelta', 'Adam', 'Adamax', 'Nadam']
         },
@@ -357,7 +365,9 @@ def get_search_params(model_name):
             ]
             , 'batch_size': [16, 32, 64, 128, 256, 512]
             , 'optimizer': ['SGD', 'RMSprop', 'Adagrad', 'Adadelta', 'Adam', 'Adamax', 'Nadam']
-            , 'activation': ['tanh', 'softmax', 'elu', 'softplus', 'softsign', 'relu', 'sigmoid', 'hard_sigmoid', 'linear', 'LeakyReLU', 'PReLU', 'ELU', 'ThresholdedReLU']
+            , 'activation': ['tanh', 'softmax', 'elu', 'softplus', 'softsign', 'relu', 'sigmoid',
+                             'hard_sigmoid', 'linear', 'LeakyReLU', 'PReLU', 'ELU',
+                             'ThresholdedReLU']
             # , 'epochs': [2, 4, 6, 10, 20]
             # , 'batch_size': [10, 25, 50, 100, 200, 1000]
             # , 'lr': [0.001, 0.01, 0.1, 0.3]
@@ -393,7 +403,7 @@ def get_search_params(model_name):
             'max_depth': [1, 2, 3, 4, 5, 7, 10, 15],
             'max_features': ['sqrt', 'log2', None],
             'loss': ['ls', 'huber'],
-            'learning_rate': [0.001, 0.01, 0.05,  0.1, 0.2],
+            'learning_rate': [0.001, 0.01, 0.05, 0.1, 0.2],
             'n_estimators': [10, 50, 75, 100, 125, 150, 200, 500, 1000, 2000],
             'subsample': [0.5, 0.65, 0.8, 0.9, 0.95, 1.0]
         },
@@ -401,7 +411,7 @@ def get_search_params(model_name):
             'loss': ['deviance', 'exponential'],
             'max_depth': [1, 2, 3, 4, 5, 7, 10, 15],
             'max_features': ['sqrt', 'log2', None],
-            'learning_rate': [0.001, 0.01, 0.05,  0.1, 0.2],
+            'learning_rate': [0.001, 0.01, 0.05, 0.1, 0.2],
             'subsample': [0.5, 0.65, 0.8, 0.9, 0.95, 1.0],
             'n_estimators': [10, 50, 75, 100, 125, 150, 200, 500, 1000, 2000],
 
@@ -447,7 +457,7 @@ def get_search_params(model_name):
         },
         'AdaBoostRegressor': {
             'base_estimator': [None, LinearRegression(n_jobs=-1)],
-            'loss': ['linear','square','exponential']
+            'loss': ['linear', 'square', 'exponential']
         },
         'RANSACRegressor': {
             'min_samples': [None, .1, 100, 1000, 10000],
@@ -505,7 +515,8 @@ def get_search_params(model_name):
         },
 
         'SGDClassifier': {
-            'loss': ['hinge', 'log', 'modified_huber', 'squared_hinge', 'perceptron', 'squared_loss', 'huber', 'epsilon_insensitive', 'squared_epsilon_insensitive'],
+            'loss': ['hinge', 'log', 'modified_huber', 'squared_hinge', 'perceptron',
+                     'squared_loss', 'huber', 'epsilon_insensitive', 'squared_epsilon_insensitive'],
             'penalty': ['none', 'l2', 'l1', 'elasticnet'],
             'alpha': [.0000001, .000001, .00001, .0001, .001],
             'learning_rate': ['constant', 'optimal', 'invscaling'],
@@ -527,7 +538,8 @@ def get_search_params(model_name):
         , 'LGBMClassifier': {
             'boosting_type': ['gbdt', 'dart']
             , 'min_child_samples': [1, 5, 7, 10, 15, 20, 35, 50, 100, 200, 500, 1000]
-            , 'num_leaves': [2, 4, 7, 10, 15, 20, 25, 30, 35, 40, 50, 65, 80, 100, 125, 150, 200, 250]
+            ,
+            'num_leaves': [2, 4, 7, 10, 15, 20, 25, 30, 35, 40, 50, 65, 80, 100, 125, 150, 200, 250]
             , 'colsample_bytree': [0.7, 0.9, 1.0]
             , 'subsample': [0.7, 0.9, 1.0]
             , 'learning_rate': [0.01, 0.05, 0.1]
@@ -537,7 +549,8 @@ def get_search_params(model_name):
         , 'LGBMRegressor': {
             'boosting_type': ['gbdt', 'dart']
             , 'min_child_samples': [1, 5, 7, 10, 15, 20, 35, 50, 100, 200, 500, 1000]
-            , 'num_leaves': [2, 4, 7, 10, 15, 20, 25, 30, 35, 40, 50, 65, 80, 100, 125, 150, 200, 250]
+            ,
+            'num_leaves': [2, 4, 7, 10, 15, 20, 25, 30, 35, 40, 50, 65, 80, 100, 125, 150, 200, 250]
             , 'colsample_bytree': [0.7, 0.9, 1.0]
             , 'subsample': [0.7, 0.9, 1.0]
             , 'learning_rate': [0.01, 0.05, 0.1]
@@ -573,7 +586,8 @@ def get_search_params(model_name):
 
     }
 
-    # Some of these are super expensive to compute. So if we're running this in a test suite, let's make sure the structure works, but reduce the compute time
+    # Some of these are super expensive to compute. So if we're running this in a test suite,
+    # let's make sure the structure works, but reduce the compute time
     params = grid_search_params[model_name]
     if os.environ.get('is_test_suite', 0) == 'True' and model_name[:8] == 'CatBoost':
         simplified_params = {}
@@ -593,11 +607,12 @@ def insert_deep_learning_model(pipeline_step, file_name):
 
     model = keras_load_model(keras_file_name)
 
-    # Put the model back in place so that we can still use it to get predictions without having to load it back in from disk
+    # Put the model back in place so that we can still use it to get predictions without having
+    # to load it back in from disk
     return model
 
-def load_ml_model(file_name):
 
+def load_ml_model(file_name):
     with open(file_name, 'rb') as read_file:
         base_pipeline = dill.load(read_file)
 
@@ -606,7 +621,8 @@ def load_ml_model(file_name):
             pipeline_step = base_pipeline.transformation_pipeline.named_steps[step]
 
             try:
-                if pipeline_step.get('model_name', 'reallylongnonsensicalstring')[:12] == 'DeepLearning':
+                if pipeline_step.get('model_name', 'reallylongnonsensicalstring')[
+                   :12] == 'DeepLearning':
                     pipeline_step.model = insert_deep_learning_model(pipeline_step, file_name)
             except AttributeError:
                 pass
@@ -615,7 +631,8 @@ def load_ml_model(file_name):
             pipeline_step = base_pipeline.trained_models[step]
 
             try:
-                if pipeline_step.get('model_name', 'reallylongnonsensicalstring')[:12] == 'DeepLearning':
+                if pipeline_step.get('model_name', 'reallylongnonsensicalstring')[
+                   :12] == 'DeepLearning':
                     pipeline_step.model = insert_deep_learning_model(pipeline_step, file_name)
             except AttributeError:
                 pass
@@ -625,16 +642,19 @@ def load_ml_model(file_name):
         for step in base_pipeline.named_steps:
             pipeline_step = base_pipeline.named_steps[step]
             try:
-                if pipeline_step.get('model_name', 'reallylongnonsensicalstring')[:12] == 'DeepLearning':
+                if pipeline_step.get('model_name', 'reallylongnonsensicalstring')[
+                   :12] == 'DeepLearning':
                     pipeline_step.model = insert_deep_learning_model(pipeline_step, file_name)
             except AttributeError:
                 pass
 
     return base_pipeline
 
+
 # Keeping this here for legacy support
 def load_keras_model(file_name):
     return load_ml_model(file_name)
+
 
 # For many activations, we can just pass the activation name into Activations
 # For some others, we have to import them as their own standalone activation function
@@ -649,6 +669,7 @@ def get_activation_layer(activation):
         return ThresholdedReLU()
 
     return Activation(activation)
+
 
 # TODO: same for optimizers, including clipnorm
 def get_optimizer(name='Adadelta'):
@@ -671,77 +692,98 @@ def get_optimizer(name='Adadelta'):
 
 
 
-def make_deep_learning_model(hidden_layers=None, num_cols=None, optimizer='Adadelta', dropout_rate=0.2, weight_constraint=0, feature_learning=False, kernel_initializer='normal', activation='elu'):
-
+def make_deep_learning_model(hidden_layers=None, num_cols=None, optimizer='Adadelta',
+                             dropout_rate=0.2, weight_constraint=0, feature_learning=False,
+                             kernel_initializer='normal', activation='elu'):
     if feature_learning == True and hidden_layers is None:
         hidden_layers = [1, 0.75, 0.25]
 
     if hidden_layers is None:
         hidden_layers = [1, 0.75, 0.25]
 
-    # The hidden_layers passed to us is simply describing a shape. it does not know the num_cols we are dealing with, it is simply values of 0.5, 1, and 2, which need to be multiplied by the num_cols
+    # The hidden_layers passed to us is simply describing a shape. it does not know the num_cols
+    # we are dealing with, it is simply values of 0.5, 1, and 2, which need to be multiplied by
+    # the num_cols
     scaled_layers = []
     for layer in hidden_layers:
         scaled_layers.append(min(int(num_cols * layer), 10))
 
-    # If we're training this model for feature_learning, our penultimate layer (our final hidden layer before the "output" layer) will always have 10 neurons, meaning that we always output 10 features from our feature_learning model
+    # If we're training this model for feature_learning, our penultimate layer (our final hidden
+    # layer before the "output" layer) will always have 10 neurons, meaning that we always output
+    #  10 features from our feature_learning model
     if feature_learning == True:
         scaled_layers.append(10)
 
     model = Sequential()
 
-    model.add(Dense(scaled_layers[0], input_dim=num_cols, kernel_initializer=kernel_initializer, kernel_regularizer=regularizers.l2(0.01)))
+    model.add(Dense(scaled_layers[0], input_dim=num_cols, kernel_initializer=kernel_initializer,
+                    kernel_regularizer=regularizers.l2(0.01)))
     model.add(get_activation_layer(activation))
 
     for layer_size in scaled_layers[1:-1]:
-        model.add(Dense(layer_size, kernel_initializer=kernel_initializer, kernel_regularizer=regularizers.l2(0.01)))
+        model.add(Dense(layer_size, kernel_initializer=kernel_initializer,
+                        kernel_regularizer=regularizers.l2(0.01)))
         model.add(get_activation_layer(activation))
 
-    # There are times we will want the output from our penultimate layer, not the final layer, so give it a name that makes the penultimate layer easy to find
-    model.add(Dense(scaled_layers[-1], kernel_initializer=kernel_initializer, name='penultimate_layer', kernel_regularizer=regularizers.l2(0.01)))
+    # There are times we will want the output from our penultimate layer, not the final layer,
+    # so give it a name that makes the penultimate layer easy to find
+    model.add(
+        Dense(scaled_layers[-1], kernel_initializer=kernel_initializer, name='penultimate_layer',
+              kernel_regularizer=regularizers.l2(0.01)))
     model.add(get_activation_layer(activation))
 
     # For regressors, we want an output layer with a single node
     model.add(Dense(1, kernel_initializer=kernel_initializer))
 
-
     # The final step is to compile the model
-    model.compile(loss='mean_squared_error', optimizer=get_optimizer(optimizer), metrics=['mean_absolute_error', 'mean_absolute_percentage_error'])
+    model.compile(loss='mean_squared_error', optimizer=get_optimizer(optimizer),
+                  metrics=['mean_absolute_error', 'mean_absolute_percentage_error'])
 
     return model
 
 
-def make_deep_learning_classifier(hidden_layers=None, num_cols=None, optimizer='Adadelta', dropout_rate=0.2, weight_constraint=0, final_activation='sigmoid', feature_learning=False, activation='elu', kernel_initializer='normal'):
-
+def make_deep_learning_classifier(hidden_layers=None, num_cols=None, optimizer='Adadelta',
+                                  dropout_rate=0.2, weight_constraint=0, final_activation='sigmoid',
+                                  feature_learning=False, activation='elu',
+                                  kernel_initializer='normal'):
     if feature_learning == True and hidden_layers is None:
         hidden_layers = [1, 0.75, 0.25]
 
     if hidden_layers is None:
         hidden_layers = [1, 0.75, 0.25]
 
-    # The hidden_layers passed to us is simply describing a shape. it does not know the num_cols we are dealing with, it is simply values of 0.5, 1, and 2, which need to be multiplied by the num_cols
+    # The hidden_layers passed to us is simply describing a shape. it does not know the num_cols
+    # we are dealing with, it is simply values of 0.5, 1, and 2, which need to be multiplied by
+    # the num_cols
     scaled_layers = []
     for layer in hidden_layers:
         scaled_layers.append(min(int(num_cols * layer), 10))
 
-    # If we're training this model for feature_learning, our penultimate layer (our final hidden layer before the "output" layer) will always have 10 neurons, meaning that we always output 10 features from our feature_learning model
+    # If we're training this model for feature_learning, our penultimate layer (our final hidden
+    # layer before the "output" layer) will always have 10 neurons, meaning that we always output
+    #  10 features from our feature_learning model
     if feature_learning == True:
         scaled_layers.append(10)
 
-
     model = Sequential()
 
-    # There are times we will want the output from our penultimate layer, not the final layer, so give it a name that makes the penultimate layer easy to find
-    model.add(Dense(scaled_layers[0], input_dim=num_cols, kernel_initializer=kernel_initializer, kernel_regularizer=regularizers.l2(0.01)))
+    # There are times we will want the output from our penultimate layer, not the final layer,
+    # so give it a name that makes the penultimate layer easy to find
+    model.add(Dense(scaled_layers[0], input_dim=num_cols, kernel_initializer=kernel_initializer,
+                    kernel_regularizer=regularizers.l2(0.01)))
     model.add(get_activation_layer(activation))
 
     for layer_size in scaled_layers[1:-1]:
-        model.add(Dense(layer_size, kernel_initializer=kernel_initializer, kernel_regularizer=regularizers.l2(0.01)))
+        model.add(Dense(layer_size, kernel_initializer=kernel_initializer,
+                        kernel_regularizer=regularizers.l2(0.01)))
         model.add(get_activation_layer(activation))
 
-    model.add(Dense(scaled_layers[-1], kernel_initializer=kernel_initializer, name='penultimate_layer', kernel_regularizer=regularizers.l2(0.01)))
+    model.add(
+        Dense(scaled_layers[-1], kernel_initializer=kernel_initializer, name='penultimate_layer',
+              kernel_regularizer=regularizers.l2(0.01)))
     model.add(get_activation_layer(activation))
 
     model.add(Dense(1, kernel_initializer=kernel_initializer, activation=final_activation))
-    model.compile(loss='binary_crossentropy', optimizer=get_optimizer(optimizer), metrics=['accuracy', 'poisson'])
+    model.compile(loss='binary_crossentropy', optimizer=get_optimizer(optimizer),
+                  metrics=['accuracy', 'poisson'])
     return model

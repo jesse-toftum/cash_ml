@@ -2,37 +2,36 @@ import datetime
 import os
 import random
 import sys
-sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
 
-from auto_ml import Predictor
-from auto_ml.utils_models import load_ml_model
-
-
-import dill
 import numpy as np
-import pandas as pd
-from nose.tools import assert_equal, assert_not_equal, with_setup
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
 import tests.utils_testing as utils
+from auto_ml import Predictor
+from auto_ml.utils_models import load_ml_model
+
+sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
+
 
 def optimize_final_model_classification(model_name=None):
     np.random.seed(0)
 
     df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
-    # We just want to make sure these run, not necessarily make sure that they're super accurate (which takes more time, and is dataset dependent)
+    # We just want to make sure these run, not necessarily make sure that they're super accurate
+    # (which takes more time, and is dataset dependent)
     df_titanic_train = df_titanic_train.sample(frac=0.5)
 
     column_descriptions = {
-        'survived': 'output'
-        , 'sex': 'categorical'
-        , 'embarked': 'categorical'
-        , 'pclass': 'categorical'
+        'survived': 'output',
+        'sex': 'categorical',
+        'embarked': 'categorical',
+        'pclass': 'categorical'
     }
 
-    ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+    ml_predictor = Predictor(
+        type_of_estimator='classifier', column_descriptions=column_descriptions)
 
     ml_predictor.train(df_titanic_train, optimize_final_model=True, model_names=model_name)
 
@@ -61,15 +60,17 @@ def categorical_ensembling_classification(model_name=None):
     df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
-        'survived': 'output'
-        , 'sex': 'categorical'
-        , 'embarked': 'categorical'
-        , 'pclass': 'categorical'
+        'survived': 'output',
+        'sex': 'categorical',
+        'embarked': 'categorical',
+        'pclass': 'categorical'
     }
 
-    ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+    ml_predictor = Predictor(
+        type_of_estimator='classifier', column_descriptions=column_descriptions)
 
-    ml_predictor.train_categorical_ensemble(df_titanic_train, model_names=model_name, categorical_column='embarked')
+    ml_predictor.train_categorical_ensemble(
+        df_titanic_train, model_names=model_name, categorical_column='embarked')
 
     test_score = ml_predictor.score(df_titanic_test, df_titanic_test.survived)
 
@@ -86,7 +87,6 @@ def categorical_ensembling_classification(model_name=None):
     if model_name == 'CatBoostClassifier':
         upper_bound = -0.137
 
-
     assert lower_bound < test_score < upper_bound
 
 
@@ -96,13 +96,14 @@ def getting_single_predictions_classification(model_name=None):
     df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
-        'survived': 'output'
-        , 'sex': 'categorical'
-        , 'embarked': 'categorical'
-        , 'pclass': 'categorical'
+        'survived': 'output',
+        'sex': 'categorical',
+        'embarked': 'categorical',
+        'pclass': 'categorical'
     }
 
-    ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+    ml_predictor = Predictor(
+        type_of_estimator='classifier', column_descriptions=column_descriptions)
 
     ml_predictor.train(df_titanic_train, model_names=model_name)
 
@@ -116,7 +117,6 @@ def getting_single_predictions_classification(model_name=None):
         os.remove(keras_file_name)
     except:
         pass
-
 
     df_titanic_test_dictionaries = df_titanic_test.to_dict('records')
 
@@ -157,14 +157,15 @@ def getting_single_predictions_classification(model_name=None):
     print(duration.total_seconds())
 
     # It's very difficult to set a benchmark for speed that will work across all machines.
-    # On my 2013 bottom of the line 15" MacBook Pro, this runs in about 0.8 seconds for 1000 predictions
+    # On my 2013 bottom of the line 15" MacBook Pro,
+    # this runs in about 0.8 seconds for 1000 predictions
     # That's about 1 millisecond per prediction
     # Assuming we might be running on a test box that's pretty weak, multiply by 3
     # Also make sure we're not running unreasonably quickly
     assert 0.2 < duration.total_seconds() < 60
 
-
-    # 3. make sure we're not modifying the dictionaries (the score is the same after running a few experiments as it is the first time)
+    # 3. make sure we're not modifying the dictionaries
+    # (the score is the same after running a few experiments as it is the first time)
 
     predictions = []
     for row in df_titanic_test_dictionaries:
@@ -189,18 +190,20 @@ def getting_single_predictions_multilabel_classification(model_name=None):
 
     np.random.seed(0)
 
-    df_twitter_train, df_twitter_test = utils.get_twitter_sentiment_multilabel_classification_dataset()
+    df_twitter_train, df_twitter_test = utils.get_twitter_sentiment_multilabel_classification_dataset(
+    )
 
     column_descriptions = {
-        'airline_sentiment': 'output'
-        , 'airline': 'categorical'
-        , 'text': 'ignore'
-        , 'tweet_location': 'categorical'
-        , 'user_timezone': 'categorical'
-        , 'tweet_created': 'date'
+        'airline_sentiment': 'output',
+        'airline': 'categorical',
+        'text': 'ignore',
+        'tweet_location': 'categorical',
+        'user_timezone': 'categorical',
+        'tweet_created': 'date'
     }
 
-    ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+    ml_predictor = Predictor(
+        type_of_estimator='classifier', column_descriptions=column_descriptions)
     ml_predictor.train(df_twitter_train, model_names=model_name)
 
     file_name = ml_predictor.save(str(random.random()))
@@ -213,7 +216,6 @@ def getting_single_predictions_multilabel_classification(model_name=None):
         os.remove(keras_file_name)
     except:
         pass
-
 
     df_twitter_test_dictionaries = df_twitter_test.to_dict('records')
 
@@ -249,14 +251,15 @@ def getting_single_predictions_multilabel_classification(model_name=None):
     print(duration.total_seconds())
 
     # It's very difficult to set a benchmark for speed that will work across all machines.
-    # On my 2013 bottom of the line 15" MacBook Pro, this runs in about 0.8 seconds for 1000 predictions
+    # On my 2013 bottom of the line 15" MacBook Pro,
+    # this runs in about 0.8 seconds for 1000 predictions
     # That's about 1 millisecond per prediction
     # Assuming we might be running on a test box that's pretty weak, multiply by 3
     # Also make sure we're not running unreasonably quickly
     assert 0.2 < duration.total_seconds() < 60
 
-
-    # 3. make sure we're not modifying the dictionaries (the score is the same after running a few experiments as it is the first time)
+    # 3. make sure we're not modifying the dictionaries
+    # (the score is the same after running a few experiments as it is the first time)
 
     predictions = []
     for row in df_twitter_test_dictionaries:
@@ -279,17 +282,20 @@ def feature_learning_getting_single_predictions_classification(model_name=None):
     df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
-        'survived': 'output'
-        , 'sex': 'categorical'
-        , 'embarked': 'categorical'
-        , 'pclass': 'categorical'
+        'survived': 'output',
+        'sex': 'categorical',
+        'embarked': 'categorical',
+        'pclass': 'categorical'
     }
 
-    ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+    ml_predictor = Predictor(
+        type_of_estimator='classifier', column_descriptions=column_descriptions)
 
-    # NOTE: this is bad practice to pass in our same training set as our fl_data set, but we don't have enough data to do it any other way
+    # NOTE: this is bad practice to pass in our same training set as our fl_data set,
+    # but we don't have enough data to do it any other way
     df_titanic_train, fl_data = train_test_split(df_titanic_train, test_size=0.2)
-    ml_predictor.train(df_titanic_train, model_names=model_name, feature_learning=True, fl_data=fl_data)
+    ml_predictor.train(
+        df_titanic_train, model_names=model_name, feature_learning=True, fl_data=fl_data)
 
     file_name = ml_predictor.save(str(random.random()))
 
@@ -301,7 +307,6 @@ def feature_learning_getting_single_predictions_classification(model_name=None):
         os.remove(keras_file_name)
     except:
         pass
-
 
     df_titanic_test_dictionaries = df_titanic_test.to_dict('records')
 
@@ -338,14 +343,15 @@ def feature_learning_getting_single_predictions_classification(model_name=None):
     print(duration.total_seconds())
 
     # It's very difficult to set a benchmark for speed that will work across all machines.
-    # On my 2013 bottom of the line 15" MacBook Pro, this runs in about 0.8 seconds for 1000 predictions
+    # On my 2013 bottom of the line 15" MacBook Pro,
+    # this runs in about 0.8 seconds for 1000 predictions
     # That's about 1 millisecond per prediction
     # Assuming we might be running on a test box that's pretty weak, multiply by 3
     # Also make sure we're not running unreasonably quickly
     assert 0.2 < duration.total_seconds() < 60
 
-
-    # 3. make sure we're not modifying the dictionaries (the score is the same after running a few experiments as it is the first time)
+    # 3. make sure we're not modifying the dictionaries
+    # (the score is the same after running a few experiments as it is the first time)
 
     predictions = []
     for row in df_titanic_test_dictionaries:
@@ -363,23 +369,31 @@ def feature_learning_getting_single_predictions_classification(model_name=None):
     assert lower_bound < second_score < -0.133
 
 
-def feature_learning_categorical_ensembling_getting_single_predictions_classification(model_name=None):
+def feature_learning_categorical_ensembling_getting_single_predictions_classification(
+        model_name=None):
     np.random.seed(0)
 
     df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
-        'survived': 'output'
-        , 'sex': 'categorical'
-        , 'embarked': 'categorical'
-        , 'pclass': 'categorical'
+        'survived': 'output',
+        'sex': 'categorical',
+        'embarked': 'categorical',
+        'pclass': 'categorical'
     }
 
-    ml_predictor = Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
+    ml_predictor = Predictor(
+        type_of_estimator='classifier', column_descriptions=column_descriptions)
 
-    # NOTE: this is bad practice to pass in our same training set as our fl_data set, but we don't have enough data to do it any other way
+    # NOTE: this is bad practice to pass in our same training set as our fl_data set,
+    # but we don't have enough data to do it any other way
     df_titanic_train, fl_data = train_test_split(df_titanic_train, test_size=0.2)
-    ml_predictor.train_categorical_ensemble(df_titanic_train, model_names=model_name, feature_learning=True, fl_data=fl_data, categorical_column='embarked')
+    ml_predictor.train_categorical_ensemble(
+        df_titanic_train,
+        model_names=model_name,
+        feature_learning=True,
+        fl_data=fl_data,
+        categorical_column='embarked')
 
     file_name = ml_predictor.save(str(random.random()))
 
@@ -393,7 +407,6 @@ def feature_learning_categorical_ensembling_getting_single_predictions_classific
         os.remove(keras_file_name)
     except:
         pass
-
 
     df_titanic_test_dictionaries = df_titanic_test.to_dict('records')
 
@@ -432,14 +445,15 @@ def feature_learning_categorical_ensembling_getting_single_predictions_classific
     print(duration.total_seconds())
 
     # It's very difficult to set a benchmark for speed that will work across all machines.
-    # On my 2013 bottom of the line 15" MacBook Pro, this runs in about 0.8 seconds for 1000 predictions
+    # On my 2013 bottom of the line 15" MacBook Pro,
+    # this runs in about 0.8 seconds for 1000 predictions
     # That's about 1 millisecond per prediction
     # Assuming we might be running on a test box that's pretty weak, multiply by 3
     # Also make sure we're not running unreasonably quickly
     assert 0.2 < duration.total_seconds() < 60
 
-
-    # 3. make sure we're not modifying the dictionaries (the score is the same after running a few experiments as it is the first time)
+    # 3. make sure we're not modifying the dictionaries
+    # (the score is the same after running a few experiments as it is the first time)
 
     predictions = []
     for row in df_titanic_test_dictionaries:

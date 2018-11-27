@@ -2,30 +2,26 @@ import datetime
 import os
 import random
 import sys
-sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
 
+import numpy as np
+
+import tests.utils_testing as utils
 from auto_ml import Predictor
 from auto_ml.utils_models import load_ml_model
 
-import dill
-from nose.tools import assert_equal, assert_not_equal, with_setup
-import numpy as np
-from sklearn.model_selection import train_test_split
+sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
 
-import tests.utils_testing as utils
 
 def optimize_final_model_regression(model_name=None):
     np.random.seed(0)
 
     df_boston_train, df_boston_test = utils.get_boston_regression_dataset()
 
-    # We just want to make sure these run, not necessarily make sure that they're super accurate (which takes more time, and is dataset dependent)
+    # We just want to make sure these run, not necessarily make sure that they're super accurate
+    # (which takes more time, and is dataset dependent)
     df_boston_train = df_boston_train.sample(frac=0.5)
 
-    column_descriptions = {
-        'MEDV': 'output'
-        , 'CHAS': 'categorical'
-    }
+    column_descriptions = {'MEDV': 'output', 'CHAS': 'categorical'}
 
     ml_predictor = Predictor(type_of_estimator='regressor', column_descriptions=column_descriptions)
 
@@ -53,16 +49,12 @@ def optimize_final_model_regression(model_name=None):
     assert lower_bound < test_score < -2.75
 
 
-
 def getting_single_predictions_regression(model_name=None):
     np.random.seed(0)
 
     df_boston_train, df_boston_test = utils.get_boston_regression_dataset()
 
-    column_descriptions = {
-        'MEDV': 'output'
-        , 'CHAS': 'categorical'
-    }
+    column_descriptions = {'MEDV': 'output', 'CHAS': 'categorical'}
 
     ml_predictor = Predictor(type_of_estimator='regressor', column_descriptions=column_descriptions)
 
@@ -78,7 +70,6 @@ def getting_single_predictions_regression(model_name=None):
         os.remove(keras_file_name)
     except:
         pass
-
 
     df_boston_test_dictionaries = df_boston_test.to_dict('records')
 
@@ -124,14 +115,16 @@ def getting_single_predictions_regression(model_name=None):
     print(duration.total_seconds())
 
     # It's very difficult to set a benchmark for speed that will work across all machines.
-    # On my 2013 bottom of the line 15" MacBook Pro, this runs in about 0.8 seconds for 1000 predictions
+    # On my 2013 bottom of the line 15" MacBook Pro,
+    # this runs in about 0.8 seconds for 1000 predictions
+
     # That's about 1 millisecond per prediction
     # Assuming we might be running on a test box that's pretty weak, multiply by 3
     # Also make sure we're not running unreasonably quickly
     assert 0.1 < duration.total_seconds() / 1.0 < 60
 
-
-    # 3. make sure we're not modifying the dictionaries (the score is the same after running a few experiments as it is the first time)
+    # 3. make sure we're not modifying the dictionaries (the score is the same after running a
+    # few experiments as it is the first time)
 
     predictions = []
     for row in df_boston_test_dictionaries:
@@ -143,4 +136,3 @@ def getting_single_predictions_regression(model_name=None):
     # Make sure our score is good, but not unreasonably good
 
     assert lower_bound < second_score < -2.7
-
