@@ -24,7 +24,7 @@ os.environ['is_test_suite'] = 'True'
 def test_bad_val_in_column_descriptions():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
+    utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -35,8 +35,7 @@ def test_bad_val_in_column_descriptions():
     }
 
     with warnings.catch_warnings(record=True) as w:
-        ml_predictor = Predictor(
-            type_of_estimator='classifier', column_descriptions=column_descriptions)
+        Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
         print('we should be throwing a warning for the user to give them useful feedback')
         assert len(w) == 1
 
@@ -47,33 +46,32 @@ def test_bad_val_in_column_descriptions():
 def test_missing_output_col_in_column_descriptions():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
+    utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
-        # 'survived': 'output'
+    # 'survived': 'output'
         'sex': 'categorical',
         'embarked': 'categorical',
         'pclass': 'categorical'
     }
 
-    ml_predictor = Predictor(
-        type_of_estimator='classifier', column_descriptions=column_descriptions)
+    Predictor(type_of_estimator='classifier', column_descriptions=column_descriptions)
 
 
 @raises(ValueError)
 def test_bad_val_for_type_of_estimator():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
+    utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
-        # 'survived': 'output'
+    # 'survived': 'output'
         'sex': 'categorical',
         'embarked': 'categorical',
         'pclass': 'categorical'
     }
 
-    ml_predictor = Predictor(
+    Predictor(
         type_of_estimator='invalid_type_of_estimator', column_descriptions=column_descriptions)
 
 
@@ -251,14 +249,14 @@ def test_unmarked_categorical_column_throws_warning():
 
     column_descriptions = {
         'survived':
-            'output'
-        # This is the column we are "forgetting" to mark as categorical
-        # , 'sex': 'categorical'
+        'output'
+    # This is the column we are "forgetting" to mark as categorical
+    # , 'sex': 'categorical'
         ,
         'embarked':
-            'categorical',
+        'categorical',
         'pclass':
-            'categorical'
+        'categorical'
     }
 
     ml_predictor = Predictor(

@@ -12,7 +12,7 @@ sys.path = [os.path.abspath(os.path.dirname(os.path.dirname(__file__)))] + sys.p
 
 os.environ['is_test_suite'] = 'True'
 
-
+# TODO: Fix test
 def test_calibrate_final_model_classification():
     np.random.seed(0)
 

@@ -81,6 +81,7 @@ setup(
         'scipy>=0.14.0',
         'sklearn-deap2>=0.2.1',
         'tabulate>=0.7.5',
+        'tables>=3.4.0',
     ],
     test_suite='nose.collector',
     tests_require=['nose', 'coveralls'])

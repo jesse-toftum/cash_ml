@@ -61,6 +61,7 @@ def test_predict_uncertainty_true():
         assert True
 
 
+# TODO: Fix test
 def test_prediction_intervals_actually_work():
     np.random.seed(0)
 
@@ -96,6 +97,7 @@ def test_prediction_intervals_actually_work():
     assert pct_over < 0.1
 
 
+# TODO: Fix test
 def test_prediction_intervals_lets_the_user_specify_number_of_intervals():
     np.random.seed(0)
 
@@ -124,12 +126,13 @@ def test_predict_intervals_should_fail_if_not_trained():
     ml_predictor.train(df_boston_train)
 
     try:
-        intervals = ml_predictor.predict_intervals(df_boston_test)
+        ml_predictor.predict_intervals(df_boston_test)
         assert False
     except ValueError:
         assert True
 
 
+# TODO: Fix test
 def test_predict_intervals_takes_in_custom_intervals():
     np.random.seed(0)
 
@@ -139,8 +142,6 @@ def test_predict_intervals_takes_in_custom_intervals():
 
     ml_predictor = Predictor(type_of_estimator='regressor', column_descriptions=column_descriptions)
 
-    # df_boston_train = pd.concat([df_boston_train, df_boston_train, df_boston_train])
-
     ml_predictor.train(df_boston_train, predict_intervals=[0.4, 0.6])
 
     custom_intervals = ml_predictor.predict_intervals(df_boston_test, return_type='list')
@@ -149,7 +150,7 @@ def test_predict_intervals_takes_in_custom_intervals():
 
     singles = df_boston_test.head().to_dict('records')
 
-    acceptable_keys = set(['prediction', 'interval_0.4', 'interval_0.6'])
+    acceptable_keys = {'prediction', 'interval_0.4', 'interval_0.6'}
     for row in singles:
         result = ml_predictor.predict_intervals(row)
         assert isinstance(result, dict)
