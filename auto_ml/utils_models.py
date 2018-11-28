@@ -224,8 +224,8 @@ def get_model_from_name(model_name, training_params=None, is_hp_search=False):
         model_map['LGBMClassifier'] = LGBMClassifier()
 
     if catboost_installed:
-        model_map['CatBoostRegressor'] = CatBoostRegressor(calc_feature_importance=True)
-        model_map['CatBoostClassifier'] = CatBoostClassifier(calc_feature_importance=True)
+        model_map['CatBoostRegressor'] = CatBoostRegressor()
+        model_map['CatBoostClassifier'] = CatBoostClassifier()
 
     if model_name[:12] == 'DeepLearning':
         if not keras_installed:

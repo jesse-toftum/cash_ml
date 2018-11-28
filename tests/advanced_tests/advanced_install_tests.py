@@ -15,7 +15,6 @@ sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
 os.environ['is_test_suite'] = 'True'
 
 
-# TODO: Fix test
 def test_feature_learning_getting_single_predictions_classification(model_name=None):
     np.random.seed(0)
 
@@ -109,7 +108,6 @@ def test_feature_learning_getting_single_predictions_classification(model_name=N
     assert lower_bound < second_score < -0.133
 
 
-# TODO: Fix test
 def test_feature_learning_categorical_ensembling_getting_single_predictions_classification(
         model_name=None):
     np.random.seed(0)
@@ -212,7 +210,6 @@ def test_feature_learning_categorical_ensembling_getting_single_predictions_clas
     assert lower_bound < second_score < -0.147
 
 
-# TODO: Fix test
 def test_feature_learning_getting_single_predictions_regression(model_name=None):
     np.random.seed(0)
 
@@ -295,7 +292,6 @@ def test_feature_learning_getting_single_predictions_regression(model_name=None)
     assert lower_bound < second_score < -2.8
 
 
-# TODO: Fix test
 def test_feature_learning_categorical_ensembling_getting_single_predictions_regression(
         model_name=None):
     np.random.seed(0)
@@ -386,7 +382,6 @@ def test_feature_learning_categorical_ensembling_getting_single_predictions_regr
     assert lower_bound < second_score < -3.4
 
 
-# TODO: Fix test
 def test_all_algos_classification(model_name=None):
     np.random.seed(0)
 
@@ -420,7 +415,6 @@ def test_all_algos_classification(model_name=None):
     assert -0.215 < test_score < -0.131
 
 
-# TODO: Fix test
 def test_all_algos_regression():
     # a random seed of 42 has ExtraTreesRegressor getting the best CV score,
     # and that model doesn't generalize as well as GradientBoostingRegressor.
@@ -450,7 +444,6 @@ def test_all_algos_regression():
     assert -3.4 < test_score < -2.8
 
 
-# TODO: Fix test
 def test_throws_warning_when_fl_data_equals_df_train():
     df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 

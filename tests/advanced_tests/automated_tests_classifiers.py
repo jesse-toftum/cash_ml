@@ -22,7 +22,8 @@ test_names = OrderedDict([
     # ('feature_learning_categorical_ensembling_getting_single_predictions_classification', classifier_tests.feature_learning_categorical_ensembling_getting_single_predictions_classification)
 ])
 
-
+# TODO: Fix test for LGBMClassifier
+# Failing LGBMClassifier_getting_single_predictions_multilabel_classification
 def test_generator():
     for model_name in training_parameters['model_names']:
         for test_name, test in test_names.items():
