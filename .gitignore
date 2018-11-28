@@ -1,4 +1,5 @@
 *.csv
+*.json
 *.dill
 *.h5
 *.npy
@@ -23,6 +24,7 @@ old_data/*
 t2.py
 venv/*
 xgboost/*
+catboost_info/*
 
 # For PyCharm
 .idea/
