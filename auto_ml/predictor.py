@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 import pathos
 import scipy
+# evolutionary_search uses deap
 from evolutionary_search import EvolutionaryAlgorithmSearchCV
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import accuracy_score
@@ -31,6 +32,16 @@ from auto_ml import utils_models
 from auto_ml import utils_scaling
 from auto_ml import utils_scoring
 from auto_ml._version import __version__ as auto_ml_version
+
+# TODO: Warn user of issues arising with deap not having correct dependencies.
+# The issue manifests itself by throwing "ImportWarning: Falling back to the python version of
+# hypervolume module. Expect this to be very slow."
+# Current plans for how to inform the user:
+# print('deap is missing some dependencies. Some potential fixes you can run include:\n')
+# print('pip install --upgrade --upgrade-strategy "eager" --force-reinstall --ignore-installed '
+#           '--compile --process-dependency-links --no-binary :all: deap\n')
+# print('conda install -c conda-forge deap\n')
+# print('https://github.com/DEAP/deap/issues/240 may also provide more information.')
 
 # Ultimately, we (the authors of auto_ml) are responsible for building a project that's robust
 # against warnings. The classes of warnings below are ones we've deemed acceptable. The user
