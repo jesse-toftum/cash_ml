@@ -256,7 +256,7 @@ def getting_single_predictions_multilabel_classification(model_name=None):
     # That's about 1 millisecond per prediction
     # Assuming we might be running on a test box that's pretty weak, multiply by 3
     # Also make sure we're not running unreasonably quickly
-    assert 0.2 < duration.total_seconds() < 60
+    assert 0.05 < duration.total_seconds() < 60
 
     # 3. make sure we're not modifying the dictionaries
     # (the score is the same after running a few experiments as it is the first time)

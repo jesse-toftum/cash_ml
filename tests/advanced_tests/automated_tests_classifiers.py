@@ -23,9 +23,6 @@ test_names = OrderedDict([
 ])
 
 
-# TODO: Fix test for LGBMClassifier
-# Fixed somehow on its own???
-# Failing LGBMClassifier_getting_single_predictions_multilabel_classification
 def test_generator():
     for model_name in training_parameters['model_names']:
         for test_name, test in test_names.items():

@@ -82,8 +82,7 @@ def calculate_brier_score_loss(actuals, probas):
 
 
 def get_twitter_sentiment_multilabel_classification_dataset():
-    if not os.path.exists('test_data'):
-        os.mkdir('test_data')
+
     file_name = os.path.join('test_data', 'twitter_sentiment.h5')
 
     try:
@@ -94,7 +93,8 @@ def get_twitter_sentiment_multilabel_classification_dataset():
         dataset_url = 'https://raw.githubusercontent.com/ClimbsRocks/sample_datasets/master/twitter_airline_sentiment.csv'
         df_twitter = pd.read_csv(dataset_url, encoding='latin-1')
         # Do not write the index that pandas automatically creates
-
+        if not os.path.exists('test_data'):
+            os.mkdir('test_data')
         df_twitter.to_hdf(file_name, key='df', format='fixed')
 
     # Grab only 10% of the dataset- runs much faster this way

@@ -5,17 +5,17 @@ import pandas as pd
 from sklearn.ensemble import GradientBoostingRegressor, GradientBoostingClassifier
 from sklearn.metrics import mean_squared_error, brier_score_loss, accuracy_score, \
     explained_variance_score, mean_absolute_error, median_absolute_error, r2_score, log_loss, \
-    roc_auc_score
+    roc_auc_score, f1_score
 from tabulate import tabulate
 
 from auto_ml import utils
 
-bad_vals_as_strings = set([
+bad_vals_as_strings = {
     str(float('nan')),
     str(float('inf')),
     str(float('-inf')), 'None', 'none', 'NaN', 'NAN', 'nan', 'NULL', 'null', '', 'inf', '-inf',
     'np.nan', 'numpy.nan'
-])
+}
 
 
 def advanced_scoring_classifiers(probas, actuals, name=None):
@@ -220,6 +220,7 @@ def rmse_func(y, predictions):
 
 scoring_name_function_map = {
     'rmse': rmse_func,
+    'mean_squared_error': mean_squared_error,
     'median_absolute_error': median_absolute_error,
     'r2': r2_score,
     'r-squared': r2_score,
@@ -228,7 +229,8 @@ scoring_name_function_map = {
     'accuracy_score': accuracy_score,
     'log_loss': log_loss,
     'roc_auc': roc_auc_score,
-    'brier_score_loss': brier_score_loss
+    'brier_score_loss': brier_score_loss,
+    'f1_score': f1_score
 }
 
 
@@ -291,7 +293,7 @@ class RegressionScorer(object):
                   'dataset')
             score = self.scoring_func(y, predictions)
 
-        if advanced_scoring == True:
+        if advanced_scoring:
             if hasattr(estimator, 'name'):
                 print(estimator.name)
             advanced_scoring_regressors(predictions, y, verbose=verbose, name=name)
@@ -327,29 +329,30 @@ class ClassificationScorer(object):
             'for instance, you can probably safely ignore it')
         print('We will cap those values at 0 or 1 for the purposes of scoring, but you should be '
               'careful to have similar safeguards in place in prod if you use this model')
-        if not isinstance(probas[0], list):
-            probas = [val if str(val) not in bad_vals_as_strings else 0 for val in probas]
-            probas = [min(max(pred, 0), 1) for pred in probas]
-            return probas
-        else:
-            cleaned_probas = []
-            for proba_tuple in probas:
-                cleaned_tuple = []
-                for item in proba_tuple:
-                    if str(item) in bad_vals_as_strings:
-                        item = 0
-                    cleaned_tuple.append(max(min(item, 1), 0))
-                cleaned_probas.append(cleaned_tuple)
-            return cleaned_probas
+        probas = np.array(probas)
+        np.place(probas, np.isin(probas.astype(str), bad_vals_as_strings), 0)
+        np.place(probas, probas > 1, 1)
+        np.place(probas, probas < 0, 0)
+        return probas
 
     def score(self, estimator, X, y, advanced_scoring=False):
-
         X, y = utils.drop_missing_y_vals(X, y, output_column=None)
 
         if isinstance(estimator, GradientBoostingClassifier):
             X = X.toarray()
 
-        predictions = estimator.predict_proba(X)
+        predictions = np.array(estimator.predict_proba(X))
+
+        kwargs = {}
+        if np.unique(y).size > 2 or predictions.ndim > 1:
+            if self.scoring_method in ['log_loss', 'roc_auc']:
+                y = np.array(y)
+                y_one_hot = np.zeros((y.size, y.max() + 1))
+                y_one_hot[np.arange(y.size), y] = 1
+                y = y_one_hot
+            if self.scoring_method in ['f1_score']:
+                predictions = predictions.argmax(axis=1)
+                kwargs['average'] = 'weighted'
 
         if self.scoring_method == 'brier_score_loss':
             # At the moment, Microsoft's LightGBM returns probabilities > 1 and < 0, which can
@@ -359,7 +362,7 @@ class ClassificationScorer(object):
             predictions = probas
 
         try:
-            score = self.scoring_func(y, predictions)
+            score = self.scoring_func(y, predictions, **kwargs)
         except ValueError as e:
             bad_val_indices = []
             for idx, val in enumerate(y):
@@ -382,8 +385,10 @@ class ClassificationScorer(object):
                 #  enough data and reasonable params
                 predictions = self.clean_probas(predictions)
                 score = self.scoring_func(y, predictions)
+        if self.scoring_method in ['accuracy', 'accuracy_score', 'roc_auc', 'f1_score']:
+            score *= -1    # value needs to go up to optimize these
 
         if advanced_scoring:
-            return (-1 * score, predictions)
+            return -1 * score, predictions
         else:
             return -1 * score
