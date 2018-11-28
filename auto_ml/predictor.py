@@ -55,10 +55,7 @@ pd.options.mode.chained_assignment = None    # default='warn'
 
 # For handling parallelism edge cases
 def _pickle_method(m):
-    if get_method_self(m) is None:
-        return getattr, (get_method_self(m), get_method_function(m).__name__)
-    else:
-        return getattr, (get_method_self(m), get_method_function(m).__name__)
+    return getattr, (get_method_self(m), get_method_function(m).__name__)
 
 
 try:
