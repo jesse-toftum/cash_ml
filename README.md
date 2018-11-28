@@ -90,7 +90,7 @@ Depending on your machine, they can occasionally be difficult to install, so the
 
 
 ## Feature Responses
-Get linear-model-esque interpretations from non-linear models. See the [docs](http://auto-ml.readthedocs.io/en/latest/feature_responses.html) for more information and caveats.
+Get linear-model-esque interpretations from non-linear models. Currently the docs do not yet exist for this fork :(
 
 
 ## Classification
@@ -121,7 +121,7 @@ Just tell us which column holds the category you want to split on, and we'll han
 
 ### More details available in the docs
 
-http://auto-ml.readthedocs.io/en/latest/
+Currently the docs do not yet exist for this fork :(
 
 
 ### Advice
@@ -129,12 +129,6 @@ http://auto-ml.readthedocs.io/en/latest/
 Before you go any further, try running the code. Load up some data (either a DataFrame, or a list of dictionaries, where each dictionary is a row of data). Make a `column_descriptions` dictionary that tells us which attribute name in each row represents the value we're trying to predict. Pass all that into `auto_ml`, and see what happens!
 
 Everything else in these docs assumes you have done at least the above. Start there and everything else will build on top. But this part gets you the output you're probably interested in, without unnecessary complexity.
-
-
-## Docs
-
-The full docs are available at https://auto_ml.readthedocs.io
-Again though, I'd strongly recommend running this on an actual dataset before referencing the docs any futher.
 
 
 ## What this project does
@@ -164,5 +158,3 @@ If you've cloned the source code and are making any changes (highly encouraged!)
 CI is also set up, so if you're developing on this, you can just open a PR, and the tests will run automatically on Travis-CI.
 
 The tests are relatively comprehensive, though as with everything with auto_ml, I happily welcome your contributions here!
-
-[![Analytics](https://ga-beacon.appspot.com/UA-58170643-5/auto_ml/readme)](https://github.com/igrigorik/ga-beacon)
