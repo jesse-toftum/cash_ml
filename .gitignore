@@ -8,6 +8,7 @@
 *.pkl
 *.pyc
 *.txt
+*.tfevents
 *.tsv
 .DS_Store
 .coverage*
@@ -24,7 +25,7 @@ old_data/*
 t2.py
 venv/*
 xgboost/*
-catboost_info/*
+*/catboost_info/*
 
 # For PyCharm
 .idea/
