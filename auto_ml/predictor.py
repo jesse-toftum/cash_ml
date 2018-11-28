@@ -783,7 +783,6 @@ class Predictor(object):
         for idx in range(10):
             feature_learning_names.append('feature_learning_' + str(idx + 1))
 
-        # TODO:
         self.transformation_pipeline.named_steps['dv'].feature_names_ += feature_learning_names
 
         # add the estimator to the end of our transformation pipeline
@@ -835,7 +834,6 @@ class Predictor(object):
               advanced_analytics=None,
               analytics_config=None,
               prediction_intervals=None,
-              predict_intervals=None,
               ensemble_config=None,
               trained_transformation_pipeline=None,
               transformed_X=None,
@@ -878,7 +876,6 @@ class Predictor(object):
             uncertainty_calibration_data=uncertainty_calibration_data,
             uncertainty_delta_direction=uncertainty_delta_direction,
             prediction_intervals=prediction_intervals,
-            predict_intervals=predict_intervals,
             ensemble_config=ensemble_config,
             trained_transformation_pipeline=trained_transformation_pipeline,
             transformed_X=transformed_X,
@@ -945,10 +942,10 @@ class Predictor(object):
             self.trained_final_model.model = self._calibrate_final_model(
                 self.trained_final_model.model, X_test, y_test)
 
-        if self.calculate_prediction_intervals is True:
+        if prediction_intervals is not None:
             # TODO: parallelize these!
             interval_predictors = []
-            for percentile in self.prediction_intervals:
+            for percentile in prediction_intervals:
                 interval_predictor = self.train_ml_estimator(['GradientBoostingRegressor'],
                                                              self._scorer,
                                                              X_df,

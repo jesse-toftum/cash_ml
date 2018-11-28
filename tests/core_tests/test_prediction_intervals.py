@@ -107,7 +107,7 @@ def test_prediction_intervals_lets_the_user_specify_number_of_intervals():
 
     ml_predictor = Predictor(type_of_estimator='regressor', column_descriptions=column_descriptions)
 
-    ml_predictor.train(df_boston_train, predict_intervals=True, prediction_intervals=[.2])
+    ml_predictor.train(df_boston_train, prediction_intervals=[.2])
 
     intervals = ml_predictor.predict_intervals(df_boston_test, return_type='list')
 
@@ -142,7 +142,7 @@ def test_predict_intervals_takes_in_custom_intervals():
 
     ml_predictor = Predictor(type_of_estimator='regressor', column_descriptions=column_descriptions)
 
-    ml_predictor.train(df_boston_train, predict_intervals=[0.4, 0.6])
+    ml_predictor.train(df_boston_train, prediction_intervals=[0.4, 0.6])
 
     custom_intervals = ml_predictor.predict_intervals(df_boston_test, return_type='list')
 
@@ -172,7 +172,7 @@ def test_predict_intervals_takes_in_custom_intervals():
     # Now make sure that the interval values are actually different
     ml_predictor = Predictor(type_of_estimator='regressor', column_descriptions=column_descriptions)
 
-    ml_predictor.train(df_boston_train, predict_intervals=True)
+    ml_predictor.train(df_boston_train, prediction_intervals=[0.05, 0.95])
 
     default_intervals = ml_predictor.predict_intervals(df_boston_test, return_type='list')
 
@@ -183,11 +183,13 @@ def test_predict_intervals_takes_in_custom_intervals():
     for idx, custom_row in enumerate(custom_intervals):
         default_row = default_intervals[idx]
 
-        if int(custom_row[1]) <= int(default_row[1]):
+        # Why were all of these floating point numbers being converted to ints?
+        if custom_row[1] <= default_row[1]:
             num_failures += 1
             print('{} should be higher than {}'.format(custom_row[1], default_row[1]))
-        if int(custom_row[2]) >= int(default_row[2]):
+        if custom_row[2] >= default_row[2]:
             print('{} should be lower than {}'.format(custom_row[1], default_row[1]))
             num_failures += 1
 
+    # What the heck is this even supposed to be testing for?
     assert num_failures < 0.18 * len_intervals
