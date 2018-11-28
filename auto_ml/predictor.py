@@ -15,6 +15,7 @@ import pathos
 import scipy
 # evolutionary_search uses deap
 from evolutionary_search import EvolutionaryAlgorithmSearchCV
+from six import get_method_function, get_method_self
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GridSearchCV, train_test_split
@@ -54,10 +55,10 @@ pd.options.mode.chained_assignment = None    # default='warn'
 
 # For handling parallelism edge cases
 def _pickle_method(m):
-    if m.im_self is None:
-        return getattr, (m.im_class, m.im_func.func_name)
+    if get_method_self(m) is None:
+        return getattr, (get_method_self(m), get_method_function(m).__name__)
     else:
-        return getattr, (m.im_self, m.im_func.func_name)
+        return getattr, (get_method_self(m), get_method_function(m).__name__)
 
 
 try:

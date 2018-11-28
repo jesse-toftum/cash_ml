@@ -76,6 +76,7 @@ setup(
         'pathos>=0.2.1',
         'scikit-learn>=0.18.1',
         'scipy>=0.14.0',
+        'six>=1.11.0',
         'sklearn-deap2>=0.2.1',
         'tabulate>=0.7.5',
         'tables>=3.4.0',
