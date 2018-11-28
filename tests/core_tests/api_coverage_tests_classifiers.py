@@ -153,7 +153,6 @@ def test_perform_feature_scaling_false_classification():
 
     assert -0.16 < test_score < -0.14
 
-# TODO: Fix test
 def test_user_input_func_classification():
     np.random.seed(0)
 
@@ -273,7 +272,6 @@ def test_binary_classification_predict_on_predictor_instance():
     print(test_score)
     assert .77 < test_score < .805
 
-# TODO: Fix test
 def test_multilabel_classification_predict_on_predictor_instance():
     np.random.seed(0)
 
@@ -445,7 +443,6 @@ def test_list_of_single_model_name_classification():
 
 
 if os.environ.get('TRAVIS_PYTHON_VERSION', '0') != '3.5':
-    # TODO: Fix test
     def test_getting_single_predictions_nlp_date_multilabel_classification():
 
         np.random.seed(0)

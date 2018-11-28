@@ -32,11 +32,13 @@ def test_calibrate_final_model_classification():
     ml_predictor = Predictor(
         type_of_estimator='classifier', column_descriptions=column_descriptions)
 
+    X_test = df_titanic_calibration
+    y_test = df_titanic_calibration.survived
     ml_predictor.train(
         df_titanic_train,
         calibrate_final_model=True,
-        X_test=df_titanic_calibration,
-        y_test=df_titanic_calibration.survived)
+        X_test=X_test,
+        y_test=y_test)
 
     test_score = ml_predictor.score(df_titanic_test, df_titanic_test.survived)
 

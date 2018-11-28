@@ -142,7 +142,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
         if self.model_name[:12] == 'DeepLearning':
             try:
 
-                if self.is_hp_search == True:
+                if self.is_hp_search:
                     patience = 5
                     verbose = 0
                 else:
@@ -221,7 +221,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                 X_fit = X_fit.toarray()
 
             verbose = True
-            if self.is_hp_search == True:
+            if self.is_hp_search:
                 verbose = False
 
             train_dynamic_n_estimators = False
@@ -241,7 +241,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                     eval_name = 'random_holdout_set_from_training_data'
 
                 if self.type_of_estimator == 'regressor':
-                    if self.training_prediction_intervals == True:
+                    if self.training_prediction_intervals:
                         eval_metric = 'quantile'
                     else:
                         eval_metric = 'rmse'
@@ -252,7 +252,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                         eval_metric = 'binary_logloss'
 
             cat_feature_indices = self.get_categorical_feature_indices()
-            if self.memory_optimized == True:
+            if self.memory_optimized:
                 X_fit.to_csv('_lgbm_dataset.csv')
                 del X_fit
 
@@ -330,7 +330,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                     self.model.set_params(n_estimators=num_iter, warm_start=warm_start)
                     self.model.fit(X_fit, y)
 
-                    if self.training_prediction_intervals == True:
+                    if self.training_prediction_intervals:
                         val_loss = self.model.score(X_test, y_test)
                     else:
                         try:
@@ -458,7 +458,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                 nlp_example = feature
                 training_features.remove(feature)
 
-        if print_nlp_warning == True:
+        if print_nlp_warning:
             print('\n\nWe found an NLP column in the training data')
             print(
                 'verify_features() currently does not support checking all of the values within an NLP column, so if the text of your NLP column has dramatically changed, you will have to check that yourself.'
@@ -468,7 +468,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
 
         training_not_prediction = training_features - prediction_features
 
-        if raw_features_only == True:
+        if raw_features_only:
             training_not_prediction = self.remove_categorical_values(training_not_prediction)
 
         if len(training_not_prediction) > 0:
@@ -482,7 +482,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                 'All of the features this model was trained on are included in the prediction data')
 
         prediction_not_training = prediction_features - training_features
-        if raw_features_only == True:
+        if raw_features_only:
             prediction_not_training = self.remove_categorical_values(prediction_not_training)
 
         if len(prediction_not_training) > 0:
@@ -800,7 +800,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
 
     def get_categorical_feature_indices(self):
         cat_feature_indices = None
-        if self.keep_cat_features == True:
+        if self.keep_cat_features:
             cat_feature_names = [
                 k for k, v in self.column_descriptions.items() if v == 'categorical'
             ]
