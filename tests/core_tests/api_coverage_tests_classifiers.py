@@ -153,6 +153,8 @@ def test_perform_feature_scaling_false_classification():
 
     assert -0.16 < test_score < -0.14
 
+
+# TODO: Fix test
 def test_user_input_func_classification():
     np.random.seed(0)
 
@@ -217,8 +219,6 @@ def test_user_input_func_classification():
     print(first_score)
     # Make sure our score is good, but not unreasonably good
 
-    lower_bound = -0.16
-
     assert -0.16 < first_score < -0.135
 
     # 2. make sure the speed is reasonable (do it a few extra times)
@@ -239,7 +239,7 @@ def test_user_input_func_classification():
     # That's about 1 millisecond per prediction
     # Assuming we might be running on a test box that's pretty weak, multiply by 3
     # Also make sure we're not running unreasonably quickly
-    assert 0.2 < duration.total_seconds() < 15
+    assert 0.05 < duration.total_seconds() < 15
 
     # 3. make sure we're not modifying the dictionaries (the score is the same after
     # running a few experiments as it is the first time)
@@ -271,6 +271,7 @@ def test_binary_classification_predict_on_predictor_instance():
     # Make sure our score is good, but not unreasonably good
     print(test_score)
     assert .77 < test_score < .805
+
 
 def test_multilabel_classification_predict_on_predictor_instance():
     np.random.seed(0)
@@ -443,6 +444,7 @@ def test_list_of_single_model_name_classification():
 
 
 if os.environ.get('TRAVIS_PYTHON_VERSION', '0') != '3.5':
+
     def test_getting_single_predictions_nlp_date_multilabel_classification():
 
         np.random.seed(0)

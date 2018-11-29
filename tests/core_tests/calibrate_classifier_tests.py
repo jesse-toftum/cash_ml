@@ -34,6 +34,8 @@ def test_calibrate_final_model_classification():
 
     X_test = df_titanic_calibration
     y_test = df_titanic_calibration.survived
+    # TODO: Figure out what's going wrong here
+    # Exception: could not convert string to float: 'S'
     ml_predictor.train(
         df_titanic_train,
         calibrate_final_model=True,
