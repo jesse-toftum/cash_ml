@@ -1,7 +1,9 @@
+import copyreg
 import datetime
 import math
 import multiprocessing
 import os
+
 import random
 import sys
 import types
@@ -47,10 +49,10 @@ from auto_ml._version import __version__ as auto_ml_version
 # Ultimately, we (the authors of auto_ml) are responsible for building a project that's robust
 # against warnings. The classes of warnings below are ones we've deemed acceptable. The user
 # should be able to sit at a high level of abstraction, and not be bothered with the internals of
-#  how we're handing these things. Ignore all warnings that are UserWarnings or
-# DeprecationWarnings. We'll fix these ourselves as necessary.
+# how we're handing these things. Ignore all warnings that are DeprecationWarnings.
+# We'll fix these ourselves as necessary.
 warnings.filterwarnings("ignore", category=DeprecationWarning)
-pd.options.mode.chained_assignment = None    # default='warn'
+pd.options.mode.chained_assignment = None
 
 
 # For handling parallelism edge cases
@@ -58,36 +60,28 @@ def _pickle_method(m):
     return getattr, (get_method_self(m), get_method_function(m).__name__)
 
 
-try:
-    import copy_reg
-
-    copy_reg.pickle(types.MethodType, _pickle_method)
-except:
-    import copyreg
-
-    copyreg.pickle(types.MethodType, _pickle_method)
+copyreg.pickle(types.MethodType, _pickle_method)
 
 
 class Predictor(object):
 
     def __init__(self, type_of_estimator, column_descriptions, verbose=True, name=None):
         if type_of_estimator.lower() in [
-                'regressor', 'regression', 'regressions', 'regressors', 'number', 'numeric',
-                'continuous'
+            'regressor', 'regression', 'regressions', 'regressors', 'number', 'numeric',
+            'continuous'
         ]:
             self.type_of_estimator = 'regressor'
         elif type_of_estimator.lower() in [
-                'classifier', 'classification', 'categorizer', 'categorization', 'categories',
-                'labels', 'labeled', 'label'
+            'classifier', 'classification', 'categorizer', 'categorization', 'categories',
+            'labels', 'labeled', 'label'
         ]:
             self.type_of_estimator = 'classifier'
         else:
-            print(
-                'Invalid value for "type_of_estimator". Please pass in either "regressor" or "classifier". You passed in: '
-                + type_of_estimator)
+            print('Invalid value for "type_of_estimator". Please pass in either "regressor" or '
+                  '"classifier". You passed in: ' + type_of_estimator)
             raise ValueError(
-                'Invalid value for "type_of_estimator". Please pass in either "regressor" or "classifier". You passed in: '
-                + type_of_estimator)
+                'Invalid value for "type_of_estimator". Please pass in either "regressor" or '
+                '"classifier". You passed in: ' + type_of_estimator)
         self.column_descriptions = column_descriptions
         self.verbose = verbose
         self.trained_pipeline = None
@@ -131,8 +125,8 @@ class Predictor(object):
                 'In your column_descriptions, please make sure exactly one column has the value '
                 '"output", which is the value we will be training models to predict. ')
 
-        # We will be adding one new categorical variable for each date col
-        # Be sure to add it here so the rest of the pipeline knows to handle it as a categorical column
+        # We will be adding one new categorical variable for each date col. Be sure to add it
+        # here so the rest of the pipeline knows to handle it as a categorical column
         for date_col in self.date_cols:
             self.column_descriptions[date_col + '_day_part'] = 'categorical'
 
@@ -409,8 +403,13 @@ class Predictor(object):
         except KeyError:
             pass
 
-        # We have overloaded our _construct_pipeline method to work both to create a new pipeline from scratch at the start of training, and to go through a trained pipeline in exactly the same order and steps to take a dedicated FeatureSelection model out of an already trained pipeline
-        # In this way, we ensure that we only have to maintain a single centralized piece of logic for the correct order a pipeline should follow
+        # We have overloaded our _construct_pipeline method to work both to create a new pipeline
+        # from scratch at the start of training, and to go through a trained pipeline in exactly
+        # the same order and steps to take a dedicated FeatureSelection model out of an already
+        # trained pipeline
+
+        # In this way, we ensure that we only have to maintain a single centralized piece of
+        # logic for the correct order a pipeline should follow
         trained_pipeline_without_feature_selection = self._construct_pipeline(
             trained_pipeline=transformation_pipeline, final_model=final_model)
 
@@ -1357,9 +1356,9 @@ class Predictor(object):
                     feature_responses, sorted_model_results, sort_field='Coefficients')
 
             elif self.ml_for_analytics and model_name in [
-                    'RandomForestClassifier', 'RandomForestRegressor', 'XGBClassifier',
-                    'XGBRegressor', 'GradientBoostingRegressor', 'GradientBoostingClassifier',
-                    'LGBMRegressor', 'LGBMClassifier', 'CatBoostRegressor', 'CatBoostClassifier'
+                'RandomForestClassifier', 'RandomForestRegressor', 'XGBClassifier',
+                'XGBRegressor', 'GradientBoostingRegressor', 'GradientBoostingClassifier',
+                'LGBMRegressor', 'LGBMClassifier', 'CatBoostRegressor', 'CatBoostClassifier'
             ]:
                 try:
                     df_model_results = self._print_ml_analytics_results_random_forest(model)
@@ -1449,7 +1448,7 @@ class Predictor(object):
         # parallelization itself, which will be less memory intensive than having to duplicate
         # the data for all the cores on the machine
         elif model_name in [
-                'LGBMRegressor', 'LGBMClassifier', 'DeepLearningRegressor', 'DeeplearningClassifier'
+            'LGBMRegressor', 'LGBMClassifier', 'DeepLearningRegressor', 'DeeplearningClassifier'
         ]:
             n_jobs = 1
 
@@ -1458,55 +1457,55 @@ class Predictor(object):
 
         fit_evolutionary_search = False
         if total_combinations >= 50 and model_name not in [
-                'CatBoostClassifier', 'CatBoostRegressor'
+            'CatBoostClassifier', 'CatBoostRegressor'
         ]:
             fit_evolutionary_search = True
         # For some reason, EASCV doesn't play nicely with CatBoost. It blows up the memory
         # hugely, and takes forever to train
         if fit_evolutionary_search:
             gs = EvolutionaryAlgorithmSearchCV(
-            # Fit on the pipeline.
+                # Fit on the pipeline.
                 ppl,
-            # Two splits of cross-validation, by default
+                # Two splits of cross-validation, by default
                 cv=self.cv,
                 params=gs_params,
-            # Train across all cores.
+                # Train across all cores.
                 n_jobs=n_jobs,
-            # Be verbose (lots of printing).
+                # Be verbose (lots of printing).
                 verbose=grid_search_verbose,
-            # Print warnings when we fail to fit a given combination of parameters,
-            # but do not raise an error. Set the score on this partition to some very
-            # negative number, so that we do not choose this estimator.
+                # Print warnings when we fail to fit a given combination of parameters,
+                # but do not raise an error. Set the score on this partition to some very
+                # negative number, so that we do not choose this estimator.
                 error_score=-1000000000,
                 scoring=self._scorer.score,
-            # Don't allocate memory for all jobs upfront. Instead, only allocate enough
-            # memory to handle the current jobs plus an additional 50%
+                # Don't allocate memory for all jobs upfront. Instead, only allocate enough
+                # memory to handle the current jobs plus an additional 50%
                 pre_dispatch='1.5*n_jobs',
-            # The number of
+                # The number of
                 population_size=population_size,
                 gene_mutation_prob=gene_mutation_prob,
                 tournament_size=tournament_size,
                 generations_number=generations_number,
-            # Do not fit the best estimator on all the data- we will do that later, possibly
-            # after increasing epochs or n_estimators
+                # Do not fit the best estimator on all the data- we will do that later, possibly
+                # after increasing epochs or n_estimators
                 refit=refit)
 
         else:
             gs = GridSearchCV(
-            # Fit on the pipeline.
+                # Fit on the pipeline.
                 ppl,
-            # Two splits of cross-validation, by default
+                # Two splits of cross-validation, by default
                 cv=self.cv,
                 param_grid=gs_params,
-            # Train across all cores.
+                # Train across all cores.
                 n_jobs=n_jobs,
-            # Be verbose (lots of printing).
+                # Be verbose (lots of printing).
                 verbose=grid_search_verbose,
-            # Print warnings when we fail to fit a given combination of parameters, but do not raise an error.
-            # Set the score on this partition to some very negative number, so that we do not choose this estimator.
+                # Print warnings when we fail to fit a given combination of parameters, but do not raise an error.
+                # Set the score on this partition to some very negative number, so that we do not choose this estimator.
                 error_score=-1000000000,
                 scoring=self._scorer.score,
-            # Don't allocate memory for all jobs upfront. Instead, only allocate enough memory to handle the current jobs plus an additional 50%
+                # Don't allocate memory for all jobs upfront. Instead, only allocate enough memory to handle the current jobs plus an additional 50%
                 pre_dispatch='1.5*n_jobs',
                 refit=refit)
 
@@ -1881,7 +1880,7 @@ class Predictor(object):
                 category = result['category']
                 self.trained_category_models[category] = result['trained_category_model']
                 if self.search_for_default_category and result[
-                        'len_relevant_X'] > self.len_largest_category:
+                    'len_relevant_X'] > self.len_largest_category:
                     self.default_category = category
                     self.len_largest_category = result['len_relevant_X']
 
