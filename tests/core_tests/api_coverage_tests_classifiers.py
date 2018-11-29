@@ -153,7 +153,6 @@ def test_perform_feature_scaling_false_classification():
 
     assert -0.16 < test_score < -0.14
 
-# TODO: Fix test; probably just a matter of loosening constraints
 def test_user_input_func_classification():
     np.random.seed(0)
 
