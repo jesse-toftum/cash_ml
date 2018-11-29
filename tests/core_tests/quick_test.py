@@ -67,7 +67,7 @@ def regression_test():
 def get_titanic_binary_classification_dataset(basic=True):
     try:
         df_titanic = pd.read_csv(os.path.join('test_data', 'titanic.csv'))
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         print('titanic.csv could not be found, attempting to retrieve from url.')
         dataset_url = 'http://biostat.mc.vanderbilt.edu/wiki/pub/Main/DataSets/titanic3.csv'
         df_titanic = pd.read_csv(dataset_url)
