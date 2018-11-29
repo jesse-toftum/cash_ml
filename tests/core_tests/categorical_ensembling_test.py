@@ -15,7 +15,7 @@ os.environ['is_test_suite'] = 'True'
 def test_categorical_ensemble_basic_classifier():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
+    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
 
     column_descriptions = {
         'survived': 'output'

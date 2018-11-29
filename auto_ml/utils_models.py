@@ -85,6 +85,7 @@ def get_model_from_name(model_name, training_params=None, is_hp_search=False):
             'dual': False
         },
         'LinearRegression': {
+            # TODO: lolwut why -2 jobs
             'n_jobs': -2
         },
         'RandomForestRegressor': {
@@ -153,7 +154,7 @@ def get_model_from_name(model_name, training_params=None, is_hp_search=False):
     if model_params is None:
         model_params = {}
 
-    if is_hp_search == True:
+    if is_hp_search:
         if model_name[:12] == 'DeepLearning':
             model_params['epochs'] = 50
         if model_name[:4] == 'LGBM':
@@ -247,11 +248,10 @@ def get_model_from_name(model_name, training_params=None, is_hp_search=False):
     except KeyError as e:
         print('It appears you are trying to use a library that is not available when we try to '
               'import it, or using a value for model_names that we do not recognize')
-        raise (e)
+        raise e
 
-    if os.environ.get('is_test_suite', False) == 'True':
-        if 'n_jobs' in model_params:
-            model_params['n_jobs'] = 1
+    if os.environ.get('is_test_suite', False) == 'True' and 'n_jobs' in model_params:
+        model_params['n_jobs'] = 1
     model_with_params = model_without_params.set_params(**model_params)
 
     return model_with_params

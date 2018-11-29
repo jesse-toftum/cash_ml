@@ -22,7 +22,7 @@ def get_boston_regression_dataset():
     return df_boston_train, df_boston_test
 
 
-def get_titanic_binary_classification_dataset(basic=True):
+def titanic_binary_class_data(basic=True):
     dir_name = os.path.abspath(os.path.dirname(__file__))
     file_name = os.path.join(dir_name, 'titanic.csv')
     print('file_name')
@@ -81,7 +81,7 @@ def calculate_brier_score_loss(actuals, probas):
     return -1 * brier_score_loss(actuals, probas)
 
 
-def get_twitter_sentiment_multilabel_classification_dataset():
+def twitter_sentiment_multilabel_class_data():
 
     file_name = os.path.join('test_data', 'twitter_sentiment.h5')
 

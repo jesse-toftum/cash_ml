@@ -9,7 +9,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 from auto_ml.utils import CustomLabelEncoder
 
-bad_vals = {
+bad_string_values = {
     float('nan'),
     float('inf'),
     float('-inf'), None, np.nan, 'None', 'none', 'NaN', 'NAN', 'nan', 'NULL', 'null', '', 'inf',
@@ -18,7 +18,7 @@ bad_vals = {
 
 
 def strip_non_ascii(string):
-    ''' Returns the string without non ASCII characters'''
+    """ Returns the string without non ASCII characters"""
     stripped = (c for c in string if 0 < ord(c) < 127)
     return ''.join(stripped)
 
@@ -34,10 +34,10 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
         self.dtype = dtype
         self.separator = separator
         self.sparse = sparse
-        if column_descriptions == None:
+        if column_descriptions is None:
             column_descriptions = {}
         self.column_descriptions = column_descriptions
-        self.vals_to_drop = set(['ignore', 'output', 'regressor', 'classifier'])
+        self.values_to_drop = {'ignore', 'output', 'regressor', 'classifier'}
         self.has_been_restricted = False
         self.keep_cat_features = keep_cat_features
         self.label_encoders = {}
@@ -55,7 +55,8 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
         except AttributeError:
             return default
 
-    def fit(self, X, y=None):
+    # TODO: Simplify
+    def fit(self, train):
         print('Fitting DataFrameVectorizer')
 
         feature_names = []
@@ -64,11 +65,11 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
         # Rearrange X so that all the categorical columns are first
         numerical_columns = []
         categorical_columns = []
-        for col in X.columns:
+        for col in train.columns:
             col_desc = self.column_descriptions.get(col, False)
             if col_desc in [False, 'continuous', 'int', 'float', 'numerical']:
                 numerical_columns.append(col)
-            elif col_desc in self.vals_to_drop:
+            elif col_desc in self.values_to_drop:
                 continue
             elif col_desc == 'categorical':
                 categorical_columns.append(col)
@@ -82,9 +83,9 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
         self.categorical_columns = categorical_columns
 
         new_cols = numerical_columns + categorical_columns
-        X = X[new_cols]
+        train = train[new_cols]
 
-        for col_name in X.columns:
+        for col_name in train.columns:
 
             if self.column_descriptions.get(col_name,
                                             False) == 'categorical' and self.keep_cat_features:
@@ -93,14 +94,14 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
                 self.label_encoders[col_name] = CustomLabelEncoder()
                 # Then, we will use the same flow below to make sure they appear in the vocab
                 # correctly
-                self.label_encoders[col_name].fit(X[col_name])
+                self.label_encoders[col_name].fit(train[col_name])
 
             # We can't do elif here- it has to be inclusive of the logic above
             if self.column_descriptions.get(col_name,
                                             False) == 'categorical' and not self.keep_cat_features:
                 # If this is a categorical column, iterate through each row to get all the
                 # possible values that we are one-hot-encoding.
-                for val in set(X[col_name]):
+                for val in set(train[col_name]):
                     if not isinstance(val, str):
                         if isinstance(val, numbers.Number) or val is None:
                             val = str(val)
@@ -119,23 +120,26 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
                 feature_names.append(col_name)
                 vocab[col_name] = len(vocab)
 
+        # TODO: Refactor into __init__?
         self.feature_names_ = feature_names
         self.vocabulary_ = vocab
         return self
 
-    def _transform(self, X):
+    # TODO: Simplify
+    def _transform(self, train):
 
         dtype = self.dtype
-        feature_names = self.feature_names_
         vocab = self.vocabulary_
 
-        if isinstance(X, dict):
+        if isinstance(train, dict):
 
             indices = array("i")
+            # TODO: Rename this to something that is clearer (once I figure out what it even
+            #  is supposed to be), maybe index pointer?
             indptr = array("i", [0])
             values = []
 
-            for f, val in X.items():
+            for f, val in train.items():
                 if self.column_descriptions.get(f, False) == 'categorical':
                     if not self.get('keep_cat_features', False):
                         if not isinstance(val, str):
@@ -146,12 +150,12 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
                         f = f + self.separator + val
                         val = 1
                     else:
-                        if val in bad_vals:
+                        if val in bad_string_values:
                             val = '_None'
                         val = self.get('label_encoders')[f].transform([val])
 
-                if f in vocab and val not in bad_vals and (self.get('keep_cat_features', False)
-                                                           or not np.isnan(val)):
+                if f in vocab and val not in bad_string_values and (self.get(
+                        'keep_cat_features', False) or not np.isnan(val)):
                     indices.append(vocab[f])
                     # Convert the val to the correct dtype, then append to our values list
                     values.append(dtype(val))
@@ -175,43 +179,44 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
         else:
 
             for col in self.numerical_columns:
-                if col not in X.columns:
-                    X[col] = 0
+                if col not in train.columns:
+                    train[col] = 0
             for col in self.categorical_columns:
-                if col not in X.columns:
-                    X[col] = 0
+                if col not in train.columns:
+                    train[col] = 0
             for col in self.additional_numerical_cols:
-                if col not in X.columns:
-                    X[col] = 0
+                if col not in train.columns:
+                    train[col] = 0
 
-            X.fillna(0, inplace=True)
+            train.fillna(0, inplace=True)
 
             for idx, col in enumerate(self.numerical_columns):
-                if X[col].dtype not in self.numeric_col_types:
-                    X[col] = X[col].astype(np.float32)
+                if train[col].dtype not in self.numeric_col_types:
+                    train[col] = train[col].astype(np.float32)
 
             # Running this in parallel can cause memory crashes if the dataset is too large.
             categorical_vals = list(map(
-                lambda col_name: self.transform_categorical_col(col_vals=list(X[col_name]),
+                lambda col_name: self.transform_categorical_col(col_vals=list(train[col_name]),
                                                                 col_name=col_name),
                 self.categorical_columns))
 
-            X = X[self.numerical_columns]
+            train = train[self.numerical_columns]
             # X.drop(self.categorical_columns, inplace=True, axis=1)
-            X.reset_index(drop=True, inplace=True)
+            train.reset_index(drop=True, inplace=True)
             for result in categorical_vals:
                 result.reset_index(drop=True, inplace=True)
-                X[result.columns] = result
+                train[result.columns] = result
                 del result
 
         if self.keep_cat_features:
-            return X
+            return train
         else:
-            X = sp.csr_matrix(X.values)
-            return X
+            train = sp.csr_matrix(train.values)
+            return train
 
     # We are assuming that each categorical column got a contiguous block of result columns (ie,
     # the 5 categories in City get columns 5-9, not columns 0, 8, 26, 4, and 20)
+    # TODO: Simplify and rename parameters
     def transform_categorical_col(self, col_vals, col_name):
         if self.get('keep_cat_features', False):
             return_vals = self.get('label_encoders')[col_name].transform(col_vals)
@@ -254,7 +259,7 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
             if num_trained_cols != (max_transformed_idx - min_transformed_idx + 1):
                 print('We have somehow ended up with categorical column behavior we were not '
                       'expecting ')
-                raise (ValueError)
+                raise ValueError
 
             for row_idx, val in enumerate(col_vals):
                 if not isinstance(val, str):
@@ -273,8 +278,8 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
             df_result = pd.DataFrame(result.toarray(), columns=encoded_col_names)
             return df_result
 
-    def transform(self, X, y=None):
-        return self._transform(X)
+    def transform(self, train):
+        return self._transform(train)
 
     def get_feature_names(self):
         """Returns a list of feature names, ordered by their indices.
@@ -327,6 +332,7 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
                 elif feature_name in self.additional_numerical_cols:
                     new_additional_numerical_cols.append(feature_name)
 
+        # TODO: Refactor into __init__?
         self.feature_names_ = new_feature_names
         self.vocabulary_ = new_vocab
         self.numerical_columns = new_numerical_cols

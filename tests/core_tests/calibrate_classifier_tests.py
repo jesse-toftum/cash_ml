@@ -12,11 +12,12 @@ sys.path = [os.path.abspath(os.path.dirname(os.path.dirname(__file__)))] + sys.p
 
 os.environ['is_test_suite'] = 'True'
 
+
 # TODO: Fix test
 def test_calibrate_final_model_classification():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
+    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
 
     # Take a third of our test data (a tenth of our overall data) for calibration
     df_titanic_test, df_titanic_calibration = train_test_split(
@@ -34,8 +35,10 @@ def test_calibrate_final_model_classification():
 
     X_test = df_titanic_calibration
     y_test = df_titanic_calibration.survived
-    # TODO: Figure out what's going wrong here
+    # TODO: Kill the bug.
     # Exception: could not convert string to float: 'S'
+    # It appears that 'S' is a category in the embarked column.
+    # So then, why is it trying to convert 'S' to a float?
     ml_predictor.train(
         df_titanic_train,
         calibrate_final_model=True,
@@ -53,7 +56,7 @@ def test_calibrate_final_model_classification():
 def test_calibrate_final_model_missing_X_test_y_test_classification():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
+    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
 
     # Take a third of our test data (a tenth of our overall data) for calibration
     df_titanic_test, df_titanic_calibration = train_test_split(

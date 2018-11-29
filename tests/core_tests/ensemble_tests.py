@@ -18,7 +18,7 @@ os.environ['is_test_suite'] = 'True'
 def ensemble_classifier_basic_test(model_name=None):
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
+    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
 
     column_descriptions = {
         'survived': 'output',
@@ -68,7 +68,7 @@ def ensemble_regressor_basic_test():
 def getting_single_predictions_classifier_test():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
+    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
 
     column_descriptions = {
         'survived': 'output',

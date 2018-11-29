@@ -96,7 +96,7 @@ class BasicDataCleaning(BaseEstimator, TransformerMixin):
     def __init__(self, column_descriptions=None):
         self.column_descriptions = column_descriptions
         self.transformed_column_descriptions = column_descriptions.copy()
-        self.text_col_indicators = set(['text', 'nlp'])
+        self.text_col_indicators = {'text', 'nlp'}
         self.numeric_col_types = [
             'int8', 'int16', 'int32', 'int64', 'float16', 'float32', 'float64'
         ]
