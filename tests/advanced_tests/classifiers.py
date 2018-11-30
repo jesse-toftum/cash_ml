@@ -17,7 +17,7 @@ sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
 def optimize_final_model_classification(model_name=None):
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     # We just want to make sure these run, not necessarily make sure that they're super accurate
     # (which takes more time, and is dataset dependent)
@@ -57,7 +57,7 @@ def optimize_final_model_classification(model_name=None):
 def categorical_ensembling_classification(model_name=None):
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -93,7 +93,7 @@ def categorical_ensembling_classification(model_name=None):
 def getting_single_predictions_classification(model_name=None):
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -190,7 +190,7 @@ def getting_single_predictions_multilabel_classification(model_name=None):
 
     np.random.seed(0)
 
-    df_twitter_train, df_twitter_test = utils.twitter_sentiment_multilabel_class_data(
+    df_twitter_train, df_twitter_test = utils.get_twitter_sentiment_multilabel_classification_dataset(
     )
 
     column_descriptions = {
@@ -279,7 +279,7 @@ def getting_single_predictions_multilabel_classification(model_name=None):
 def feature_learning_getting_single_predictions_classification(model_name=None):
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -373,7 +373,7 @@ def feature_learning_categorical_ensembling_getting_single_predictions_classific
         model_name=None):
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',

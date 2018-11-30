@@ -128,7 +128,7 @@ def get_boston_dataset():
     return df_boston_train, df_boston_test
 
 
-bad_string_values = {
+bad_vals_as_strings = {
     str(float('nan')),
     str(float('inf')),
     str(float('-inf')), 'None', 'none', 'NaN', 'NAN', 'nan', 'NULL', 'null', '', 'inf', '-inf'
@@ -158,7 +158,7 @@ def drop_missing_y_vals(df, y, output_column=None):
             else:
                 val = val.encode('utf-8').decode('utf-8')
 
-        if val in bad_string_values:
+        if val in bad_vals_as_strings:
             indices_to_drop.append(idx)
 
     if len(indices_to_drop) > 0:

@@ -23,7 +23,7 @@ os.environ['is_test_suite'] = 'True'
 def test_linear_model_analytics_classification(model_name=None):
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -72,7 +72,7 @@ def test_input_df_unmodified():
 def test_model_uses_user_provided_training_params(model_name=None):
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',

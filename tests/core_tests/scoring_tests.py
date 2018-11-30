@@ -19,7 +19,7 @@ def always_return_ten_thousand(estimator=None, actuals=None, probas=None):
 def test_binary_classification():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',

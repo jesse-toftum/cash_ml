@@ -16,7 +16,7 @@ os.environ['is_test_suite'] = 'True'
 def test_already_transformed_X():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     # Take a third of our test data (a tenth of our overall data) for calibration
     df_titanic_test, df_titanic_calibration = train_test_split(

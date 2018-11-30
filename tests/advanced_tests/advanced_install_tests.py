@@ -18,7 +18,7 @@ os.environ['is_test_suite'] = 'True'
 def test_feature_learning_getting_single_predictions_classification(model_name=None):
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -112,7 +112,7 @@ def test_feature_learning_categorical_ensembling_getting_single_predictions_clas
         model_name=None):
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -385,7 +385,7 @@ def test_feature_learning_categorical_ensembling_getting_single_predictions_regr
 def test_all_algos_classification(model_name=None):
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -445,7 +445,7 @@ def test_all_algos_regression():
 
 
 def test_throws_warning_when_fl_data_equals_df_train():
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',

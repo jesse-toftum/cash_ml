@@ -23,7 +23,7 @@ os.environ['is_test_suite'] = 'True'
 def test_perform_feature_selection_false_classification():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -57,7 +57,7 @@ if os.environ.get('TRAVIS_PYTHON_VERSION', '0') != '3.5':
     def test_compare_all_models_classification():
         np.random.seed(0)
 
-        df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+        df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
         column_descriptions = {
             'survived': 'output',
@@ -82,7 +82,7 @@ if os.environ.get('TRAVIS_PYTHON_VERSION', '0') != '3.5':
 def test_perform_feature_selection_true_classification():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -107,7 +107,7 @@ def test_perform_feature_selection_true_classification():
 def test_perform_feature_scaling_true_classification():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -132,7 +132,7 @@ def test_perform_feature_scaling_true_classification():
 def test_perform_feature_scaling_false_classification():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -158,7 +158,7 @@ def test_perform_feature_scaling_false_classification():
 def test_user_input_func_classification():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     def age_bucketing(data):
 
@@ -263,7 +263,7 @@ def test_user_input_func_classification():
 def test_binary_classification_predict_on_predictor_instance():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
     ml_predictor = utils.train_basic_binary_classifier(df_titanic_train)
 
     predictions = ml_predictor.predict(df_titanic_test)
@@ -276,7 +276,8 @@ def test_binary_classification_predict_on_predictor_instance():
 def test_multilabel_classification_predict_on_predictor_instance():
     np.random.seed(0)
 
-    df_twitter_train, df_twitter_test = utils.twitter_sentiment_multilabel_class_data()
+    df_twitter_train, df_twitter_test = utils.get_twitter_sentiment_multilabel_classification_dataset(
+    )
     # Note that this does not take 'text' into account, intentionally
     # (as that takes a while longer to train)
     ml_predictor = utils.train_basic_multilabel_classifier(df_twitter_train)
@@ -292,7 +293,7 @@ def test_multilabel_classification_predict_on_predictor_instance():
 def test_binary_classification_predict_proba_on_predictor_instance():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
     ml_predictor = utils.train_basic_binary_classifier(df_titanic_train)
 
     #
@@ -307,7 +308,7 @@ def test_binary_classification_predict_proba_on_predictor_instance():
 def test_pass_in_list_of_dictionaries_train_classification():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -334,7 +335,7 @@ def test_pass_in_list_of_dictionaries_train_classification():
 def test_pass_in_list_of_dictionaries_predict_classification():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -361,7 +362,7 @@ def test_pass_in_list_of_dictionaries_predict_classification():
 def test_include_bad_y_vals_train_classification():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -390,7 +391,7 @@ def test_include_bad_y_vals_train_classification():
 def test_include_bad_y_vals_predict_classification():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -420,7 +421,7 @@ def test_list_of_single_model_name_classification():
     np.random.seed(0)
     model_name = 'GradientBoostingClassifier'
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -448,7 +449,8 @@ if os.environ.get('TRAVIS_PYTHON_VERSION', '0') != '3.5':
 
         np.random.seed(0)
 
-        df_twitter_train, df_twitter_test = utils.twitter_sentiment_multilabel_class_data()
+        df_twitter_train, df_twitter_test = utils.get_twitter_sentiment_multilabel_classification_dataset(
+        )
 
         column_descriptions = {
             'airline_sentiment': 'output',
@@ -505,10 +507,13 @@ if os.environ.get('TRAVIS_PYTHON_VERSION', '0') != '3.5':
         print(duration.total_seconds())
 
         # It's very difficult to set a benchmark for speed that will work across all machines.
+        # On my 2013 bottom of the line 15" MacBook Pro, this runs in about 0.8 seconds for 1000 predictions
+        # That's about 1 millisecond per prediction
+        # Assuming we might be running on a test box that's pretty weak, multiply by 3
+        # Also make sure we're not running unreasonably quickly
         assert 0.2 < duration.total_seconds() < 15
 
-        # 3. make sure we're not modifying the dictionaries (the score is the same after running
-        # a few experiments as it is the first time)
+        # 3. make sure we're not modifying the dictionaries (the score is the same after running a few experiments as it is the first time)
 
         predictions = []
         for row in df_twitter_test_dictionaries:

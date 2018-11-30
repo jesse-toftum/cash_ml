@@ -24,7 +24,7 @@ os.environ['is_test_suite'] = 'True'
 def test_bad_val_in_column_descriptions():
     np.random.seed(0)
 
-    utils.titanic_binary_class_data()
+    utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -46,7 +46,7 @@ def test_bad_val_in_column_descriptions():
 def test_missing_output_col_in_column_descriptions():
     np.random.seed(0)
 
-    utils.titanic_binary_class_data()
+    utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
     # 'survived': 'output'
@@ -62,7 +62,7 @@ def test_missing_output_col_in_column_descriptions():
 def test_bad_val_for_type_of_estimator():
     np.random.seed(0)
 
-    utils.titanic_binary_class_data()
+    utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
     # 'survived': 'output'
@@ -78,7 +78,7 @@ def test_bad_val_for_type_of_estimator():
 def test_nans_in_output_column():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -103,7 +103,7 @@ def test_nans_in_output_column():
 def test_verify_features_finds_missing_prediction_features():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -145,7 +145,7 @@ def test_verify_features_finds_missing_prediction_features():
 def test_verify_features_finds_missing_training_features():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -187,7 +187,7 @@ def test_verify_features_finds_missing_training_features():
 def test_verify_features_finds_no_missing_features_when_none_are_missing():
     np.random.seed(0)
 
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -219,7 +219,7 @@ def test_verify_features_finds_no_missing_features_when_none_are_missing():
 
 
 def test_unexpected_datetime_column_handled_without_errors():
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived': 'output',
@@ -245,7 +245,7 @@ def test_unexpected_datetime_column_handled_without_errors():
 
 
 def test_unmarked_categorical_column_throws_warning():
-    df_titanic_train, df_titanic_test = utils.titanic_binary_class_data()
+    df_titanic_train, df_titanic_test = utils.get_titanic_binary_classification_dataset()
 
     column_descriptions = {
         'survived':
