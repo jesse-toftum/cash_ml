@@ -16,7 +16,18 @@ from sklearn.model_selection import train_test_split
 from auto_ml import utils_models
 from auto_ml.utils_models import get_name_from_model
 
-keras_imported = False
+keras_installed = False
+try:
+    from keras import Sequential
+    from keras.layers import Dense
+    from keras.callbacks import EarlyStopping, ModelCheckpoint, TerminateOnNaN
+    from keras.models import load_model as keras_load_model
+    from keras.wrappers.scikit_learn import KerasRegressor, KerasClassifier
+
+    keras_installed = True
+except ImportError:
+    pass
+
 
 # This is the Air Traffic Controller (ATC) that is a wrapper around sklearn estimators.
 
@@ -80,17 +91,17 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
         except AttributeError:
             return default
 
+    # TODO: Simplify
     def fit(self, X, y):
 
-        global keras_imported, KerasRegressor, KerasClassifier, EarlyStopping, ModelCheckpoint, TerminateOnNaN, keras_load_model
         self.model_name = get_name_from_model(self.model)
 
         X_fit = X
 
         if self.model_name[:12] == 'DeepLearning' or self.model_name in [
-                'BayesianRidge', 'LassoLars', 'OrthogonalMatchingPursuit', 'ARDRegression',
-                'Perceptron', 'PassiveAggressiveClassifier', 'SGDClassifier', 'RidgeClassifier',
-                'LogisticRegression', 'XGBClassifier', 'XGBRegressor'
+            'BayesianRidge', 'LassoLars', 'OrthogonalMatchingPursuit', 'ARDRegression',
+            'Perceptron', 'PassiveAggressiveClassifier', 'SGDClassifier', 'RidgeClassifier',
+            'LogisticRegression', 'XGBClassifier', 'XGBRegressor'
         ]:
 
             if self.model_name[:3] == 'XGB' and scipy.sparse.issparse(X):
@@ -102,17 +113,13 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                 X_fit = X_fit.todense()
 
             if self.model_name[:12] == 'DeepLearning':
-                if keras_imported == False:
+                if keras_installed is False:
                     # Suppress some level of logs
                     os.environ['TF_CPP_MIN_VLOG_LEVEL'] = '3'
                     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-                    from keras.callbacks import EarlyStopping, ModelCheckpoint, TerminateOnNaN
-                    from keras.models import load_model as keras_load_model
-                    from keras.wrappers.scikit_learn import KerasRegressor, KerasClassifier
 
-                    keras_imported = True
-
-                # For Keras, we need to tell it how many input nodes to expect, which is our num_cols
+                # For Keras, we need to tell it how many input nodes to expect, which is our
+                # num_cols
                 num_cols = X_fit.shape[1]
 
                 model_params = self.model.get_params()
@@ -142,7 +149,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
         if self.model_name[:12] == 'DeepLearning':
             try:
 
-                if self.is_hp_search:
+                if self.is_hp_search is True:
                     patience = 5
                     verbose = 0
                 else:
@@ -159,12 +166,11 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                         pass
 
                 if not self.is_hp_search:
+                    print('\nWe will stop training early if we have not seen an improvement in '
+                          'validation accuracy in {} epochs '.format(patience))
                     print(
-                        '\nWe will stop training early if we have not seen an improvement in validation accuracy in {} epochs'
-                        .format(patience))
-                    print(
-                        'To measure validation accuracy, we will split off a random 10 percent of your training data set'
-                    )
+                        'To measure validation accuracy, we will split off a random 10 percent of '
+                        'your training data set ')
 
                 early_stopping = EarlyStopping(
                     monitor='val_loss', patience=patience, verbose=verbose)
@@ -190,7 +196,8 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                     validation_data=(X_test, y_test),
                     verbose=verbose)
 
-                # TODO: give some kind of logging on how the model did here! best epoch, best accuracy, etc.
+                # TODO: give some kind of logging on how the model did here! best epoch,
+                #  best accuracy, etc.
 
                 if self.is_hp_search is False:
                     self.model = keras_load_model(temp_file_name)
@@ -201,12 +208,10 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                     pass
             except KeyboardInterrupt as e:
                 print('Stopping training at this point because we heard a KeyboardInterrupt')
-                print(
-                    'If the deep learning model is functional at this point, we will output the model in its latest form'
-                )
-                print(
-                    'Note that this feature is an unofficial beta-release feature that is known to fail on occasion'
-                )
+                print('If the deep learning model is functional at this point, we will output the '
+                      'model in its latest form ')
+                print('Note that this feature is an unofficial beta-release feature that is known '
+                      'to fail on occasion ')
 
                 if self.is_hp_search is False:
                     self.model = keras_load_model(temp_file_name)
@@ -221,7 +226,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                 X_fit = X_fit.toarray()
 
             verbose = True
-            if self.is_hp_search:
+            if self.is_hp_search is True:
                 verbose = False
 
             train_dynamic_n_estimators = False
@@ -241,7 +246,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                     eval_name = 'random_holdout_set_from_training_data'
 
                 if self.type_of_estimator == 'regressor':
-                    if self.training_prediction_intervals:
+                    if self.training_prediction_intervals is True:
                         eval_metric = 'quantile'
                     else:
                         eval_metric = 'rmse'
@@ -252,7 +257,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                         eval_metric = 'binary_logloss'
 
             cat_feature_indices = self.get_categorical_feature_indices()
-            if self.memory_optimized:
+            if self.memory_optimized is True:
                 X_fit.to_csv('_lgbm_dataset.csv')
                 del X_fit
 
@@ -290,7 +295,9 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                 X_fit = X_fit.toarray()
 
             if self.type_of_estimator == 'classifier' and len(pd.Series(y).unique()) > 2:
-                # TODO: we might have to modify the format of the y values, converting them all to ints, then back again (sklearn has a useful inverse_transform on some preprocessing classes)
+                # TODO: we might have to modify the format of the y values, converting them all
+                #  to ints, then back again (sklearn has a useful inverse_transform on some
+                #  preprocessing classes)
                 self.model.set_params(loss_function='MultiClass')
 
             cat_feature_indices = self.get_categorical_feature_indices()
@@ -317,9 +324,10 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
             else:
                 num_iters = list(range(1, 50, 1)) + list(range(50, 100, 2)) + list(
                     range(100, 250, 3)) + list(range(250, 500, 5)) + list(range(
-                        500, 1000, 10)) + list(range(1000, 2000, 20)) + list(
-                            range(2000, 10000, 100))
-            # TODO: get n_estimators from the model itself, and reduce this list to only those values that come under the value from the model
+                    500, 1000, 10)) + list(range(1000, 2000, 20)) + list(
+                    range(2000, 10000, 100))
+            # TODO: get n_estimators from the model itself, and reduce this list to only those
+            #  values that come under the value from the model
 
             try:
                 for num_iter in num_iters:
@@ -330,7 +338,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                     self.model.set_params(n_estimators=num_iter, warm_start=warm_start)
                     self.model.fit(X_fit, y)
 
-                    if self.training_prediction_intervals:
+                    if self.training_prediction_intervals is True:
                         val_loss = self.model.score(X_test, y_test)
                     else:
                         try:
@@ -350,10 +358,8 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                     if num_worse_rounds >= patience:
                         break
             except KeyboardInterrupt:
-                print(
-                    'Heard KeyboardInterrupt. Stopping training, and using the best checkpointed GradientBoosting model'
-                )
-                pass
+                print('Heard KeyboardInterrupt. Stopping training, and using the best '
+                      'GradientBoosting model with a checkpoint')
 
             self.model = best_model
             print('The number of estimators that were the best for this training dataset: ' +
@@ -369,7 +375,8 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
         gc.collect()
         return self
 
-    def remove_categorical_values(self, features):
+    @staticmethod
+    def remove_categorical_values(features):
         clean_features = set([])
         for feature in features:
             if '=' not in feature:
@@ -379,18 +386,18 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
 
         return clean_features
 
+    # TODO: Simplify
     def verify_features(self, X, raw_features_only=False):
 
         if self.column_descriptions is None:
-            print(
-                'This feature is not enabled by default. Depending on the shape of the training data, it can add hundreds of KB to the saved file size.'
-            )
-            print(
-                'Please pass in `ml_predictor.train(data, verify_features=True)` when training a model, and we will enable this function, at the cost of a potentially larger file size.'
-            )
+            print('This feature is not enabled by default. Depending on the shape of the training '
+                  'data, it can add hundreds of KB to the saved file size. ')
+            print('Please pass in `ml_predictor.train(data, verify_features=True)` when training a '
+                  'model, and we will enable this function, at the cost of a potentially larger '
+                  'file size. ')
             warnings.warn(
-                'Please pass verify_features=True when invoking .train() on the ml_predictor instance.'
-            )
+                'Please pass verify_features=True when invoking .train() on the ml_predictor '
+                'instance. ')
             return None
 
         print('\n\nNow verifying consistency between training features and prediction features')
@@ -399,28 +406,30 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
         elif isinstance(X, pd.DataFrame):
             prediction_features = set(X.columns)
 
-        # If the user passed in categorical features, we will effectively one-hot-encode them ourselves here
-        # Note that this assumes we're using the "=" as the separater in DictVectorizer/DataFrameVectorizer
+        # If the user passed in categorical features, we will effectively one-hot-encode them
+        # ourselves here.Note that this assumes we're using the "=" as the separator in
+        # DictVectorizer/DataFrameVectorizer.
         date_col_names = []
         categorical_col_names = []
         for key, value in self.column_descriptions.items():
             if value == 'categorical' and 'day_part' not in key:
                 try:
-                    # This covers the case that the user passes in a value in column_descriptions that is not present in their prediction data
+                    # This covers the case that the user passes in a value in column_descriptions
+                    # that is not present in their prediction data
                     column_vals = X[key].unique()
                     for val in column_vals:
                         prediction_features.add(key + '=' + str(val))
 
                     categorical_col_names.append(key)
                 except:
-                    print(
-                        '\nFound a column in your column_descriptions that is not present in your prediction data:'
-                    )
+                    print('\nFound a column in your column_descriptions that is not present '
+                          'in your prediction data: ')
                     print(key)
 
             elif 'day_part' in key:
-                # We have found a date column. Make sure this date column is in our prediction data
-                # It is outside the scope of this function to make sure that the same date parts are available in both our training and testing data
+                # We have found a date column. Make sure this date column is in our prediction
+                # data. It is outside the scope of this function to make sure that the same date
+                # parts are available in both our training and testing data
                 raw_date_col_name = key[:key.index('day_part') - 1]
                 date_col_names.append(raw_date_col_name)
 
@@ -430,7 +439,8 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                 except KeyError:
                     pass
 
-        # Now that we've added in all the one-hot-encoded categorical columns (name=val1, name=val2), remove the base name from our prediction data
+        # Now that we've added in all the one-hot-encoded categorical columns (name=val1,
+        # name=val2), remove the base name from our prediction data
         prediction_features = prediction_features - set(categorical_col_names)
 
         # Get only the unique raw_date_col_names
@@ -446,7 +456,8 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                     features_to_remove.append(feature)
         training_features = training_features - set(features_to_remove)
 
-        # Make sure the raw_date_col_name is in our training data after we have removed all the transformed feature names
+        # Make sure the raw_date_col_name is in our training data after we have removed all the
+        # transformed feature names
         training_features = training_features | date_col_names
 
         # MVP means ignoring text features
@@ -458,31 +469,30 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                 nlp_example = feature
                 training_features.remove(feature)
 
-        if print_nlp_warning:
+        if print_nlp_warning is True:
             print('\n\nWe found an NLP column in the training data')
-            print(
-                'verify_features() currently does not support checking all of the values within an NLP column, so if the text of your NLP column has dramatically changed, you will have to check that yourself.'
-            )
+            print('verify_features() currently does not support checking all of the values within '
+                  'an NLP column, so if the text of your NLP column has dramatically changed, '
+                  'you will have to check that yourself. ')
             print('Here is one example of an NLP feature in the training data:')
             print(nlp_example)
 
         training_not_prediction = training_features - prediction_features
 
-        if raw_features_only:
+        if raw_features_only is True:
             training_not_prediction = self.remove_categorical_values(training_not_prediction)
 
         if len(training_not_prediction) > 0:
 
-            print(
-                '\n\nHere are the features this model was trained on that were not present in this prediction data:'
-            )
+            print('\n\nHere are the features this model was trained on that were not present in '
+                  'this prediction data: ')
             print(sorted(list(training_not_prediction)))
         else:
             print(
                 'All of the features this model was trained on are included in the prediction data')
 
         prediction_not_training = prediction_features - training_features
-        if raw_features_only:
+        if raw_features_only is True:
             prediction_not_training = self.remove_categorical_values(prediction_not_training)
 
         if len(prediction_not_training) > 0:
@@ -494,15 +504,13 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                     ignored_features.append(feature)
             prediction_not_training = prediction_not_training - set(ignored_features)
 
-            print(
-                '\n\nHere are the features available in the prediction data that were not part of the training data:'
-            )
+            print('\n\nHere are the features available in the prediction data '
+                  'that were not part of the training data: ')
             print(sorted(list(prediction_not_training)))
 
             if len(ignored_features) > 0:
-                print(
-                    '\n\nAdditionally, we found features in the prediction data that we were told to ignore in the training data'
-                )
+                print('\n\nAdditionally, we found features in the prediction '
+                      'data that we were told to ignore in the training data ')
                 print(sorted(list(ignored_features)))
 
         else:
@@ -515,21 +523,20 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
         }
 
     def score(self, X, y, verbose=False):
-        # At the time of writing this, GradientBoosting does not support sparse matrices for predictions
+        # At the time of writing this, GradientBoosting does not support sparse matrices for
+        # predictions
         if (self.model_name[:16] == 'GradientBoosting' or self.model_name in [
-                'BayesianRidge', 'LassoLars', 'OrthogonalMatchingPursuit', 'ARDRegression'
+            'BayesianRidge', 'LassoLars', 'OrthogonalMatchingPursuit', 'ARDRegression'
         ]) and scipy.sparse.issparse(X):
             X = X.todense()
 
         if self._scorer is not None:
-            if self.type_of_estimator == 'regressor':
-                return self._scorer.score(self, X, y)
-            elif self.type_of_estimator == 'classifier':
-                return self._scorer.score(self, X, y)
+            return self._scorer.score(self, X, y)
 
         else:
             return self.model.score(X, y)
 
+    # TODO: Simplify
     def predict_proba(self, X, verbose=False):
 
         if self.model_name[:3] == 'XGB':
@@ -550,7 +557,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                 X = X.todense()
             elif isinstance(X, pd.DataFrame):
                 X = X.values
-        elif (self.model_name[:8] == 'CatBoost' or self.model_name[:4] == 'LGBM'):
+        elif self.model_name[:8] == 'CatBoost' or self.model_name[:4] == 'LGBM':
             if scipy.sparse.issparse(X):
                 X = X.toarray()
             elif isinstance(X, pd.DataFrame):
@@ -579,9 +586,16 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                 X = X.todense()
             predictions = self.model.predict_proba(X)
 
-        # If this model does not have predict_proba, and we have fallen back on predict, we want to make sure we give results back in the same format the user would expect for predict_proba, namely each prediction is a list of predicted probabilities for each class.
-        # Note that this DOES NOT WORK for multi-label problems, or problems that are not reduced to 0,1
-        # If this is not an iterable (ignoring strings, which might be iterable), then we will want to turn our predictions into tupled predictions
+        # If this model does not have predict_proba, and we have fallen back on predict,
+        # we want to make sure we give results back in the same format the user would expect for
+        # predict_proba, namely each prediction is a list of predicted probabilities for each
+        # class.
+
+        # Note that this DOES NOT WORK for multi-label problems, or problems that are not reduced
+        # to 0,1
+
+        # If this is not an iterable (ignoring strings, which might be iterable), then we will
+        # want to turn our predictions into tupled predictions
         if not (hasattr(predictions[0], '__iter__') and not isinstance(predictions[0], str)):
             tupled_predictions = []
             for prediction in predictions:
@@ -591,7 +605,9 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                     tupled_predictions.append([1, 0])
             predictions = tupled_predictions
 
-        # This handles an annoying edge case with libraries like Keras that, for a binary classification problem, with return a single predicted probability in a list, rather than the probability of both classes in a list
+        # This handles an annoying edge case with libraries like Keras that, for a binary
+        # classification problem, with return a single predicted probability in a list,
+        # rather than the probability of both classes in a list
         if len(predictions[0]) == 1:
             tupled_predictions = []
             for prediction in predictions:
@@ -603,6 +619,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
         else:
             return predictions
 
+    # TODO: Simplify
     def predict(self, X, verbose=False):
 
         if self.model_name[:3] == 'XGB':
@@ -642,8 +659,9 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
             predictions = self.model.predict(X, num_iteration=best_iteration)
         else:
             predictions = self.model.predict(X_predict)
-        # Handle cases of getting a prediction for a single item.
-        # It makes a cleaner interface just to get just the single prediction back, rather than a list with the prediction hidden inside.
+        # Handle cases of getting a prediction for a single item. It makes a cleaner interface
+        # just to get just the single prediction back, rather than a list with the prediction
+        # hidden inside.
 
         if isinstance(predictions, np.ndarray):
             predictions = predictions.tolist()
@@ -659,15 +677,16 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
         else:
             return predictions
 
+    # TODO: Simplify
     def predict_intervals(self, X, return_type=None):
 
         if self.interval_predictors is None:
-            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!' * 64)
             print('This model was not trained to predict intervals')
             print(
-                'Please follow the documentation to tell this model at training time to learn how to predict intervals'
-            )
-            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                'Please follow the documentation to tell this model at training time to learn how '
+                'to predict intervals ')
+            print('!' * 64)
             raise ValueError('This model was not trained to predict intervals')
 
         base_prediction = self.predict(X)
@@ -706,12 +725,10 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
             return list_result
 
         else:
-            print(
-                'Please pass in a return_type value of one of the following: ["dict", "dataframe", "df", "list"]'
-            )
-            raise (ValueError(
-                'Please pass in a return_type value of one of the following: ["dict", "dataframe", "df", "list"]'
-            ))
+            print('Please pass in a return_type value of one of the '
+                  'following: ["dict", "dataframe", "df", "list"] ')
+            raise (ValueError('Please pass in a return_type value of one of the '
+                              'following: ["dict", "dataframe", "df", "list"] '))
 
     # transform is initially designed to be used with feature_learning
     def transform(self, X):
@@ -722,17 +739,19 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
         return X
 
     # Allows the user to get the fully transformed data
-    def transform_only(self, X):
+    @staticmethod
+    def transform_only(X):
         return X
 
+    # TODO: Simplify
     def predict_uncertainty(self, X):
         if self.uncertainty_model is None:
-            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!' * 64)
             print('This model was not trained to predict uncertainties')
             print(
-                'Please follow the documentation to tell this model at training time to learn how to predict uncertainties'
-            )
-            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                'Please follow the documentation to tell this model at training time to learn how '
+                'to predict uncertainties ')
+            print('!' * 64)
             raise ValueError('This model was not trained to predict uncertainties')
 
         base_predictions = self.predict(X)
@@ -762,7 +781,8 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
 
             if self.uc_results is not None:
                 calibration_results = {}
-                # grab the relevant properties from our uc_results, and make them each their own list in calibration_results
+                # grab the relevant properties from our uc_results, and make them each their own
+                # list in calibration_results
                 for key, value in self.uc_results[1].items():
                     calibration_results[key] = []
 
@@ -800,7 +820,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
 
     def get_categorical_feature_indices(self):
         cat_feature_indices = None
-        if self.keep_cat_features:
+        if self.keep_cat_features is True:
             cat_feature_names = [
                 k for k, v in self.column_descriptions.items() if v == 'categorical'
             ]

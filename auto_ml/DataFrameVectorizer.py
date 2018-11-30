@@ -18,7 +18,7 @@ bad_vals = {
 
 
 def strip_non_ascii(string):
-    ''' Returns the string without non ASCII characters'''
+    """ Returns the string without non ASCII characters"""
     stripped = (c for c in string if 0 < ord(c) < 127)
     return ''.join(stripped)
 
@@ -34,10 +34,10 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
         self.dtype = dtype
         self.separator = separator
         self.sparse = sparse
-        if column_descriptions == None:
+        if column_descriptions is None:
             column_descriptions = {}
         self.column_descriptions = column_descriptions
-        self.vals_to_drop = set(['ignore', 'output', 'regressor', 'classifier'])
+        self.vals_to_drop = {'ignore', 'output', 'regressor', 'classifier'}
         self.has_been_restricted = False
         self.keep_cat_features = keep_cat_features
         self.label_encoders = {}
@@ -55,6 +55,7 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
         except AttributeError:
             return default
 
+    # TODO: Simplify
     def fit(self, X, y=None):
         print('Fitting DataFrameVectorizer')
 
@@ -123,10 +124,10 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
         self.vocabulary_ = vocab
         return self
 
+    # TODO: Simplify
     def _transform(self, X):
 
         dtype = self.dtype
-        feature_names = self.feature_names_
         vocab = self.vocabulary_
 
         if isinstance(X, dict):
@@ -191,6 +192,7 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
                     X[col] = X[col].astype(np.float32)
 
             # Running this in parallel can cause memory crashes if the dataset is too large.
+            # TODO: With as complex as this lambda is, consider refactoring into an actual function
             categorical_vals = list(map(
                 lambda col_name: self.transform_categorical_col(col_vals=list(X[col_name]),
                                                                 col_name=col_name),
@@ -212,6 +214,7 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
 
     # We are assuming that each categorical column got a contiguous block of result columns (ie,
     # the 5 categories in City get columns 5-9, not columns 0, 8, 26, 4, and 20)
+    # TODO: Simplify
     def transform_categorical_col(self, col_vals, col_name):
         if self.get('keep_cat_features', False):
             return_vals = self.get('label_encoders')[col_name].transform(col_vals)
@@ -254,7 +257,7 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
             if num_trained_cols != (max_transformed_idx - min_transformed_idx + 1):
                 print('We have somehow ended up with categorical column behavior we were not '
                       'expecting ')
-                raise (ValueError)
+                raise ValueError
 
             for row_idx, val in enumerate(col_vals):
                 if not isinstance(val, str):

@@ -29,7 +29,6 @@ def get_feature_selection_model_from_name(type_of_estimator, model_name):
 
 class FeatureSelectionTransformer(BaseEstimator, TransformerMixin):
 
-
     def __init__(self, type_of_estimator, column_descriptions,
                  feature_selection_model='SelectFromModel'):
 
@@ -37,14 +36,13 @@ class FeatureSelectionTransformer(BaseEstimator, TransformerMixin):
         self.type_of_estimator = type_of_estimator
         self.feature_selection_model = feature_selection_model
 
-
     def get(self, prop_name, default=None):
         try:
             return getattr(self, prop_name)
         except AttributeError:
             return default
 
-
+    # TODO: Simplify
     def fit(self, X, y=None):
         print('Performing feature selection')
 
@@ -65,8 +63,8 @@ class FeatureSelectionTransformer(BaseEstimator, TransformerMixin):
                 if self.type_of_estimator == 'regressor':
                     self.estimator = RandomForestRegressor(n_jobs=-1, max_depth=10, n_estimators=15)
                 else:
-                    self.estimator = RandomForestClassifier(n_jobs=-1, max_depth=10,
-                                                            n_estimators=15)
+                    self.estimator = RandomForestClassifier(
+                        n_jobs=-1, max_depth=10, n_estimators=15)
 
                 self.estimator.fit(X, y)
 
@@ -97,7 +95,6 @@ class FeatureSelectionTransformer(BaseEstimator, TransformerMixin):
         self.index_mask = [idx for idx, val in enumerate(self.support_mask) if val == True]
         return self
 
-
     def transform(self, X, y=None):
 
         if self.selector == 'KeepAll':
@@ -108,7 +105,8 @@ class FeatureSelectionTransformer(BaseEstimator, TransformerMixin):
                 # convert to a csc (column) matrix, rather than a csr (row) matrix
                 X = X.tocsc()
 
-            # Slice that column matrix to only get the relevant columns that we already calculated in fit:
+            # Slice that column matrix to only get the relevant columns that we already
+            # calculated in fit:
             X = X[:, self.index_mask]
 
             # convert back to a csr matrix

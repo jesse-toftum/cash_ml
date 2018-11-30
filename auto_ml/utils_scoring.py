@@ -27,7 +27,7 @@ def advanced_scoring_classifiers(probas, actuals, name=None):
           'training, and is the value returned from .score() unless you requested a custom '
           'scoring metric')
     print('It is a measure of how close the PROBABILITY predictions are.')
-    if name != None:
+    if name is not None:
         print(name)
 
     # Sometimes we will be given "flattened" probabilities (only the probability of our positive
@@ -42,7 +42,7 @@ def advanced_scoring_classifiers(probas, actuals, name=None):
     print(format(brier_score, '.4f'))
 
     print('\nHere is the trained estimator\'s overall accuracy (when it predicts a label, '
-          'how frequently is that the correct label?)')
+          'how frequently is that the correct label?) ')
     predicted_labels = []
     for pred in probas:
         if pred >= 0.5:
@@ -64,7 +64,7 @@ def advanced_scoring_classifiers(probas, actuals, name=None):
 
     # I like knowing the per class accuracy to see if the model is mishandling imbalanced data.
     # For example, if it is predicting 100% of observations to one class just because it is the
-    # majority Wikipedia seems to call that Positive/negative predictive value
+    # majority. Wikipedia seems to call that Positive/negative predictive value
     print('\nHere is predictive value by class:')
     df = pd.concat(
         [pd.Series(actuals, name='actuals'),
@@ -98,10 +98,10 @@ def advanced_scoring_classifiers(probas, actuals, name=None):
         except TypeError:
             print(tabulate(df_buckets.mean(), headers='keys', floatfmt='.4f', tablefmt='psql'))
         print('\nHere is the accuracy of our trained estimator at each level of predicted '
-              'probabilities')
+              'probabilities ')
         print('For a verbose description of what this means, please visit the docs:')
         print('http://auto-ml.readthedocs.io/en/latest/analytics.html#interpreting-predicted'
-              '-probability-buckets-for-classifiers')
+              '-probability-buckets-for-classifiers ')
 
     except:
         pass
@@ -121,7 +121,7 @@ def calculate_and_print_differences(predictions, actuals, name=None):
         elif difference < 0:
             neg_differences.append(difference)
 
-    if name != None:
+    if name is not None:
         print(name)
     print('Count of positive differences (prediction > actual):')
     print(len(pos_differences))
@@ -140,14 +140,14 @@ def advanced_scoring_regressors(predictions, actuals, verbose=2, name=None):
     actuals = list(actuals)
     predictions = list(predictions)
 
-    print('\n\n***********************************************')
-    if name != None:
+    print('\n\n' + '*' * 64)
+    if name is not None:
         print(name)
     print('Advanced scoring metrics for the trained regression model on this particular dataset:\n')
 
     # 1. overall RMSE
     print('Here is the overall RMSE for these predictions:')
-    rmse = mean_squared_error(actuals, predictions)**0.5
+    rmse = mean_squared_error(actuals, predictions) ** 0.5
     print(rmse)
 
     # 2. overall avg predictions
@@ -190,12 +190,12 @@ def advanced_scoring_regressors(predictions, actuals, verbose=2, name=None):
 
     if verbose > 2:
         print('Here\'s how the trained predictor did on each successive decile (ten percent chunk) '
-              'of the predictions:')
+              'of the predictions: ')
         for i in range(1, 11):
-            print('\n**************')
+            print('\n' + '*' * 64)
             print('Bucket number:')
             print(i)
-            # There's probably some fenceposting error here
+            # There's probably some fencepost error here
             min_idx = int((i - 1) / 10.0 * len(actuals_sorted))
             max_idx = int(i / 10.0 * len(actuals_sorted))
             actuals_for_this_decile = actuals_sorted[min_idx:max_idx]
@@ -206,16 +206,16 @@ def advanced_scoring_regressors(predictions, actuals, verbose=2, name=None):
             print('Avg actual val in this bucket')
             print(sum(actuals_for_this_decile) * 1.0 / len(actuals_for_this_decile))
             print('RMSE for this bucket')
-            print(mean_squared_error(actuals_for_this_decile, predictions_for_this_decile)**0.5)
+            print(mean_squared_error(actuals_for_this_decile, predictions_for_this_decile) ** 0.5)
             calculate_and_print_differences(predictions_for_this_decile, actuals_for_this_decile)
 
     print('')
-    print('\n***********************************************\n\n')
+    print('\n' + '*' * 64 + '\n\n')
     return rmse
 
 
 def rmse_func(y, predictions):
-    return mean_squared_error(y, predictions)**0.5
+    return mean_squared_error(y, predictions) ** 0.5
 
 
 scoring_name_function_map = {
@@ -293,7 +293,7 @@ class RegressionScorer(object):
                   'dataset')
             score = self.scoring_func(y, predictions)
 
-        if advanced_scoring:
+        if advanced_scoring is True:
             if hasattr(estimator, 'name'):
                 print(estimator.name)
             advanced_scoring_regressors(predictions, y, verbose=verbose, name=name)
@@ -320,7 +320,8 @@ class ClassificationScorer(object):
         except AttributeError:
             return default
 
-    def clean_probas(self, probas):
+    @staticmethod
+    def clean_probas(probas):
         print('Warning: We have found some values in the predicted probabilities that fall outside '
               'the range {0, 1}')
         print(
@@ -329,18 +330,40 @@ class ClassificationScorer(object):
             'for instance, you can probably safely ignore it')
         print('We will cap those values at 0 or 1 for the purposes of scoring, but you should be '
               'careful to have similar safeguards in place in prod if you use this model')
+
+        # TODO: Check new code
+        # if not isinstance(probas[0], list):
+        #     probas = [val if str(val) not in bad_vals_as_strings else 0 for val in probas]
+        #     probas = [min(max(pred, 0), 1) for pred in probas]
+        #     return probas
+        # else:
+        #     cleaned_probas = []
+        #     for proba_tuple in probas:
+        #         cleaned_tuple = []
+        #         for item in proba_tuple:
+        #             if str(item) in bad_vals_as_strings:
+        #                 item = 0
+        #             cleaned_tuple.append(max(min(item, 1), 0))
+        #         cleaned_probas.append(cleaned_tuple)
+        #     return cleaned_probas
+        # Start new code
         probas = np.array(probas)
         np.place(probas, np.isin(probas.astype(str), bad_vals_as_strings), 0)
         np.place(probas, probas > 1, 1)
         np.place(probas, probas < 0, 0)
         return probas
+        # End new code
 
+    # TODO: Simplify
     def score(self, estimator, X, y, advanced_scoring=False):
         X, y = utils.drop_missing_y_vals(X, y, output_column=None)
 
         if isinstance(estimator, GradientBoostingClassifier):
             X = X.toarray()
 
+        # TODO: Check new code
+        # predictions = estimator.predict_proba(X)
+        # Start new code
         predictions = np.array(estimator.predict_proba(X))
 
         kwargs = {}
@@ -353,8 +376,10 @@ class ClassificationScorer(object):
             if self.scoring_method in ['f1_score']:
                 predictions = predictions.argmax(axis=1)
                 kwargs['average'] = 'weighted'
+        # End new code
 
         if self.scoring_method == 'brier_score_loss':
+            # Should this actually say < 1 and > 0?
             # At the moment, Microsoft's LightGBM returns probabilities > 1 and < 0, which can
             # break some scoring functions. So we have to take the max of 1 and the pred,
             # and the min of 0 and the pred.
@@ -362,7 +387,11 @@ class ClassificationScorer(object):
             predictions = probas
 
         try:
+            # TODO: Check new code
+            # score = self.scoring_func(y, predictions)
+            # Start new code
             score = self.scoring_func(y, predictions, **kwargs)
+            # End new code
         except ValueError as e:
             bad_val_indices = []
             for idx, val in enumerate(y):
@@ -385,8 +414,11 @@ class ClassificationScorer(object):
                 #  enough data and reasonable params
                 predictions = self.clean_probas(predictions)
                 score = self.scoring_func(y, predictions)
+        # TODO: Check new code
+        # Start new code
         if self.scoring_method in ['accuracy', 'accuracy_score', 'roc_auc', 'f1_score']:
             score *= -1    # value needs to go up to optimize these
+        # End new code
 
         if advanced_scoring:
             return -1 * score, predictions

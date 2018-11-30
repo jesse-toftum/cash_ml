@@ -1,17 +1,19 @@
 import os
 import sys
+sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
+sys.path = [os.path.abspath(os.path.dirname(os.path.dirname(__file__)))] + sys.path
 
+os.environ['is_test_suite'] = 'True'
+
+from auto_ml import Predictor
+
+import dill
+from nose.tools import assert_equal, assert_not_equal, with_setup
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
 import tests.utils_testing as utils
-from auto_ml import Predictor
-
-sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
-sys.path = [os.path.abspath(os.path.dirname(os.path.dirname(__file__)))] + sys.path
-
-os.environ['is_test_suite'] = 'True'
 
 
 def test_predict_uncertainty_returns_pandas_DataFrame_for_more_than_one_value():
@@ -124,30 +126,19 @@ def test_calibrate_uncertainty():
     # uncertainty_calibration_data = None
     # methodology:
     # 1. get predictions on our uncertainty_calibration_data
-
     # 2. get actual deltas between true values, and predicted values for each row
-    # we will need to make sure the uncertainty_calibration_data has a y column that contains
-    # the true values to our base regression problem
-
-    # 3. divide our uc_data into "num_buckets"
-    # buckets based on the predicted_uncertainty percentages
+    # we will need to make sure the uncertainty_calibration_data has a y column that contains the true values to our base regression problem
+    # 3. divide our uc_data into "num_buckets" buckets based on the predicted_uncertainty percentages
     # "here is the group of deliveries we predicted 0-20% uncertainty for"
-    # worth noting that the buckets will probably be based on the distribution of hte uc_data,
-    # rather than on fixed percentage intervals.
-    # So, for 5 buckets, we won't have 0-20, 20 - 40, etc., we will instead have "the lowest 20%
-    # of uncertainty predictions go from 0-1%, the next lowest 20% of buckets fall from 1-6%", etc.
+    # worth noting that the buckets will probably be based on the distribution of hte uc_data, rather than on fixed percentage intervals. so, for 5 buckets, we won't have 0-20, 20 - 40, etc., we will instead have "the lowest 20% of uncertainty predictions go from 0-1%, the next lowest 20% of buckets fall from 1-6%", etc.
     # 4. for each bucket, figure out what the actual deltas are at each percentile
     # so, for this lowest predicted 20% of the uc_data, their 13th percentile actual delta was...
     # maybe also include the rmse and std of this group
     # essentially, what we're getting is:
-    # the model predicted a base value of A for the regression problem. The uncertainty model
-    # predicted a probability of B that we will be off by some amount.
-    # For all rows where we predicted roughly B,
-    # what was the distribution by which we were actually off?
+    # the model predicted a base value of A for the regression problem. THe uncertainty model predicted a probability of B that we will be off by some amount. For all rows where we predicted roughly B, what was the distribution by which we were actually off?
 
     # TODO:
-    # Do we want to have a score_uncertainty function? all it would do is probably call.
-    # Score on the underlying model (nested one level)
+    # Do we want to have a score_uncertainty function? all it would do is probably call .score on the underlying model (nested one level)
     # we definitely want to have a calibrate_uncertainty function
 
     # test_score = ml_predictor.score(df_boston_test, df_boston_test.MEDV)

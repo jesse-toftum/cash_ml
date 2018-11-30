@@ -102,13 +102,13 @@ def drop_duplicate_columns(df):
     cols = list(df.columns)
     for idx, item in enumerate(df.columns):
         if item in df.columns[:idx]:
-            print('#####################################################')
+            print('#' * 64)
             print('We found a duplicate column, and will be removing it')
             print('If you intended to send in two different pieces of information, please make '
                   'sure they have different column names.')
             print('Here is the duplicate column:')
             print(item)
-            print('#####################################################')
+            print('#' * 64)
             cols[idx] = 'DROPME'
             count_cols_to_drop += 1
 
@@ -147,6 +147,7 @@ def delete_rows_csr(mat, indices):
     return mat[mask]
 
 
+# TODO: Simplify
 def drop_missing_y_vals(df, y, output_column=None):
     y = list(y)
     indices_to_drop = []

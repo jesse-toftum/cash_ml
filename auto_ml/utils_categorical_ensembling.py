@@ -35,7 +35,7 @@ class CategoricalEnsembler(object):
                 model = self.trained_models[category]
             except KeyError as e:
                 if self.default_category == '_RAISE_ERROR':
-                    raise (e)
+                    raise e
                 model = self.trained_models[self.default_category]
 
             transformed_row = self.transformation_pipeline.transform(row)
@@ -66,7 +66,7 @@ class CategoricalEnsembler(object):
                 model = self.trained_models[category]
             except KeyError as e:
                 if self.default_category == '_RAISE_ERROR':
-                    raise (e)
+                    raise e
                 model = self.trained_models[self.default_category]
 
             transformed_row = self.transformation_pipeline.transform(row)

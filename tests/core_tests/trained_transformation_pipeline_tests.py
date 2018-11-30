@@ -1,16 +1,18 @@
 import os
 import sys
-
-import numpy as np
-from sklearn.model_selection import train_test_split
-
-import tests.utils_testing as utils
-from auto_ml import Predictor
-
 sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
 sys.path = [os.path.abspath(os.path.dirname(os.path.dirname(__file__)))] + sys.path
 
 os.environ['is_test_suite'] = 'True'
+
+from auto_ml import Predictor
+
+import dill
+from nose.tools import assert_equal, assert_not_equal, with_setup
+import numpy as np
+from sklearn.model_selection import train_test_split
+
+import tests.utils_testing as utils
 
 
 def test_already_transformed_X():

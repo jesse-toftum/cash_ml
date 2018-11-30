@@ -12,7 +12,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 # The easiest way to check against a bunch of different bad values is to convert whatever val we
 # have into a string, then check it against a set containing the string representation of a bunch
-#  of bad values
+# of bad values
 bad_vals_as_strings = {
     str(float('nan')),
     str(float('inf')),
@@ -23,7 +23,7 @@ bad_vals_as_strings = {
 # clean_val will try to turn a value into a float.
 # If it fails, it will attempt to strip commas and then attempt to turn it into a float again
 # Additionally, it will check to make sure the value is not in a set of bad vals (nan, None, inf,
-#  etc.) This function will either return a clean value, or raise an error if we cannot turn the
+# etc.) This function will either return a clean value, or raise an error if we cannot turn the
 # value into a float or the value is a bad val
 def clean_val(val):
     if str(val) in bad_vals_as_strings:
@@ -66,13 +66,13 @@ def clean_val_nan_version(key, val, replacement_val=np.nan):
             try:
                 cleaned_string = val.replace(',', '')
             except TypeError:
-                print('*************************************')
+                print('*' * 64)
                 print('We expected this value to be numeric, but were unable to convert it to a '
                       'float: ')
                 print(val)
                 print('Here is the feature name:')
                 print(key)
-                print('*************************************')
+                print('*' * 64)
                 return replacement_val
             try:
                 float_val = float(cleaned_string)
@@ -80,12 +80,12 @@ def clean_val_nan_version(key, val, replacement_val=np.nan):
                 return replacement_val
         except TypeError:
             # This is what happens if you feed in a datetime object to float
-            print('*************************************')
+            print('*' * 64)
             print('We expected this value to be numeric, but were unable to convert it to a float:')
             print(val)
             print('Here is the feature name:')
             print(key)
-            print('*************************************')
+            print('*' * 64)
             return replacement_val
 
         return float_val
@@ -96,7 +96,7 @@ class BasicDataCleaning(BaseEstimator, TransformerMixin):
     def __init__(self, column_descriptions=None):
         self.column_descriptions = column_descriptions
         self.transformed_column_descriptions = column_descriptions.copy()
-        self.text_col_indicators = set(['text', 'nlp'])
+        self.text_col_indicators = {'text', 'nlp'}
         self.numeric_col_types = [
             'int8', 'int16', 'int32', 'int64', 'float16', 'float32', 'float64'
         ]
@@ -138,6 +138,7 @@ class BasicDataCleaning(BaseEstimator, TransformerMixin):
         except AttributeError:
             return default
 
+    # TODO: Simplify
     def fit(self, X_df, y=None):
         print('Running basic data cleaning')
 
@@ -168,7 +169,7 @@ class BasicDataCleaning(BaseEstimator, TransformerMixin):
                     print('Some example features in this column are: {}'.format(
                         list(X_df[key].sample(n=5))))
                     print('If this is a categorical column, please mark it as `{}: "categorical"` '
-                          'as part of your column_descriptions '.format(key))
+                          'as part of your column_descriptions'.format(key))
                     print('If this is not a categorical column, please consider converting its '
                           'dtype before passing data into auto_ml ')
                     print('\n')
@@ -200,6 +201,7 @@ class BasicDataCleaning(BaseEstimator, TransformerMixin):
 
         return self
 
+    # TODO: Simplify
     def transform(self, X, y=None):
 
         ignore_none_fields = False
@@ -246,10 +248,10 @@ class BasicDataCleaning(BaseEstimator, TransformerMixin):
                     nlp_matrix = self.text_columns[key].transform(text_val)
 
                     # From here, it's all about transforming the output from the tf-idf transform
-                    #  into a dictionary
+                    # into a dictionary
 
                     # Borrowed from: http://stackoverflow.com/a/40696119/3823857
-                    # it outputs a sparse csr matrics
+                    # it outputs a sparse csr matrix
                     # first, we transform to coo
                     nlp_matrix = nlp_matrix.tocoo()
                     # Then, we grab the relevant column names
@@ -311,6 +313,7 @@ class BasicDataCleaning(BaseEstimator, TransformerMixin):
 
             return X
 
+    # TODO: Simplify
     def process_one_column(self, col_vals, col_name):
         ignore_none_fields = False
         if self.get('transformed_column_descriptions', None) is not None:
@@ -332,27 +335,28 @@ class BasicDataCleaning(BaseEstimator, TransformerMixin):
 
         elif col_desc in (None, 'continuous', 'numerical', 'float', 'int'):
             # For all of our numerical columns, try to turn all of these values into floats. This
-            #  function handles commas inside strings that represent numbers, and returns nan if
+            # function handles commas inside strings that represent numbers, and returns nan if
             # we cannot turn this value into a float. nans are ignored in DataFrameVectorizer
             try:
                 col_vals = col_vals.apply(
                     lambda x: clean_val_nan_version(col_name, x, replacement_val=0))
                 result = {col_name: col_vals}
             except TypeError as e:
-                raise (e)
+                raise e
             except UnicodeEncodeError as e:
-                print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-                print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                print('!' * 64)
+                print('!' * 64)
                 print('We have found a column that is not marked as a categorical column that has '
                       'unicode values in it ')
                 print('Here is the column name:')
                 print(col_name)
-                print('The actual value that caused the issue is logged right above the '
-                      'exclamation points ')
-                print('Please either mark this column as categorical, or clean up the values '
-                      'in this column ')
-                print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-                print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                print(
+                    'The actual value that caused the issue is logged right above the exclamation '
+                    'points ')
+                print('Please either mark this column as categorical, or clean up the values in '
+                      'this column ')
+                print('!' * 64)
+                print('!' * 64)
 
         elif col_desc == 'date':
             result = add_date_features_df(col_vals, col_name)
@@ -383,7 +387,7 @@ class BasicDataCleaning(BaseEstimator, TransformerMixin):
         else:
             # If we have gotten here, the value is not any that we recognize. This is most likely
             # a typo that the user would want to be informed of, or a case while we're developing
-            #  on auto_ml itself. In either case, it's useful to log it.
+            # on auto_ml itself. In either case, it's useful to log it.
             print('When transforming the data, we have encountered a value in column_descriptions '
                   'that is not currently supported. The column has been dropped to allow the rest '
                   'of the pipeline to run. Here\'s the name of the column: ')
@@ -419,8 +423,8 @@ def minutes_into_day_parts(minutes_into_day):
 # Note: assumes that the column is already formatted as a pandas date type
 def add_date_features_df(col_data, date_col):
     # Pandas nicely tries to prevent you from doing stupid things, like setting values on a copy
-    # of a df, not your real one However, it's a bit overzealous in this case, so we'll side-step
-    # a bunch of warnings by setting is_copy to false here
+    # of a df, not your real one. However, it's a bit overzealous in this case, so we'll
+    # side-step a bunch of warnings by setting is_copy to false here.
 
     result = {}
 

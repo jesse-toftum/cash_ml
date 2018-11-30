@@ -38,32 +38,34 @@ try:
     catboost_installed = True
 except ImportError:
     pass
-
 keras_installed = False
 try:
-    from keras import regularizers, optimizers
-    from keras.constraints import maxnorm
-    from keras.layers import Activation, Dense, Dropout, LeakyReLU, ThresholdedReLU, PReLU, ELU
-    from keras.models import Sequential
+    from keras import Sequential, regularizers, optimizers
     from keras.models import load_model as keras_load_model
-    from keras.wrappers.scikit_learn import KerasClassifier, KerasRegressor
+    from keras.wrappers.scikit_learn import KerasRegressor, KerasClassifier
+    from keras.layers import ELU, PReLU, ThresholdedReLU, LeakyReLU, ReLU, Dense, Dropout, \
+        Activation
 
     keras_installed = True
-except ImportError:
+except:
     pass
 
+
+# maxnorm = None
 
 # Note: it's important that importing tensorflow come last. We can run into OpenCL issues if we
 # import it ahead of some other packages. At the moment, it's a known behavior with tensorflow,
 # but everyone's ok with this workaround.
 
 
+# TODO: Simplify
 def get_model_from_name(model_name, training_params=None, is_hp_search=False):
     # For Keras
     epochs = 1000
     # if os.environ.get('is_test_suite', 0) == 'True' and model_name[:12] == 'DeepLearning':
-    # print('Heard that this is the test suite. Limiting number of epochs, which will increase
-    # training speed dramatically at the expense of model accuracy') epochs = 100
+    #     print('Heard that this is the test suite. Limiting number of epochs, which will increase '
+    #           'training speed dramatically at the expense of model accuracy')
+    #     epochs = 100
 
     all_model_params = {
         'LogisticRegression': {},
@@ -153,7 +155,7 @@ def get_model_from_name(model_name, training_params=None, is_hp_search=False):
     if model_params is None:
         model_params = {}
 
-    if is_hp_search == True:
+    if is_hp_search is True:
         if model_name[:12] == 'DeepLearning':
             model_params['epochs'] = 50
         if model_name[:4] == 'LGBM':
@@ -228,7 +230,7 @@ def get_model_from_name(model_name, training_params=None, is_hp_search=False):
         model_map['CatBoostClassifier'] = CatBoostClassifier()
 
     if model_name[:12] == 'DeepLearning':
-        if not keras_installed:
+        if keras_installed is False:
             # Suppress some level of logs if TF is installed (but allow it to not be installed,
             # and use Theano instead)
             try:
@@ -238,6 +240,7 @@ def get_model_from_name(model_name, training_params=None, is_hp_search=False):
                 logging.set_verbosity(logging.INFO)
             except:
                 pass
+
         model_map['DeepLearningClassifier'] = KerasClassifier(
             build_fn=make_deep_learning_classifier)
         model_map['DeepLearningRegressor'] = KerasRegressor(build_fn=make_deep_learning_model)
@@ -246,8 +249,8 @@ def get_model_from_name(model_name, training_params=None, is_hp_search=False):
         model_without_params = model_map[model_name]
     except KeyError as e:
         print('It appears you are trying to use a library that is not available when we try to '
-              'import it, or using a value for model_names that we do not recognize')
-        raise (e)
+              'import it, or using a value for model_names that we do not recognize.')
+        raise e
 
     if os.environ.get('is_test_suite', False) == 'True':
         if 'n_jobs' in model_params:
@@ -257,6 +260,7 @@ def get_model_from_name(model_name, training_params=None, is_hp_search=False):
     return model_with_params
 
 
+# TODO: Simplify
 def get_name_from_model(model):
     if isinstance(model, LogisticRegression):
         return 'LogisticRegression'
@@ -360,7 +364,18 @@ def get_search_params(model_name):
                               # [1, 0.66, 0.33, 0.1],
                               # [1, 2, 2, 1]
                               ],
-            'dropout_rate': [0.0, 0.2, 0.4, 0.6, 0.8],
+            'dropout_rate': [
+                # 0.0,
+                0.1,
+                0.2,
+                0.3,
+                0.4,
+                0.5,
+                # 0.6,
+                # 0.7,
+                # 0.8,
+                # 0.9,
+            ],
             'kernel_initializer': [
                 'uniform', 'lecun_uniform', 'normal', 'zero', 'glorot_normal', 'glorot_uniform',
                 'he_normal', 'he_uniform'
@@ -381,16 +396,30 @@ def get_search_params(model_name):
             'activation': [
                 'tanh', 'softmax', 'elu', 'softplus', 'softsign', 'relu', 'sigmoid', 'hard_sigmoid',
                 'linear', 'LeakyReLU', 'PReLU', 'ELU', 'ThresholdedReLU'
-            ]
+            ],
             # , 'epochs': [2, 4, 6, 10, 20]
             # , 'batch_size': [10, 25, 50, 100, 200, 1000]
             # , 'lr': [0.001, 0.01, 0.1, 0.3]
             # , 'momentum': [0.0, 0.3, 0.6, 0.8, 0.9]
-            # , 'init_mode': ['uniform', 'lecun_uniform', 'normal', 'zero', 'glorot_normal', 'glorot_uniform', 'he_normal', 'he_uniform']
-            # , 'activation': ['softmax', 'softplus', 'softsign', 'relu', 'tanh', 'sigmoid', 'hard_sigmoid', 'linear']
+            # , 'init_mode': ['uniform', 'lecun_uniform', 'normal', 'zero', 'glorot_normal',
+            #                 'glorot_uniform', 'he_normal', 'he_uniform']
+            # , 'activation': ['softmax', 'softplus', 'softsign', 'relu', 'tanh', 'sigmoid',
+            #                  'hard_sigmoid', 'linear']
             # , 'weight_constraint': [1, 3, 5]
-            ,
-            'dropout_rate': [0.0, 0.3, 0.6, 0.8, 0.9]
+
+            # I would bargain that the best dropout rates are somewhere between 0.1 and 0.5
+            'dropout_rate': [
+                # 0.0,
+                0.1,
+                0.2,
+                0.3,
+                0.4,
+                0.5,
+                # 0.6,
+                # 0.7,
+                # 0.8,
+                # 0.9,
+            ]
         },
         'XGBClassifier': {
             'max_depth': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15],
@@ -609,6 +638,7 @@ def insert_deep_learning_model(pipeline_step, file_name):
     return model
 
 
+# TODO: Simplify
 def load_ml_model(file_name):
     with open(file_name, 'rb') as read_file:
         base_pipeline = dill.load(read_file)
@@ -696,7 +726,7 @@ def make_deep_learning_model(hidden_layers=None,
                              feature_learning=False,
                              kernel_initializer='normal',
                              activation='elu'):
-    if feature_learning == True and hidden_layers is None:
+    if feature_learning is True and hidden_layers is None:
         hidden_layers = [1, 0.75, 0.25]
 
     if hidden_layers is None:
@@ -711,8 +741,8 @@ def make_deep_learning_model(hidden_layers=None,
 
     # If we're training this model for feature_learning, our penultimate layer (our final hidden
     # layer before the "output" layer) will always have 10 neurons, meaning that we always output
-    #  10 features from our feature_learning model
-    if feature_learning == True:
+    # 10 features from our feature_learning model
+    if feature_learning is True:
         scaled_layers.append(10)
 
     model = Sequential()
@@ -764,7 +794,7 @@ def make_deep_learning_classifier(hidden_layers=None,
                                   feature_learning=False,
                                   activation='elu',
                                   kernel_initializer='normal'):
-    if feature_learning and hidden_layers is None:
+    if feature_learning is True and hidden_layers is None:
         hidden_layers = [1, 0.75, 0.25]
 
     if hidden_layers is None:
@@ -779,8 +809,8 @@ def make_deep_learning_classifier(hidden_layers=None,
 
     # If we're training this model for feature_learning, our penultimate layer (our final hidden
     # layer before the "output" layer) will always have 10 neurons, meaning that we always output
-    #  10 features from our feature_learning model
-    if feature_learning == True:
+    # 10 features from our feature_learning model
+    if feature_learning is True:
         scaled_layers.append(10)
 
     model = Sequential()

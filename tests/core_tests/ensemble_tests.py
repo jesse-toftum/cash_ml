@@ -2,17 +2,20 @@ import datetime
 import os
 import random
 import sys
-
-import numpy as np
-
-import tests.utils_testing as utils
-from auto_ml import Predictor
-from auto_ml.utils_models import load_ml_model
-
 sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
 sys.path = [os.path.abspath(os.path.dirname(os.path.dirname(__file__)))] + sys.path
 
 os.environ['is_test_suite'] = 'True'
+
+from auto_ml import Predictor
+from auto_ml.utils_models import load_ml_model
+
+from nose.tools import assert_equal, assert_not_equal, with_setup
+from sklearn.metrics import accuracy_score
+
+import dill
+import numpy as np
+import tests.utils_testing as utils
 
 
 def ensemble_classifier_basic_test(model_name=None):
@@ -129,15 +132,13 @@ def getting_single_predictions_classifier_test():
     print(duration.total_seconds())
 
     # It's very difficult to set a benchmark for speed that will work across all machines.
-    # On my 2013 bottom of the line 15" MacBook Pro,
-    # this runs in about 0.8 seconds for 1000 predictions
+    # On my 2013 bottom of the line 15" MacBook Pro, this runs in about 0.8 seconds for 1000 predictions
     # That's about 1 millisecond per prediction
     # Assuming we might be running on a test box that's pretty weak, multiply by 3
     # Also make sure we're not running unreasonably quickly
     assert 0.2 < duration.total_seconds() < 60
 
-    # 3. make sure we're not modifying the dictionaries
-    # (the score is the same after running a few experiments as it is the first time)
+    # 3. make sure we're not modifying the dictionaries (the score is the same after running a few experiments as it is the first time)
 
     predictions = []
     for row in df_titanic_test_dictionaries:
@@ -166,8 +167,7 @@ def getting_single_predictions_regressor_test():
 
     ml_predictor = Predictor(type_of_estimator='regressor', column_descriptions=column_descriptions)
 
-    # NOTE: this is bad practice to pass in our same training set as our fl_data set,
-    # but we don't have enough data to do it any other way
+    # NOTE: this is bad practice to pass in our same training set as our fl_data set, but we don't have enough data to do it any other way
     ml_predictor.train(df_boston_train, ensemble_config=ensemble_config)
 
     test_score = ml_predictor.score(df_boston_test, df_boston_test.MEDV)
@@ -218,15 +218,13 @@ def getting_single_predictions_regressor_test():
     print(duration.total_seconds())
 
     # It's very difficult to set a benchmark for speed that will work across all machines.
-    # On my 2013 bottom of the line 15" MacBook Pro,
-    # this runs in about 0.8 seconds for 1000 predictions
+    # On my 2013 bottom of the line 15" MacBook Pro, this runs in about 0.8 seconds for 1000 predictions
     # That's about 1 millisecond per prediction
     # Assuming we might be running on a test box that's pretty weak, multiply by 3
     # Also make sure we're not running unreasonably quickly
     assert 0.2 < duration.total_seconds() / 1.0 < 60
 
-    # 3. make sure we're not modifying the dictionaries
-    # (the score is the same after running a few experiments as it is the first time)
+    # 3. make sure we're not modifying the dictionaries (the score is the same after running a few experiments as it is the first time)
 
     predictions = []
     for row in df_boston_test_dictionaries:

@@ -1,16 +1,19 @@
 import os
 import sys
-
-import numpy as np
-import pandas as pd
-
-import tests.utils_testing as utils
-from auto_ml import Predictor
-
 sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
 sys.path = [os.path.abspath(os.path.dirname(os.path.dirname(__file__)))] + sys.path
 
 os.environ['is_test_suite'] = 'True'
+
+from auto_ml import Predictor
+
+import dill
+from nose.tools import assert_equal, assert_not_equal, with_setup
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+import tests.utils_testing as utils
 
 
 def test_predict_uncertainty_true():
@@ -22,7 +25,7 @@ def test_predict_uncertainty_true():
 
     ml_predictor = Predictor(type_of_estimator='regressor', column_descriptions=column_descriptions)
 
-    ml_predictor.train(df_boston_train, prediction_intervals=[0.05, 0.95])
+    ml_predictor.train(df_boston_train, predict_intervals=True)
 
     intervals = ml_predictor.predict_intervals(df_boston_test)
 
@@ -70,7 +73,7 @@ def test_prediction_intervals_actually_work():
 
     ml_predictor = Predictor(type_of_estimator='regressor', column_descriptions=column_descriptions)
 
-    ml_predictor.train(df_boston_train, prediction_intervals=[0.05, 0.95])
+    ml_predictor.train(df_boston_train, predict_intervals=[0.05, 0.95])
 
     df_boston_test = df_boston_test.reset_index(drop=True)
     intervals = ml_predictor.predict_intervals(df_boston_test)
@@ -105,7 +108,7 @@ def test_prediction_intervals_lets_the_user_specify_number_of_intervals():
 
     ml_predictor = Predictor(type_of_estimator='regressor', column_descriptions=column_descriptions)
 
-    ml_predictor.train(df_boston_train, prediction_intervals=[.2])
+    ml_predictor.train(df_boston_train, predict_intervals=True, prediction_intervals=[.2])
 
     intervals = ml_predictor.predict_intervals(df_boston_test, return_type='list')
 
@@ -124,7 +127,7 @@ def test_predict_intervals_should_fail_if_not_trained():
     ml_predictor.train(df_boston_train)
 
     try:
-        ml_predictor.predict_intervals(df_boston_test)
+        intervals = ml_predictor.predict_intervals(df_boston_test)
         assert False
     except ValueError:
         assert True
@@ -139,7 +142,9 @@ def test_predict_intervals_takes_in_custom_intervals():
 
     ml_predictor = Predictor(type_of_estimator='regressor', column_descriptions=column_descriptions)
 
-    ml_predictor.train(df_boston_train, prediction_intervals=[0.4, 0.6])
+    # df_boston_train = pd.concat([df_boston_train, df_boston_train, df_boston_train])
+
+    ml_predictor.train(df_boston_train, predict_intervals=[0.4, 0.6])
 
     custom_intervals = ml_predictor.predict_intervals(df_boston_test, return_type='list')
 
@@ -147,7 +152,7 @@ def test_predict_intervals_takes_in_custom_intervals():
 
     singles = df_boston_test.head().to_dict('records')
 
-    acceptable_keys = {'prediction', 'interval_0.4', 'interval_0.6'}
+    acceptable_keys = set(['prediction', 'interval_0.4', 'interval_0.6'])
     for row in singles:
         result = ml_predictor.predict_intervals(row)
         assert isinstance(result, dict)
@@ -169,18 +174,16 @@ def test_predict_intervals_takes_in_custom_intervals():
     # Now make sure that the interval values are actually different
     ml_predictor = Predictor(type_of_estimator='regressor', column_descriptions=column_descriptions)
 
-    ml_predictor.train(df_boston_train, prediction_intervals=[0.05, 0.95])
+    ml_predictor.train(df_boston_train, predict_intervals=True)
 
     default_intervals = ml_predictor.predict_intervals(df_boston_test, return_type='list')
 
-    # This is a super flaky test, because we've got such a small datasize,
-    # and we're trying to get distributions from it
+    # This is a super flaky test, because we've got such a small datasize, and we're trying to get distributions from it
     len_intervals = len(custom_intervals)
     num_failures = 0
     for idx, custom_row in enumerate(custom_intervals):
         default_row = default_intervals[idx]
 
-        # Why were all of these floating point numbers being converted to ints?
         if custom_row[1] <= default_row[1]:
             num_failures += 1
             print('{} should be higher than {}'.format(custom_row[1], default_row[1]))
@@ -188,5 +191,4 @@ def test_predict_intervals_takes_in_custom_intervals():
             print('{} should be lower than {}'.format(custom_row[1], default_row[1]))
             num_failures += 1
 
-    # What the heck is this even supposed to be testing for?
     assert num_failures < 0.18 * len_intervals

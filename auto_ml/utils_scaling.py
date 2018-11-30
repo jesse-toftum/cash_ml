@@ -2,7 +2,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 from auto_ml import utils
 
-booleans = set([True, False, 'true', 'false', 'True', 'False', 'TRUE', 'FALSE'])
+booleans = {True, False, 'true', 'false', 'True', 'False', 'TRUE', 'FALSE'}
 
 
 # Used in CustomSparseScaler
@@ -30,16 +30,16 @@ def calculate_scaling_ranges(X, col, min_percentile=0.05, max_percentile=0.95):
     if inner_range == 0:
         # Used to do recursion here, which is prettier and uses less code, but since we've
         # already got the filtered and sorted series_vals, it makes sense to use those to avoid
-        # duplicate computation Grab the absolute largest max and min vals, and see if there is
+        # duplicate computation. Grab the absolute largest max and min vals, and see if there is
         # any difference in them, since our 95th and 5th percentile vals had no difference
-        # between them
+        # between them.
         max_val = series_vals[len(series_vals) - 1]
         min_val = series_vals[0]
         inner_range = max_val - min_val
 
         if inner_range == 0:
             # If this is a binary field, keep all the values in it, just make sure they're scaled
-            #  to 1 or 0.
+            # to 1 or 0.
             if max_val == 1:
                 min_val = 0
                 inner_range = 1
@@ -53,8 +53,8 @@ def calculate_scaling_ranges(X, col, min_percentile=0.05, max_percentile=0.95):
     return col_summary
 
 
-# Scale sparse data to the 95th and 5th percentile Only do so for values that actuall exist (do
-# absolutely nothing with rows that do not have this data point)
+# Scale sparse data to the 95th and 5th percentile. Only do so for values that
+# actually exist (do absolutely nothing with rows that do not have this data point)
 class CustomSparseScaler(BaseEstimator, TransformerMixin):
 
     def __init__(self,
@@ -65,13 +65,13 @@ class CustomSparseScaler(BaseEstimator, TransformerMixin):
                  max_percentile=0.95):
         self.column_descriptions = column_descriptions
 
-        self.numeric_col_descs = set([None, 'continuous', 'numerical', 'numeric', 'float', 'int'])
+        self.numeric_col_descs = {None, 'continuous', 'numerical', 'numeric', 'float', 'int'}
         # Everything in column_descriptions (except numeric_col_descs) is a non-numeric column,
         # and thus, cannot be scaled
         self.cols_to_avoid = set(
             [k for k, v in column_descriptions.items() if v not in self.numeric_col_descs])
 
-        # Setting these here so that they can be grid searchable
+        # Setting these here so that they can be grid searchable.
 
         # Truncating large values is an interesting strategy. It forces all values to fit inside
         # the 5th - 95th percentiles. Essentially, it turns any really large (or small) values

@@ -18,11 +18,10 @@ class Ensembler(BaseEstimator, TransformerMixin):
         self.ensemble_method = ensemble_method
         self.num_classes = num_classes
 
-    # ################################
     # Get a dataframe that is all the predictions from all the sub-models
-    # ################################
     # Note that we will get these predictions in parallel (relatively quick)
 
+    # TODO: Simplify
     def get_all_predictions(self, X):
 
         def get_predictions_for_one_estimator(estimator, X):
@@ -45,7 +44,7 @@ class Ensembler(BaseEstimator, TransformerMixin):
         else:
 
             # Pathos doesn't like datasets beyond a certain size. So fall back on single,
-            # non-parallel predictions instead. try:
+            # non-parallel predictions instead.
             if os.environ.get('is_test_suite', False) == 'True':
                 predictions_from_all_estimators = map(
                     lambda predictor: get_predictions_for_one_estimator(predictor, X),
@@ -90,10 +89,8 @@ class Ensembler(BaseEstimator, TransformerMixin):
     def fit(self, X, y):
         return self
 
-    # ################################
-    # Public API to get a single prediction from each row,
-    # where that single prediction is somehow an ensemble of all our trained sub-predictors
-    # ################################
+    # Public API to get a single prediction from each row, where that single prediction is
+    # somehow an ensemble of all our trained sub-predictors
 
     def predict(self, X):
 
@@ -102,7 +99,7 @@ class Ensembler(BaseEstimator, TransformerMixin):
         # If this is just a single dictionary we're getting predictions from:
         if X.shape[0] == 1:
             # predictions is just a dictionary where all the values are the predicted values from
-            #  one of our subpredictors. we'll want that as a list
+            # one of our sub-predictors. we'll want that as a list
             predicted_vals = list(predictions.values())
             if self.ensemble_method == 'median':
                 return np.median(predicted_vals)
@@ -141,7 +138,7 @@ class Ensembler(BaseEstimator, TransformerMixin):
         # If this is just a single dictionary we're getting predictions from:
         if X.shape[0] == 1:
             # predictions is just a dictionary where all the values are the predicted values from
-            #  one of our subpredictors. we'll want that as a list
+            # one of our sub-predictors. we'll want that as a list
             predicted_vals = list(predictions.values())
             predicted_vals = self.get_predictions_by_class(predicted_vals)
 
