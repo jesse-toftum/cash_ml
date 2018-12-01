@@ -43,8 +43,8 @@ try:
     from keras import Sequential, regularizers, optimizers
     from keras.models import load_model as keras_load_model
     from keras.wrappers.scikit_learn import KerasRegressor, KerasClassifier
-    from keras.layers import ELU, PReLU, ThresholdedReLU, LeakyReLU, ReLU, Dense, Dropout, \
-        Activation
+    from keras.layers import ELU, PReLU, ThresholdedReLU, LeakyReLU, ReLU, \
+        Dense, Dropout, Activation
 
     keras_installed = True
 except:
@@ -365,16 +365,16 @@ def get_search_params(model_name):
                               # [1, 2, 2, 1]
                               ],
             'dropout_rate': [
-                # 0.0,
+                0.0,
                 0.1,
                 0.2,
                 0.3,
                 0.4,
                 0.5,
-                # 0.6,
-                # 0.7,
-                # 0.8,
-                # 0.9,
+                0.6,
+                0.7,
+                0.8,
+                0.9,
             ],
             'kernel_initializer': [
                 'uniform', 'lecun_uniform', 'normal', 'zero', 'glorot_normal', 'glorot_uniform',
@@ -409,16 +409,16 @@ def get_search_params(model_name):
 
             # I would bargain that the best dropout rates are somewhere between 0.1 and 0.5
             'dropout_rate': [
-                # 0.0,
+                0.0,
                 0.1,
                 0.2,
                 0.3,
                 0.4,
                 0.5,
-                # 0.6,
-                # 0.7,
-                # 0.8,
-                # 0.9,
+                0.6,
+                0.7,
+                0.8,
+                0.9,
             ]
         },
         'XGBClassifier': {
