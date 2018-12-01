@@ -371,10 +371,10 @@ def get_search_params(model_name):
                 0.3,
                 0.4,
                 0.5,
-                # 0.6,
-                # 0.7,
-                # 0.8,
-                # 0.9,
+                0.6,
+                0.7,
+                0.8,
+                0.9,
             ],
             'kernel_initializer': [
                 'uniform', 'lecun_uniform', 'normal', 'zero', 'glorot_normal', 'glorot_uniform',
@@ -407,7 +407,6 @@ def get_search_params(model_name):
             #                  'hard_sigmoid', 'linear']
             # , 'weight_constraint': [1, 3, 5]
 
-            # I would bargain that the best dropout rates are somewhere between 0.1 and 0.5
             'dropout_rate': [
                 0.0,
                 0.1,
@@ -415,10 +414,10 @@ def get_search_params(model_name):
                 0.3,
                 0.4,
                 0.5,
-                # 0.6,
-                # 0.7,
-                # 0.8,
-                # 0.9,
+                0.6,
+                0.7,
+                0.8,
+                0.9,
             ]
         },
         'XGBClassifier': {
