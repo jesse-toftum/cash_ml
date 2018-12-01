@@ -163,7 +163,7 @@ def test_feature_learning_categorical_ensembling_getting_single_predictions_clas
     print(first_score)
     # Make sure our score is good, but not unreasonably good
 
-    lower_bound = -0.17
+    lower_bound = -0.175
     if model_name == 'DeepLearningClassifier':
         lower_bound = -0.245
     if model_name == 'CatBoostClassifier':
