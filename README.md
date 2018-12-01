@@ -1,9 +1,12 @@
 # auto_ml
 > Automated machine learning for production and analytics
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d78d22630479478b8d8d26a89481d996)](https://app.codacy.com/app/above-c-level/auto_ml?utm_source=github.com&utm_medium=referral&utm_content=above-c-level/auto_ml&utm_campaign=Badge_Grade_Dashboard)
+
 [![Build Status](https://travis-ci.org/above-c-level/auto_ml.svg?branch=master)](https://travis-ci.org/above-c-level/auto_ml)
 [![Coverage Status](https://coveralls.io/repos/github/above-c-level/auto_ml/badge.svg?branch=master)](https://coveralls.io/github/above-c-level/auto_ml?branch=master)
+[![Maintainability](https://api.codeclimate.com/v1/badges/7ff379c1c9a44db0ba83/maintainability)](https://codeclimate.com/github/above-c-level/auto_ml/maintainability)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d78d22630479478b8d8d26a89481d996)](https://app.codacy.com/app/above-c-level/auto_ml?utm_source=github.com&utm_medium=referral&utm_content=above-c-level/auto_ml&utm_campaign=Badge_Grade_Dashboard)
+
 <!-- Stars badge?! -->
 
 ## Installation
