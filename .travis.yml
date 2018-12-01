@@ -19,8 +19,8 @@ env:
   - TESTS_TO_RUN=tests/core_tests/trained_transformation_pipeline_tests.py
   - TESTS_TO_RUN=tests/core_tests/uncertainty_tests.py
   - TESTS_TO_RUN=tests/core_tests/user_logging_tests.py
-
-  - CC_TEST_REPORTER_ID=4101548860988bc3c8897dece534054d7d16c5451913ed1f7a0ca03d39ea6784
+  global:
+    - CC_TEST_REPORTER_ID=4101548860988bc3c8897dece534054d7d16c5451913ed1f7a0ca03d39ea6784
 
 python:
   - "3.6"
@@ -40,8 +40,8 @@ install:
 script:
   - nosetests $TESTS_TO_RUN
   - coveralls
-
-addons:
-  postgresql: "9.5"
-services:
-  - redis-server
+#
+#addons:
+#  postgresql: "9.5"
+#services:
+#  - redis-server
