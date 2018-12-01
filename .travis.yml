@@ -13,14 +13,15 @@ env:
 #
 #  - TESTS_TO_RUN=tests/core_tests/api_coverage_tests_classifiers.py
 #  - TESTS_TO_RUN=tests/core_tests/api_coverage_tests_regressors.py
-  - TESTS_TO_RUN=tests/core_tests/basic_tests.py
-  - TESTS_TO_RUN=tests/core_tests/calibrate_classifier_tests.py
-  - TESTS_TO_RUN=tests/core_tests/categorical_ensembling_test.py
-  - TESTS_TO_RUN=tests/core_tests/scoring_tests.py
-  - TESTS_TO_RUN=tests/core_tests/test_prediction_intervals.py
-  - TESTS_TO_RUN=tests/core_tests/trained_transformation_pipeline_tests.py
-  - TESTS_TO_RUN=tests/core_tests/uncertainty_tests.py
-  - TESTS_TO_RUN=tests/core_tests/user_logging_tests.py
+  matrix:
+    - TESTS_TO_RUN=tests/core_tests/basic_tests.py
+    - TESTS_TO_RUN=tests/core_tests/calibrate_classifier_tests.py
+    - TESTS_TO_RUN=tests/core_tests/categorical_ensembling_test.py
+    - TESTS_TO_RUN=tests/core_tests/scoring_tests.py
+    - TESTS_TO_RUN=tests/core_tests/test_prediction_intervals.py
+    - TESTS_TO_RUN=tests/core_tests/trained_transformation_pipeline_tests.py
+    - TESTS_TO_RUN=tests/core_tests/uncertainty_tests.py
+    - TESTS_TO_RUN=tests/core_tests/user_logging_tests.py
 
 
 python:
