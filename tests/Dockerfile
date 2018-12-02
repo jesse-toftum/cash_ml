@@ -20,6 +20,6 @@ RUN pip install --upgrade numpy dill h5py scikit-learn scipy python-dateutil pan
 
 # To update this image and upload it:
 # Build the image (docker build .), and give it two separate tags (latest, and a version number)
-# docker build --no-cache -t climbsrocks/cash_ml_tests:0.0.10 -t climbsrocks/cash_ml_tests:latest .
-# docker push climbsrocks/cash_ml_tests:latest
-# docker push climbsrocks/cash_ml_tests:0.0.10
+# docker build --no-cache -t jesse-toftum/cash_ml_tests:0.0.10 -t jesse-toftum/cash_ml_tests:latest .
+# docker push jesse-toftum/cash_ml_tests:latest
+# docker push jesse-toftum/cash_ml_tests:0.0.10

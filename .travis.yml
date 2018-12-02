@@ -35,14 +35,15 @@ install:
   - pip install -r requirements.txt
   - if [[ $TESTS_TO_RUN == *'advanced_tests'* ]]; then pip install lightgbm keras tensorflow catboost xgboost; fi
 
-script:
-  - nosetests $TESTS_TO_RUN
-  - coveralls
-
-after_script:
-  - coverage xml
-  - ./cc-test-reporter format-coverage
-
-after_deploy:
-  - ./cc-test-reporter sum-coverage
-  - ./cc-test-reporter upload-coverage  # Upload coverage
+jobs:
+  include:
+    - stage: Run Tests
+      script:
+        - nosetests $TESTS_TO_RUN
+        - coveralls
+        - coverage xml
+        - ./cc-test-reporter format-coverage
+    - stage: Upload to Code Climate
+      script:
+        - ./cc-test-reporter sum-coverage
+        - ./cc-test-reporter upload-coverage  # Upload coverage
