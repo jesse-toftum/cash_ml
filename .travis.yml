@@ -35,8 +35,8 @@ jobs:
   include:
     - stage: Core Tests
       python:
-        - 3.5
-        - 3.6
+        - "3.5"
+        - "3.6"
       env:
         - CORE_TESTS=tests/core_tests/scoring_tests.py
       script:
@@ -47,8 +47,8 @@ jobs:
 
     - stage: Advanced tests
       python:
-        - 3.5
-        - 3.6
+        - "3.5"
+        - "3.6"
       env:
         - ADVANCED_TESTS=tests/core_tests/basic_tests.py
       install:
