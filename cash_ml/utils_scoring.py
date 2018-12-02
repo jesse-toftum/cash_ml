@@ -8,7 +8,7 @@ from sklearn.metrics import mean_squared_error, brier_score_loss, accuracy_score
     roc_auc_score, f1_score
 from tabulate import tabulate
 
-from auto_ml import utils
+from cash_ml import utils
 
 bad_vals_as_strings = {
     str(float('nan')),
@@ -100,7 +100,7 @@ def advanced_scoring_classifiers(probas, actuals, name=None):
         print('\nHere is the accuracy of our trained estimator at each level of predicted '
               'probabilities ')
         print('For a verbose description of what this means, please visit the docs:')
-        print('http://auto-ml.readthedocs.io/en/latest/analytics.html#interpreting-predicted'
+        print('http://cash-ml.readthedocs.io/en/latest/analytics.html#interpreting-predicted'
               '-probability-buckets-for-classifiers ')
 
     except:

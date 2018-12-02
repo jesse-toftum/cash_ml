@@ -1,6 +1,6 @@
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from auto_ml import utils
+from cash_ml import utils
 
 booleans = {True, False, 'true', 'false', 'True', 'False', 'TRUE', 'FALSE'}
 

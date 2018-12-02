@@ -22,7 +22,7 @@ The ``column_descriptions`` dictionary passed into ``Predictor()`` is essentiall
 
 NOTE: We assume each column is a numerical column, unless you specify otherwise using one of the types noted below.
 
-#. ``attribute_name: 'output'`` The ``column_descriptions`` dictionary must specify one of your attributes as the output column. This is what the ``auto_ml`` predictor will try to predict. Importantly, the data you pass into ``.train()`` should have the correct values for this column, so we can teach the algorithms what is right and what is wrong.
+#. ``attribute_name: 'output'`` The ``column_descriptions`` dictionary must specify one of your attributes as the output column. This is what the ``cash_ml`` predictor will try to predict. Importantly, the data you pass into ``.train()`` should have the correct values for this column, so we can teach the algorithms what is right and what is wrong.
 #. ``attribute_name: 'categorical'`` All attribute names that hold a string in any of the rows after the header row will be encoded as categorical data. If, however, you have any numerical columns that you want encoded as categorical data, you can specify that here.
 #. ``attribute_name: 'nlp'`` If any of your data is a text field that you'd like to run some Natural Language Processing on, specify that in the header row. Data stored in this attribute will be encoded using TF-IDF, along with some other feature engineering (count of some aggregations like total capital letters, puncutation characters, smiley faces, etc., as well as a sentiment prediction of that text).
 #. ``attribute_name: 'ignore'`` This column of data will be ignored.
@@ -32,7 +32,7 @@ NOTE: We assume each column is a numerical column, unless you specify otherwise 
 Passing in your own feature engineering function
 =================================================
 
-You can pass in your own function to perform feature engineering on the data. This will be called as the first step in the pipeline that ``auto_ml`` builds out.
+You can pass in your own function to perform feature engineering on the data. This will be called as the first step in the pipeline that ``cash_ml`` builds out.
 
 You will be passed the entire X dataset (not the y dataset), and are expected to return the entire X dataset.
 

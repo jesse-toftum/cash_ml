@@ -14,7 +14,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.utils import column_or_1d
 from sklearn.utils.metaestimators import if_delegate_has_method
 
-from auto_ml._version import __version__ as auto_ml_version
+from cash_ml._version import __version__ as cash_ml_version
 
 
 def is_linear_model(model_names):
@@ -251,7 +251,7 @@ def get_versions():
         'scipy', 'sklearn-deap2', 'tabulate', 'tensorflow', 'xgboost'
     ]
 
-    versions = {'auto_ml': auto_ml_version}
+    versions = {'cash_ml': cash_ml_version}
 
     for lib in libraries_to_check:
         try:

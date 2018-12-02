@@ -7,7 +7,7 @@ from sklearn.datasets import load_boston
 from sklearn.metrics import brier_score_loss, mean_squared_error
 from sklearn.model_selection import train_test_split
 
-from auto_ml import Predictor
+from cash_ml import Predictor
 
 sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
 os.environ['is_test_suite'] = 'True'

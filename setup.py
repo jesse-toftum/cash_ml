@@ -12,7 +12,7 @@ try:
         readme_text = read_file.readlines()
     # Change our README for pypi so we can get analytics tracking information for that separately
     readme_text = [row.decode() for row in readme_text]
-    readme_text[-1] = "[![Analytics](https://ga-beacon.appspot.com/UA-58170643-5/auto_ml/pypi)]" \
+    readme_text[-1] = "[![Analytics](https://ga-beacon.appspot.com/UA-58170643-5/cash_ml/pypi)]" \
                       "(https://github.com/igrigorik/ga-beacon)"
 
     long_description = pypandoc.convert(''.join(readme_text), 'rst', format='md')
@@ -29,11 +29,11 @@ except ImportError:
         long_description = f.read()
 
 setup(
-    name='auto_ml',
-    version=open("auto_ml/_version.py").readlines()[-1].split()[-1].strip("\"'"),
+    name='cash_ml',
+    version=open("cash_ml/_version.py").readlines()[-1].split()[-1].strip("\"'"),
     description='Automated machine learning for production and analytics',
     long_description=long_description,
-    url='https://github.com/ClimbsRocks/auto_ml',
+    url='https://github.com/ClimbsRocks/cash_ml',
     author='Preston Parry',
     author_email='ClimbsBytes@gmail.com',
     license='MIT',
@@ -60,7 +60,7 @@ setup(
         'pandas', 'dataframes', 'machinejs', 'deep learning', 'tensorflow', 'deeplearning',
         'lightgbm', 'gradient boosting', 'gbm', 'keras', 'production ready', 'test coverage'
     ],
-    packages=['auto_ml'],
+    packages=['cash_ml'],
 
     # We will allow the user to install XGBoost themselves. Since it can be difficult to
     # install, we will not force them to go through that install challenge if they're just

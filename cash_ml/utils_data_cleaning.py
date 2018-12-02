@@ -171,7 +171,7 @@ class BasicDataCleaning(BaseEstimator, TransformerMixin):
                     print('If this is a categorical column, please mark it as `{}: "categorical"` '
                           'as part of your column_descriptions'.format(key))
                     print('If this is not a categorical column, please consider converting its '
-                          'dtype before passing data into auto_ml ')
+                          'dtype before passing data into cash_ml ')
                     print('\n')
                     warnings.warn('Consider marking the "{}" column as categorical'.format(key))
 
@@ -387,7 +387,7 @@ class BasicDataCleaning(BaseEstimator, TransformerMixin):
         else:
             # If we have gotten here, the value is not any that we recognize. This is most likely
             # a typo that the user would want to be informed of, or a case while we're developing
-            # on auto_ml itself. In either case, it's useful to log it.
+            # on cash_ml itself. In either case, it's useful to log it.
             print('When transforming the data, we have encountered a value in column_descriptions '
                   'that is not currently supported. The column has been dropped to allow the rest '
                   'of the pipeline to run. Here\'s the name of the column: ')
@@ -479,7 +479,7 @@ def add_date_features_dict(row, date_col):
 
     # Make a copy of all the engineered features from the date, without modifying the original
     # object at all. This way the same original object can be passed into a number of different
-    # trained auto_ml predictors.
+    # trained cash_ml predictors.
 
     date_feature_dict[date_col + '_day_of_week'] = date_val.weekday()
     # nesting this inside a try/except block because the date might be a datetime.date,

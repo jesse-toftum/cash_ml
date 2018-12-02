@@ -11,8 +11,8 @@ import numpy as np
 from sklearn.metrics import accuracy_score
 
 import tests.utils_testing as utils
-from auto_ml import Predictor
-from auto_ml.utils_models import load_ml_model
+from cash_ml import Predictor
+from cash_ml.utils_models import load_ml_model
 
 sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
 sys.path = [os.path.abspath(os.path.dirname(os.path.dirname(__file__)))] + sys.path
@@ -47,10 +47,10 @@ def test_perform_feature_selection_false_classification():
 
 # For some reason, this test now causes a Segmentation Default on travis when run on python 3.5.
 # home/travis/.travis/job_stages: line 53:  8810 Segmentation fault
-# (core dumped) nosetests -v --with-coverage --cover-package auto_ml tests
+# (core dumped) nosetests -v --with-coverage --cover-package cash_ml tests
 # It didn't error previously
 # It appears to be an environment issue (possibly caused by running too many parallelized things,
-# which only happens in a test suite), not an issue with auto_ml.
+# which only happens in a test suite), not an issue with cash_ml.
 # So we'll run this test to make sure the library functionality works, but only on some environments
 if os.environ.get('TRAVIS_PYTHON_VERSION', '0') != '3.5':
 

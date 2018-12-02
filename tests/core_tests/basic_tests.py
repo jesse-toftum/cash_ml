@@ -12,8 +12,8 @@ sys.path = [os.path.abspath(os.path.dirname(os.path.dirname(__file__)))] + sys.p
 
 os.environ['is_test_suite'] = 'True'
 
-from auto_ml import Predictor
-from auto_ml.utils_models import load_ml_model
+from cash_ml import Predictor
+from cash_ml.utils_models import load_ml_model
 
 from nose.tools import assert_equal, assert_not_equal, with_setup
 from sklearn.metrics import accuracy_score
@@ -99,7 +99,7 @@ def test_model_uses_user_provided_training_params(model_name=None):
 
 def test_ignores_new_invalid_features():
 
-    # One of the great unintentional features of auto_ml is that you can pass in new features at prediction time, that weren't present at training time, and they're silently ignored!
+    # One of the great unintentional features of cash_ml is that you can pass in new features at prediction time, that weren't present at training time, and they're silently ignored!
     # One edge case here is new features that are strange objects (lists, datetimes, intervals, or anything else that we can't process in our default data processing pipeline). Initially, we just ignored them in dict_vectorizer, but we need to ignore them earlier.
     np.random.seed(0)
 

@@ -2,7 +2,7 @@ Properly Formal API Documenation
 ================================
 
 
-auto_ml
+cash_ml
 -------
 
 .. py:class:: Predictor(type_of_estimator, column_descriptions)
@@ -28,7 +28,7 @@ auto_ml
 
   :param verbose: [default- True] I try to give you as much information as possible throughout the process. But if you just want the trained pipeline with less verbose logging, set verbose=False and we'll reduce the amount of logging.
 
-  :param ml_for_analytics: [default- True] Whether or not to print out results for which features the trained model found useful. If ``True``, auto_ml will print results that an analyst might find interesting.
+  :param ml_for_analytics: [default- True] Whether or not to print out results for which features the trained model found useful. If ``True``, cash_ml will print results that an analyst might find interesting.
   :type ml_for_analytics: Boolean
 
   :param take_log_of_y: [default- None] For regression problems, accuracy is sometimes improved by taking the natural log of y values during training, so they all exist on a comparable scale.
@@ -37,9 +37,9 @@ auto_ml
   :param model_names: [default- relevant 'GradientBoosting'] Which model(s) to try. Includes many scikit-learn models, deep learning with Keras/TensorFlow, and Microsoft's LightGBM. Currently available options from scikit-learn are ['ARDRegression', 'AdaBoostClassifier', 'AdaBoostRegressor', 'BayesianRidge', 'ElasticNet', 'ExtraTreesClassifier', 'ExtraTreesRegressor', 'GradientBoostingClassifier', 'GradientBoostingRegressor', 'Lasso', 'LassoLars', 'LinearRegression', 'LogisticRegression', 'MiniBatchKMeans', 'OrthogonalMatchingPursuit', 'PassiveAggressiveClassifier', 'PassiveAggressiveRegressor', 'Perceptron', 'RANSACRegressor', 'RandomForestClassifier', 'RandomForestRegressor', 'Ridge', 'RidgeClassifier', 'SGDClassifier', 'SGDRegressor']. If you have installed XGBoost, LightGBM, or Keras, you can also include ['DeepLearningClassifier', 'DeepLearningRegressor', 'LGBMClassifier', 'LGBMRegressor', 'XGBClassifier', 'XGBRegressor']. By default we choose scikit-learn's 'GradientBoostingRegressor' or 'GradientBoostingClassifier', or if XGBoost is installed, 'XGBRegressor' or 'XGBClassifier'.
   :type model_names: list of strings
 
-  :param perform_feature_scaling: [default- True] Whether to scale values, roughly to the range of {-1, 1}. Scaling values is highly recommended for deep learning. auto_ml has it's own custom scaler that is relatively robust to outliers.
+  :param perform_feature_scaling: [default- True] Whether to scale values, roughly to the range of {-1, 1}. Scaling values is highly recommended for deep learning. cash_ml has it's own custom scaler that is relatively robust to outliers.
 
-  :param calibrate_final_model: [default- False] Whether to calibrate the probability predictions coming from the final trained classifier. Usefulness depends on your scoring metric, and model. The default auto_ml settings mean that the model does not necessarily need to be calibrated. If True, you must pass in values for X_test and y_test as well. This is the dataset we will calibrate the model to. Note that this means you cannot use this as your test dataset once the model has been calibrated to them.
+  :param calibrate_final_model: [default- False] Whether to calibrate the probability predictions coming from the final trained classifier. Usefulness depends on your scoring metric, and model. The default cash_ml settings mean that the model does not necessarily need to be calibrated. If True, you must pass in values for X_test and y_test as well. This is the dataset we will calibrate the model to. Note that this means you cannot use this as your test dataset once the model has been calibrated to them.
 
   :param verify_features: [default- False] Allows you to verify that all the same features are present in a prediction dataset as the training datset. False by default because it increases serialized model size by around 1MB, depending on your dataset. In order to check whether a prediction dataset has the same features, invoke ``trained_ml_pipeline``. ``named_steps['final_model']``. ``verify_features(prediction_data)``. Kind of a clunky UI, but a useful feature smashed into the constraints of a sklearn pipeline.
 
@@ -94,7 +94,7 @@ auto_ml
 
   :rtype: dict for single predictions, list of lists if getting predictions on multiple rows. The return type can also be specified using return_type below. The list of predicted values for each row will always be in this order: ``[prediction, prediction_lower, prediction_median, prediction_upper]``. Similarly, each returned dict will always have the properties ``{'prediction': None'``, ``'prediction_lower': None``, ``'prediction_median': None``, ``'prediction_upper': None}``
 
-.. py:method:: ml_predictor.save(file_name='auto_ml_saved_pipeline.dill', verbose=True)
+.. py:method:: ml_predictor.save(file_name='cash_ml_saved_pipeline.dill', verbose=True)
 
   :param file_name: [OPTIONAL] The name of the file you would like the trained pipeline to be saved to.
   :type file_name: string

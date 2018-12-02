@@ -11,7 +11,7 @@ So then you modify your answer to this awesome local leader lady whose ask ended
 
 Well buckle up, 'cause you're about to become a 100x ML engineer :)
 
-categorical_ensembling is exactly this use case. auto_ml will automatically train one model for each category of thing (in this case, 100 different models, one for each local market). You still just call `trained_pipeline.predict(data)`, and it will return the prediction from the correct model. Heck, unless you use deep learning for each of the 100 models, the trained pipeline is saved into just one file, just like a normal auto_ml trained pipeline. You've basically abstracted away all the complexity of training 100 models for each of your 100 markets, while getting around a 2% performance boost.
+categorical_ensembling is exactly this use case. cash_ml will automatically train one model for each category of thing (in this case, 100 different models, one for each local market). You still just call `trained_pipeline.predict(data)`, and it will return the prediction from the correct model. Heck, unless you use deep learning for each of the 100 models, the trained pipeline is saved into just one file, just like a normal cash_ml trained pipeline. You've basically abstracted away all the complexity of training 100 models for each of your 100 markets, while getting around a 2% performance boost.
 
 How does this work in practice?
 

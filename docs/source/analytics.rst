@@ -20,7 +20,7 @@ Here's the whole code block that will get you analytics results in your console:
 
 .. code-block:: python
 
-  from auto_ml import Predictor
+  from cash_ml import Predictor
 
   # If you pass in any categorical data as a number, tell us here and we'll take care of it.
   col_desc_dictionary = {col_to_predict: 'output', state_code: 'categorical'}

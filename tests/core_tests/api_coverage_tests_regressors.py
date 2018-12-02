@@ -10,8 +10,8 @@ sys.path = [os.path.abspath(os.path.dirname(os.path.dirname(__file__)))] + sys.p
 
 os.environ['is_test_suite'] = 'True'
 
-from auto_ml import Predictor
-from auto_ml.utils_models import load_ml_model
+from cash_ml import Predictor
+from cash_ml.utils_models import load_ml_model
 
 import dill
 from nose.tools import assert_equal, assert_not_equal, with_setup

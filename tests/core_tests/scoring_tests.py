@@ -5,7 +5,7 @@ sys.path = [os.path.abspath(os.path.dirname(os.path.dirname(__file__)))] + sys.p
 
 os.environ['is_test_suite'] = 'True'
 
-from auto_ml import Predictor
+from cash_ml import Predictor
 import numpy as np
 
 import tests.utils_testing as utils

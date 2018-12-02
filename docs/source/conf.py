@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# auto_ml documentation build configuration file, created by
+# cash_ml documentation build configuration file, created by
 # sphinx-quickstart on Sun Aug  7 20:25:48 2016.
 #
 # This file is execfile()d with the current directory set to its
@@ -48,7 +48,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'auto_ml'
+project = u'cash_ml'
 copyright = u'2016, Preston Parry'
 author = u'Preston Parry'
 
@@ -144,7 +144,7 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
 # The name for this set of Sphinx documents.
 # "<project> v<release> documentation" by default.
 #
-# html_title = u'auto_ml v0.1.0'
+# html_title = u'cash_ml v0.1.0'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #
@@ -244,7 +244,7 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
 # html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'auto_mldoc'
+htmlhelp_basename = 'cash_mldoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -270,7 +270,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'auto_ml.tex', u'auto\\_ml Documentation',
+    (master_doc, 'cash_ml.tex', u'cash\\_ml Documentation',
      u'Preston Parry', 'manual'),
 ]
 
@@ -312,7 +312,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'auto_ml', u'auto_ml Documentation',
+    (master_doc, 'cash_ml', u'cash_ml Documentation',
      [author], 1)
 ]
 
@@ -327,8 +327,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'auto_ml', u'auto_ml Documentation',
-     author, 'auto_ml', 'One line description of project.',
+    (master_doc, 'cash_ml', u'cash_ml Documentation',
+     author, 'cash_ml', 'One line description of project.',
      'Miscellaneous'),
 ]
 

@@ -23,17 +23,17 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.preprocessing import FunctionTransformer
 from tabulate import tabulate
 
-from auto_ml import DataFrameVectorizer
-from auto_ml import utils
-from auto_ml import utils_categorical_ensembling
-from auto_ml import utils_data_cleaning
-from auto_ml import utils_ensembling
-from auto_ml import utils_feature_selection
-from auto_ml import utils_model_training
-from auto_ml import utils_models
-from auto_ml import utils_scaling
-from auto_ml import utils_scoring
-from auto_ml._version import __version__ as auto_ml_version
+from cash_ml import DataFrameVectorizer
+from cash_ml import utils
+from cash_ml import utils_categorical_ensembling
+from cash_ml import utils_data_cleaning
+from cash_ml import utils_ensembling
+from cash_ml import utils_feature_selection
+from cash_ml import utils_model_training
+from cash_ml import utils_models
+from cash_ml import utils_scaling
+from cash_ml import utils_scoring
+from cash_ml._version import __version__ as cash_ml_version
 
 # TODO: Warn user of issues arising with deap not having correct dependencies.
 #  The issue manifests itself by throwing "ImportWarning: Falling back to the python version of
@@ -45,7 +45,7 @@ from auto_ml._version import __version__ as auto_ml_version
 #  print('conda install -c conda-forge deap\n')
 #  print('https://github.com/DEAP/deap/issues/240 may also provide more information.')
 
-# Ultimately, we (the authors of auto_ml) are responsible for building a project that's robust
+# Ultimately, we (the authors of cash_ml) are responsible for building a project that's robust
 # against warnings. The classes of warnings below are ones we've deemed acceptable. The user
 # should be able to sit at a high level of abstraction, and not be bothered with the internals of
 # how we're handing these things. Ignore all warnings that are DeprecationWarnings.
@@ -655,7 +655,7 @@ class Predictor(object):
                       'more model accuracy from the feature_learning step, consider not passing in '
                       'perform_feature_scaling=False ')
                 warnings.warn(
-                    'Consider allowing auto_ml to perform_feature_scaling in conjunction with '
+                    'Consider allowing cash_ml to perform_feature_scaling in conjunction with '
                     'feature_learning ')
 
             if self.perform_feature_selection is True:
@@ -897,11 +897,11 @@ class Predictor(object):
 
         if verbose:
             print(
-                'Welcome to auto_ml! We\'re about to go through and make sense of your data using '
+                'Welcome to cash_ml! We\'re about to go through and make sense of your data using '
                 'machine learning, and give you a production-ready pipeline to get predictions '
                 'with.\n ')
             print('If you have any issues, or new feature ideas, let us know at http://auto.ml')
-            print('You are running on version {}'.format(auto_ml_version))
+            print('You are running on version {}'.format(cash_ml_version))
 
         if transformed_X is None:
             X_df, y = self._clean_data_and_prepare_for_training(raw_training_data, scoring)
@@ -1914,7 +1914,7 @@ class Predictor(object):
 
         if self.search_for_default_category is True:
             print(
-                'By default, auto_ml finds the largest category, and uses that if asked to get '
+                'By default, cash_ml finds the largest category, and uses that if asked to get '
                 'predictions for any rows which come from a category that was not included in the '
                 'training data (i.e., if you launch a new market and ask us to get predictions '
                 'for it, we will default to using your largest market to get predictions for the '
@@ -2428,7 +2428,7 @@ class Predictor(object):
             print(os.getcwd())
             print('To use it to get predictions, please follow the following flow (adjusting for '
                   'your own uses as necessary:\n\n ')
-            print('`from auto_ml.utils_models import load_ml_model')
+            print('`from cash_ml.utils_models import load_ml_model')
             print('`trained_ml_pipeline = load_ml_model("' + file_name + '")')
             print('`trained_ml_pipeline.predict(data)`\n\n')
 
