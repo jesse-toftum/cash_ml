@@ -42,5 +42,7 @@ script:
 after_script:
   - coverage xml
   - ./cc-test-reporter format-coverage
+
+after_deploy:
   - ./cc-test-reporter sum-coverage
-  - if [[ "$TRAVIS_TEST_RESULT" == 0 ]]; then ./cc-test-reporter upload-coverage; fi  # Upload coverage
+  - ./cc-test-reporter upload-coverage  # Upload coverage
