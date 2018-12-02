@@ -4,9 +4,9 @@ language: python
 
 cache: pip
 
-env:
-  - CORE_TESTS=tests/core_tests/scoring_tests.py
-  - ADVANCED_TESTS=tests/core_tests/basic_tests.py
+#env:
+#  - CORE_TESTS=tests/core_tests/scoring_tests.py
+#  - ADVANCED_TESTS=tests/core_tests/basic_tests.py
 #  - CORE_TESTS=tests/core_tests/api_coverage_tests_classifiers.py
 #  - CORE_TESTS=tests/core_tests/api_coverage_tests_regressors.py
 #  - CORE_TESTS=tests/core_tests/calibrate_classifier_tests.py
@@ -25,7 +25,7 @@ before_install: # Code coverage for codeclimate
   - ./cc-test-reporter before-build
 
 install:
-  - TEST_DIR=$PWD
+#  - TEST_DIR=$PWD
   - pip install --upgrade pip setuptools wheel
   - pip install coverage coveralls nose tables
   - pip install -r requirements.txt
@@ -33,10 +33,12 @@ install:
 
 jobs:
   include:
-    - stage: Core tests
+    - stage: Core Tests
       python:
         - 3.5
         - 3.6
+      env:
+        - CORE_TESTS=tests/core_tests/scoring_tests.py
       script:
         - nosetests $CORE_TESTS
         - coveralls
@@ -47,6 +49,8 @@ jobs:
       python:
         - 3.5
         - 3.6
+      env:
+        - ADVANCED_TESTS=tests/core_tests/basic_tests.py
       install:
         - pip install lightgbm keras tensorflow catboost xgboost
       script:
