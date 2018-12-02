@@ -7,6 +7,7 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/98db6f1ed2d1fdbe1f91/maintainability)](https://codeclimate.com/github/jesse-toftum/cash_ml/maintainability)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d78d22630479478b8d8d26a89481d996)](https://app.codacy.com/app/jesse-toftum/cash_ml?utm_source=github.com&utm_medium=referral&utm_content=jesse-toftum/cash_ml&utm_campaign=Badge_Grade_Dashboard)
 
+
 <!-- Stars badge?! -->
 
 ## Installation
