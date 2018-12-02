@@ -96,7 +96,7 @@ def test_nans_in_output_column():
     print('test_score')
     print(test_score)
 
-    assert -0.215 < test_score < -0.13
+    assert -0.215 < test_score < -0.12
 
 
 def test_verify_features_finds_missing_prediction_features():

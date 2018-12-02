@@ -1,7 +1,3 @@
-# cash_ml
-> Automated machine learning for production and analytics
-
-
 [![Build Status](https://travis-ci.org/jesse-toftum/cash_ml.svg?branch=master)](https://travis-ci.org/jesse-toftum/cash_ml)
 [![Coverage Status](https://coveralls.io/repos/github/jesse-toftum/cash_ml/badge.svg?branch=master)](https://coveralls.io/github/jesse-toftum/cash_ml?branch=master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/98db6f1ed2d1fdbe1f91/maintainability)](https://codeclimate.com/github/jesse-toftum/cash_ml/maintainability)
