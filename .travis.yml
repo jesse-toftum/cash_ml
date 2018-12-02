@@ -5,9 +5,9 @@ language: python
 cache: pip
 
 env:
-#  - TESTS_TO_RUN=tests/advanced_tests/automated_tests_regressors.py
-#  - TESTS_TO_RUN=tests/advanced_tests/automated_tests_classifiers.py
-#  - TESTS_TO_RUN=tests/advanced_tests/advanced_install_tests.py
+  #  - TESTS_TO_RUN=tests/advanced_tests/automated_tests_regressors.py
+  #  - TESTS_TO_RUN=tests/advanced_tests/automated_tests_classifiers.py
+  #  - TESTS_TO_RUN=tests/advanced_tests/advanced_install_tests.py
   - TESTS_TO_RUN=tests/core_tests/api_coverage_tests_classifiers.py
   - TESTS_TO_RUN=tests/core_tests/api_coverage_tests_regressors.py
   - TESTS_TO_RUN=tests/core_tests/basic_tests.py
@@ -35,15 +35,15 @@ install:
   - pip install -r requirements.txt
   - if [[ $TESTS_TO_RUN == *'advanced_tests'* ]]; then pip install lightgbm keras tensorflow catboost xgboost; fi
 
+script:
+  - nosetests $TESTS_TO_RUN
+  - coveralls
+after_script:
+  - coverage xml
+  - ./cc-test-reporter format-coverage
+  - ./cc-test-reporter sum-coverage
+
 jobs:
   include:
-    - stage: Run Tests
-      script:
-        - nosetests $TESTS_TO_RUN
-        - coveralls
-        - coverage xml
-        - ./cc-test-reporter format-coverage
     - stage: Upload to Code Climate
-      script:
-        - ./cc-test-reporter sum-coverage
-        - ./cc-test-reporter upload-coverage  # Upload coverage
+      script:  ./cc-test-reporter upload-coverage  # Upload coverage
