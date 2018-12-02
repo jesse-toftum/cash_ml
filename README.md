@@ -1,7 +1,3 @@
-# cash_ml
-> Automated machine learning for production and analytics
-
-
 [![Build Status](https://travis-ci.org/above-c-level/cash_ml.svg?branch=master)](https://travis-ci.org/above-c-level/cash_ml)
 [![Coverage Status](https://coveralls.io/repos/github/above-c-level/cash_ml/badge.svg?branch=master)](https://coveralls.io/github/above-c-level/cash_ml?branch=master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/7ff379c1c9a44db0ba83/maintainability)](https://codeclimate.com/github/above-c-level/cash_ml/maintainability)
