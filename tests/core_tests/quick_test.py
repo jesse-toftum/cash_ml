@@ -1,6 +1,6 @@
 # """
-# nosetests -sv --nologcapture test/quick_test.py
-# nosetests --verbosity=2 --detailed-errors --nologcapture --processes=4 --process-restartworker --process-timeout=1000 test/quick_test.py
+# nosetests -sv --nologcapture tests/quick_test.py
+# nosetests --verbosity=2 --detailed-errors --nologcapture --processes=4 --process-restartworker --process-timeout=1000 tests/quick_test.py
 # """
 
 import os

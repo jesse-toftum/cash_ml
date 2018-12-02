@@ -1,7 +1,7 @@
 """
 To get standard out, run nosetests as follows:
-nosetests -sv test
-nosetests --verbosity=2 --detailed-errors --nologcapture --processes=4 --process-restartworker --process-timeout=1000 test
+nosetests -sv tests
+nosetests --verbosity=2 --detailed-errors --nologcapture --processes=4 --process-restartworker --process-timeout=1000 tests
 """
 import datetime
 import os
@@ -20,7 +20,7 @@ from sklearn.metrics import accuracy_score
 
 import dill
 import numpy as np
-import test.utils_testing as utils
+import tests.utils_testing as utils
 
 
 def test_linear_model_analytics_classification(model_name=None):

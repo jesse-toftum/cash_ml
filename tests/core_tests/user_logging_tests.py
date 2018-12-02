@@ -1,4 +1,4 @@
-# This set of test id specifically designed to make sure cash_ml is user friendly- throwing useful warnings where possible about what specific actions the user can take to avoid an error, instead of throwing the non-obvious error messages that the underlying libraries will choke on.
+# This set of tests id specifically designed to make sure cash_ml is user friendly- throwing useful warnings where possible about what specific actions the user can take to avoid an error, instead of throwing the non-obvious error messages that the underlying libraries will choke on.
 import datetime
 import dill
 from nose.tools import raises
@@ -13,7 +13,7 @@ sys.path = [os.path.abspath(os.path.dirname(os.path.dirname(__file__)))] + sys.p
 os.environ['is_test_suite'] = 'True'
 
 from cash_ml import Predictor
-import test.utils_testing as utils
+import tests.utils_testing as utils
 
 
 @raises(ValueError)

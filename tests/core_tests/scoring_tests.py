@@ -8,7 +8,7 @@ os.environ['is_test_suite'] = 'True'
 from cash_ml import Predictor
 import numpy as np
 
-import test.utils_testing as utils
+import tests.utils_testing as utils
 
 
 def always_return_ten_thousand(estimator=None, actuals=None, probas=None):

@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-import test.utils_testing as utils
+import tests.utils_testing as utils
 
 
 def test_predict_uncertainty_returns_pandas_DataFrame_for_more_than_one_value():

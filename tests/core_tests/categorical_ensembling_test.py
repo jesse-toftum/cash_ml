@@ -13,7 +13,7 @@ from nose.tools import assert_equal, assert_not_equal, with_setup
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
-import test.utils_testing as utils
+import tests.utils_testing as utils
 
 
 def test_categorical_ensemble_basic_classifier():

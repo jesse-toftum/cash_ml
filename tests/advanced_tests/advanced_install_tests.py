@@ -7,7 +7,7 @@ import warnings
 import numpy as np
 from sklearn.model_selection import train_test_split
 
-import test.utils_testing as utils
+import tests.utils_testing as utils
 from cash_ml import Predictor
 from cash_ml.utils_models import load_ml_model
 
