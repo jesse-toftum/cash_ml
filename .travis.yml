@@ -33,15 +33,20 @@ install:
 
 jobs:
   include:
-    - python: 3.6
-    - python: 3.5
     - stage: Core tests
+      python:
+        - 3.5
+        - 3.6
       script:
         - nosetests $CORE_TESTS
         - coveralls
         - coverage xml
         - ./cc-test-reporter format-coverage
+
     - stage: Advanced tests
+      python:
+        - 3.5
+        - 3.6
       install:
         - pip install lightgbm keras tensorflow catboost xgboost
       script:
@@ -49,7 +54,10 @@ jobs:
         - coveralls
         - coverage xml
         - ./cc-test-reporter format-coverage
+
     - stage: Upload to Code Climate
+      python:
+        - 3.6
       script:
         - ./cc-test-reporter sum-coverage
         - ./cc-test-reporter upload-coverage  # Upload coverage
