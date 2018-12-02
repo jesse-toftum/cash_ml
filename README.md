@@ -2,15 +2,16 @@
 > Automated machine learning for production and analytics
 
 
-[![Build Status](https://travis-ci.org/above-c-level/cash_ml.svg?branch=master)](https://travis-ci.org/above-c-level/cash_ml)
-[![Coverage Status](https://coveralls.io/repos/github/above-c-level/cash_ml/badge.svg?branch=master)](https://coveralls.io/github/above-c-level/cash_ml?branch=master)
-[![Maintainability](https://api.codeclimate.com/v1/badges/7ff379c1c9a44db0ba83/maintainability)](https://codeclimate.com/github/above-c-level/cash_ml/maintainability)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d78d22630479478b8d8d26a89481d996)](https://app.codacy.com/app/above-c-level/cash_ml?utm_source=github.com&utm_medium=referral&utm_content=above-c-level/cash_ml&utm_campaign=Badge_Grade_Dashboard)
+[![Build Status](https://travis-ci.org/jesse-toftum/cash_ml.svg?branch=master)](https://travis-ci.org/jesse-toftum/cash_ml)
+[![Coverage Status](https://coveralls.io/repos/github/jesse-toftum/cash_ml/badge.svg?branch=master)](https://coveralls.io/github/jesse-toftum/cash_ml?branch=master)
+[![Maintainability](https://api.codeclimate.com/v1/badges/98db6f1ed2d1fdbe1f91/maintainability)](https://codeclimate.com/github/jesse-toftum/cash_ml/maintainability)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d78d22630479478b8d8d26a89481d996)](https://app.codacy.com/app/jesse-toftum/cash_ml?utm_source=github.com&utm_medium=referral&utm_content=jesse-toftum/cash_ml&utm_campaign=Badge_Grade_Dashboard)
 
 <!-- Stars badge?! -->
 
 ## Installation
 
+Coming soon™
 - `pip install cash_ml`
 
 ## Getting started
@@ -45,7 +46,7 @@ from cash_ml.utils_models import load_ml_model
 # Load data
 df_train, df_test = get_boston_dataset()
 
-cash_ml
+# Tell cash_ml which column is 'output'
 # Also note columns that aren't purely numerical
 # Examples include ['nlp', 'date', 'categorical', 'ignore']
 column_descriptions = {
@@ -60,7 +61,7 @@ ml_predictor.train(df_train)
 # Score the model on test data
 test_score = ml_predictor.score(df_test, df_test.MEDV)
 
-cash_ml
+# cash_ml is specifically tuned for running in production
 # It can get predictions on an individual row (passed in as a dictionary)
 # A single prediction like this takes ~1 millisecond
 # Here we will demonstrate saving the trained model, and loading it again
