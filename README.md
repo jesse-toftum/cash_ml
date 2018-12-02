@@ -92,7 +92,7 @@ Depending on your machine, they can occasionally be difficult to install, so the
 
 
 ## Feature Responses
-Get linear-model-esque interpretations from non-linear models. Currently the docs do not yet exist for this fork :(
+Get linear-model-esque interpretations from non-linear models. More information available in the documentation: https://cash-ml.readthedocs.io
 
 
 ## Classification
@@ -123,7 +123,7 @@ Just tell us which column holds the category you want to split on, and we'll han
 
 ### More details available in the docs
 
-Currently the docs do not yet exist for this fork :(
+https://cash-ml.readthedocs.io
 
 
 ### Advice
