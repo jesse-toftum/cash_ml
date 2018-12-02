@@ -9,18 +9,15 @@ before_install: # Code coverage for codeclimate
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
 
-install:
-#  - TEST_DIR=$PWD
-  - pip install --upgrade pip setuptools wheel
-  - pip install coverage coveralls nose tables
-  - pip install -r requirements.txt
-
-
 jobs:
   include:
     - stage: Core Tests
       python:
         - 3.6
+      install:
+        - pip install --upgrade pip setuptools wheel
+        - pip install coverage coveralls nose tables
+        - pip install -r requirements.txt
       script:
         - nosetests tests/core_tests
         - coveralls
@@ -31,6 +28,9 @@ jobs:
       python:
         - 3.6
       install:
+        - pip install --upgrade pip setuptools wheel
+        - pip install coverage coveralls nose tables
+        - pip install -r requirements.txt
         - pip install lightgbm keras tensorflow catboost xgboost
       script:
         - nosetests tests/advanced_tests
