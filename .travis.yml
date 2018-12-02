@@ -24,7 +24,6 @@ env:
 
 python:
   - "3.6"
-  - "3.5"
 
 
 install:
@@ -44,4 +43,4 @@ script:
   - coveralls
 
 after_script: # Code coverage for codeclimate
-  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
