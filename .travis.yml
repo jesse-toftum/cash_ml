@@ -5,11 +5,9 @@ language: python
 cache: pip
 
 env:
-
 #  - TESTS_TO_RUN=tests/advanced_tests/automated_tests_regressors.py
 #  - TESTS_TO_RUN=tests/advanced_tests/automated_tests_classifiers.py
 #  - TESTS_TO_RUN=tests/advanced_tests/advanced_install_tests.py
-
   - TESTS_TO_RUN=tests/core_tests/api_coverage_tests_classifiers.py
   - TESTS_TO_RUN=tests/core_tests/api_coverage_tests_regressors.py
   - TESTS_TO_RUN=tests/core_tests/basic_tests.py
@@ -21,12 +19,11 @@ env:
   - TESTS_TO_RUN=tests/core_tests/uncertainty_tests.py
   - TESTS_TO_RUN=tests/core_tests/user_logging_tests.py
 
-
 python:
   - "3.6"
   - "3.5"
 
-before_install: : # Code coverage for codeclimate
+before_install: # Code coverage for codeclimate
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
@@ -41,7 +38,6 @@ install:
 script:
   - nosetests $TESTS_TO_RUN
   - coveralls
-
 
 after_script:
   - coverage xml
