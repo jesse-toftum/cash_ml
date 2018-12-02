@@ -1,9 +1,9 @@
-# Splitting this in half to see if it helps with how nosetests splits up our parallel tests
+# Splitting this in half to see if it helps with how nosetests splits up our parallel test
 import os
 import sys
 from collections import OrderedDict
 
-import tests.advanced_tests.regressors as regressor_tests
+import test.advanced_tests.regressors as regressor_tests
 
 sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
 os.environ['is_test_suite'] = 'True'
@@ -12,7 +12,7 @@ training_parameters = {
     'model_names': ['DeepLearning', 'GradientBoosting', 'XGB', 'LGBM', 'CatBoost']
 }
 
-# Make this an OrderedDict so that we run the tests in a consistent order
+# Make this an OrderedDict so that we run the test in a consistent order
 test_names = OrderedDict([
     ('optimize_final_model_regression', regressor_tests.optimize_final_model_regression),
     # ('getting_single_predictions_regression', regressor_tests.getting_single_predictions_regression),

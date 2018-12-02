@@ -2,7 +2,7 @@ import os
 import sys
 from collections import OrderedDict
 
-import tests.advanced_tests.classifiers as classifier_tests
+import test.advanced_tests.classifiers as classifier_tests
 
 sys.path = [os.path.abspath(os.path.dirname(__file__))] + sys.path
 os.environ['is_test_suite'] = 'True'
@@ -11,7 +11,7 @@ training_parameters = {
     'model_names': ['DeepLearning', 'GradientBoosting', 'XGB', 'LGBM', 'CatBoost']
 }
 
-# Make this an OrderedDict so that we run the tests in a consistent order
+# Make this an OrderedDict so that we run the test in a consistent order
 test_names = OrderedDict([
     ('getting_single_predictions_multilabel_classification',
      classifier_tests.getting_single_predictions_multilabel_classification),

@@ -5,7 +5,7 @@ import sys
 
 import numpy as np
 
-import tests.utils_testing as utils
+import test.utils_testing as utils
 from cash_ml import Predictor
 from cash_ml.utils_models import load_ml_model
 
