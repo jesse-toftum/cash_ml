@@ -4,7 +4,6 @@ You've found cash_ml!
 cash_ml is an acronym for "Combined Algorithm Selection and Hyperparameter optimization for Machine Learning"
 
 [![Build Status](https://travis-ci.org/jesse-toftum/cash_ml.svg?branch=master)](https://travis-ci.org/jesse-toftum/cash_ml)
-[![Coverage Status](https://coveralls.io/repos/github/jesse-toftum/cash_ml/badge.svg?branch=master)](https://coveralls.io/github/jesse-toftum/cash_ml?branch=master)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/98db6f1ed2d1fdbe1f91/test_coverage)](https://codeclimate.com/github/jesse-toftum/cash_ml/test_coverage)
 [![Maintainability](https://api.codeclimate.com/v1/badges/98db6f1ed2d1fdbe1f91/maintainability)](https://codeclimate.com/github/jesse-toftum/cash_ml/maintainability)
 [![CodeFactor](https://www.codefactor.io/repository/github/jesse-toftum/cash_ml/badge)](https://www.codefactor.io/repository/github/jesse-toftum/cash_ml)
