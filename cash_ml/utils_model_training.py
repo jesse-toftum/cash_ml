@@ -8,7 +8,7 @@ from copy import deepcopy
 
 import numpy as np
 import pandas as pd
-import scipy
+from scipy import sparse as scipy_sparse
 from sklearn import __version__ as sklearn_version
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.model_selection import train_test_split
@@ -104,12 +104,12 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
             'LogisticRegression', 'XGBClassifier', 'XGBRegressor'
         ]:
 
-            if self.model_name[:3] == 'XGB' and scipy.sparse.issparse(X):
+            if self.model_name[:3] == 'XGB' and scipy_sparse.issparse(X):
                 ones = [[1] for x in range(X.shape[0])]
                 # Trying to force XGBoost to play nice with sparse matrices
-                X_fit = scipy.sparse.hstack((X, ones))
+                X_fit = scipy_sparse.hstack((X, ones))
 
-            elif scipy.sparse.issparse(X_fit):
+            elif scipy_sparse.issparse(X_fit):
                 X_fit = X_fit.todense()
 
             if self.model_name[:12] == 'DeepLearning':
@@ -222,7 +222,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
 
         elif self.model_name[:4] == 'LGBM':
 
-            if scipy.sparse.issparse(X_fit):
+            if scipy_sparse.issparse(X_fit):
                 X_fit = X_fit.toarray()
 
             verbose = True
@@ -527,7 +527,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
         # predictions
         if (self.model_name[:16] == 'GradientBoosting' or self.model_name in [
             'BayesianRidge', 'LassoLars', 'OrthogonalMatchingPursuit', 'ARDRegression'
-        ]) and scipy.sparse.issparse(X):
+        ]) and scipy_sparse.issparse(X):
             X = X.todense()
 
         if self._scorer is not None:
@@ -541,9 +541,9 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
 
         if self.model_name[:3] == 'XGB':
             ones = [[1] for x in range(X.shape[0])]
-            if scipy.sparse.issparse(X):
+            if scipy_sparse.issparse(X):
                 # Trying to force XGBoost to play nice with sparse matrices
-                X = scipy.sparse.hstack((X, ones))
+                X = scipy_sparse.hstack((X, ones))
             else:
                 X = np.column_stack([X, ones])
 
@@ -553,12 +553,12 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                 or self.model_name in [
                     'BayesianRidge', 'LassoLars', 'OrthogonalMatchingPursuit', 'ARDRegression'
                 ]):
-            if scipy.sparse.issparse(X):
+            if scipy_sparse.issparse(X):
                 X = X.todense()
             elif isinstance(X, pd.DataFrame):
                 X = X.values
         elif self.model_name[:8] == 'CatBoost' or self.model_name[:4] == 'LGBM':
-            if scipy.sparse.issparse(X):
+            if scipy_sparse.issparse(X):
                 X = X.toarray()
             elif isinstance(X, pd.DataFrame):
                 X = X.values
@@ -577,12 +577,12 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
             try:
                 predictions = self.model.predict(X)
             except TypeError as e:
-                if scipy.sparse.issparse(X):
+                if scipy_sparse.issparse(X):
                     X = X.todense()
                 predictions = self.model.predict(X)
 
         except TypeError as e:
-            if scipy.sparse.issparse(X):
+            if scipy_sparse.issparse(X):
                 X = X.todense()
             predictions = self.model.predict_proba(X)
 
@@ -624,9 +624,9 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
 
         if self.model_name[:3] == 'XGB':
             ones = [[1] for x in range(X.shape[0])]
-            if scipy.sparse.issparse(X):
+            if scipy_sparse.issparse(X):
                 # Trying to force XGBoost to play nice with sparse matrices
-                X = scipy.sparse.hstack((X, ones))
+                X = scipy_sparse.hstack((X, ones))
             else:
                 X = np.column_stack([X, ones])
 
@@ -636,12 +636,12 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                 or self.model_name in [
                     'BayesianRidge', 'LassoLars', 'OrthogonalMatchingPursuit', 'ARDRegression'
                 ]):
-            if scipy.sparse.issparse(X):
+            if scipy_sparse.issparse(X):
                 X_predict = X.todense()
             elif isinstance(X, pd.DataFrame):
                 X_predict = X.values
         elif self.model_name[:8] == 'CatBoost':
-            if scipy.sparse.issparse(X):
+            if scipy_sparse.issparse(X):
                 X_predict = X.toarray()
             elif isinstance(X, pd.DataFrame):
                 X_predict = X.values
@@ -697,7 +697,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
             predictor = tup[1]
             result[predictor_name] = predictor.predict(X)
 
-        if scipy.sparse.issparse(X):
+        if scipy_sparse.issparse(X):
             len_input = X.shape[0]
         else:
             len_input = len(X)
@@ -735,7 +735,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
         predicted_features = self.predict(X)
         predicted_features = list(predicted_features)
 
-        X = scipy.sparse.hstack([X, predicted_features], format='csr')
+        X = scipy_sparse.hstack([X, predicted_features], format='csr')
         return X
 
     # Allows the user to get the fully transformed data
@@ -762,7 +762,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
         else:
             base_predictions_col = [base_predictions]
 
-        X_combined = scipy.sparse.hstack([X, base_predictions_col], format='csr')
+        X_combined = scipy_sparse.hstack([X, base_predictions_col], format='csr')
 
         uncertainty_predictions = self.uncertainty_model.predict_proba(X_combined)
 
