@@ -37,9 +37,9 @@ jobs:
         - coveralls
         - coverage xml
         - ./cc-test-reporter format-coverage -t "coverage.py"
+        - ./cc-test-reporter sum-coverage
     - stage: Upload to Code Climate
       python:
         - 3.6
       script:
-        - ./cc-test-reporter sum-coverage -p 2
         - ./cc-test-reporter upload-coverage  # Upload coverage
