@@ -4,43 +4,27 @@ language: python
 
 cache: pip
 
+env:
+  - TESTS_TO_RUN=tests/
+
+python:
+  - "3.6"
+
 before_install: # Code coverage for codeclimate
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
 
-jobs:
-  include:
-    - stage: Core Tests
-      python:
-        - 3.6
-      install:
-        - pip install --upgrade pip setuptools wheel
-        - pip install coverage coveralls nose tables
-        - pip install -r requirements.txt
-      script:
-        - nosetests tests/core_tests
-        - coveralls
-#        - coverage xml
-#        - ./cc-test-reporter format-coverage -t "coverage.py" -o "coverage/basic.json"
+install:
+  - pip install --upgrade pip setuptools wheel
+  - pip install coverage coveralls nose tables
+  - pip install -r requirements.txt
+  - pip install lightgbm keras tensorflow catboost xgboost
 
-    - stage: Advanced tests
-      python:
-        - 3.6
-      install:
-        - pip install --upgrade pip setuptools wheel
-        - pip install coverage coveralls nose tables
-        - pip install -r requirements.txt
-        - pip install lightgbm keras tensorflow catboost xgboost
-      script:
-        - nosetests tests/advanced_tests
-        - coveralls
-#        - coverage xml
-#        - ./cc-test-reporter format-coverage -t "coverage.py" -o "coverage/advanced.json"
+script:
+  - nosetests $TESTS_TO_RUN
+  - coveralls
 
-#    - stage: Upload to Code Climate
-#      python:
-#        - 3.6
-#      script:
-#        - ./cc-test-reporter sum-coverage "coverage/basic.json" "coverage/advanced.json"
-#        - ./cc-test-reporter upload-coverage  # Upload coverage
+after_script:
+  - coverage xml
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
