@@ -22,7 +22,7 @@ jobs:
         - nosetests tests/core_tests
         - coveralls
         - coverage xml
-        - ./cc-test-reporter format-coverage -t "coverage.py"
+        - ./cc-test-reporter format-coverage -t "coverage.py" -o "coverage/basic.json"
 
     - stage: Advanced tests
       python:
@@ -36,10 +36,11 @@ jobs:
         - nosetests tests/advanced_tests
         - coveralls
         - coverage xml
-        - ./cc-test-reporter format-coverage -t "coverage.py"
-        - ./cc-test-reporter sum-coverage
+        - ./cc-test-reporter format-coverage -t "coverage.py" -o "coverage/advanced.json"
+
     - stage: Upload to Code Climate
       python:
         - 3.6
       script:
+        - ./cc-test-reporter sum-coverage "coverage/basic.json" "coverage/advanced.json"
         - ./cc-test-reporter upload-coverage  # Upload coverage
