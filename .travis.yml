@@ -21,7 +21,7 @@ jobs:
       script:
         - nosetests tests/core_tests
         - coveralls
-        - coverage
+        - coverage report
         - ./cc-test-reporter format-coverage
 
     - stage: Advanced tests
@@ -35,7 +35,7 @@ jobs:
       script:
         - nosetests tests/advanced_tests
         - coveralls
-        - coverage
+        - coverage report
         - ./cc-test-reporter format-coverage
     - stage: Upload to Code Climate
       python:
