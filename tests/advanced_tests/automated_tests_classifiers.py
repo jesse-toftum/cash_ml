@@ -15,11 +15,7 @@ training_parameters = {
 test_names = OrderedDict([
     ('getting_single_predictions_multilabel_classification',
      classifier_tests.getting_single_predictions_multilabel_classification),
-    # ('getting_single_predictions_classification', classifier_tests.getting_single_predictions_classification),
     ('optimize_final_model_classification', classifier_tests.optimize_final_model_classification)
-    # ('feature_learning_getting_single_predictions_classification', classifier_tests.feature_learning_getting_single_predictions_classification),
-    # ('categorical_ensembling_classification', classifier_tests.categorical_ensembling_classification),
-    # ('feature_learning_categorical_ensembling_getting_single_predictions_classification', classifier_tests.feature_learning_categorical_ensembling_getting_single_predictions_classification)
 ])
 
 

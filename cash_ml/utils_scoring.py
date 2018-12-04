@@ -74,37 +74,33 @@ def advanced_scoring_classifiers(probabilities, actuals, name=None):
         print('Class: ', targets[i], '=', float(true_count) / tot_count)
 
     # qcut is super fickle. so, try to use 10 buckets first, then 5 if that fails, then nothing
+    # try:
+    bucket_results = pd.qcut(probabilities, q=10, duplicates='drop')
+    # except:
+    #
+    #     bucket_results = pd.qcut(probabilities, q=5, duplicates='drop')
+
+    df_probabilities = pd.DataFrame(probabilities, columns=['Predicted Probability Of Bucket'])
+    df_probabilities['Actual Probability of Bucket'] = actuals
+    df_probabilities['Bucket Edges'] = bucket_results
+
+    df_buckets = df_probabilities.groupby(df_probabilities['Bucket Edges'])
     try:
-        try:
-            bucket_results = pd.qcut(probabilities, q=10, duplicates='drop')
-        except:
-            # TODO: Fix bare Except
-            bucket_results = pd.qcut(probabilities, q=5, duplicates='drop')
+        print(
+            tabulate(
+                df_buckets.mean(),
+                headers='keys',
+                floatfmt='.4f',
+                tablefmt='psql',
+                showindex='always'))
+    except TypeError:
+        print(tabulate(df_buckets.mean(), headers='keys', floatfmt='.4f', tablefmt='psql'))
+    print('\nHere is the accuracy of our trained estimator at each level of predicted '
+          'probabilities ')
+    print('For a verbose description of what this means, please visit the docs:')
+    print('http://cash-ml.readthedocs.io/en/latest/analytics.html#interpreting-predicted'
+          '-probability-buckets-for-classifiers ')
 
-        df_probabilities = pd.DataFrame(probabilities, columns=['Predicted Probability Of Bucket'])
-        df_probabilities['Actual Probability of Bucket'] = actuals
-        df_probabilities['Bucket Edges'] = bucket_results
-
-        df_buckets = df_probabilities.groupby(df_probabilities['Bucket Edges'])
-        try:
-            print(
-                tabulate(
-                    df_buckets.mean(),
-                    headers='keys',
-                    floatfmt='.4f',
-                    tablefmt='psql',
-                    showindex='always'))
-        except TypeError:
-            print(tabulate(df_buckets.mean(), headers='keys', floatfmt='.4f', tablefmt='psql'))
-        print('\nHere is the accuracy of our trained estimator at each level of predicted '
-              'probabilities ')
-        print('For a verbose description of what this means, please visit the docs:')
-        print('http://cash-ml.readthedocs.io/en/latest/analytics.html#interpreting-predicted'
-              '-probability-buckets-for-classifiers ')
-
-    except:
-        # TODO: Fix bare Except
-        pass
 
     print('\n\n')
     return brier_score
@@ -135,7 +131,7 @@ def calculate_and_print_differences(predictions, actuals, name=None):
         print(sum(neg_differences) * 1.0 / len(neg_differences))
 
 
-def advanced_scoring_regressors(predictions, actuals, verbose=2, name=None):
+def advanced_scoring_regressors(predictions, actuals, verbose=3, name=None):
     # pandas Series don't play nice here. Make sure our actuals list is indeed a list
     actuals = list(actuals)
     predictions = list(predictions)

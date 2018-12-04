@@ -95,7 +95,7 @@ def get_twitter_sentiment_multilabel_classification_dataset():
         # Do not write the index that pandas automatically creates
         if not os.path.exists('test_data'):
             os.mkdir('test_data')
-        df_twitter.to_hdf(file_name, key='df', format='fixed')
+        df_twitter.to_csv(file_name, key='df', format='fixed')
 
     # Grab only 10% of the dataset- runs much faster this way
     df_twitter = df_twitter.sample(frac=0.1)

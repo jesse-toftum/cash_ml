@@ -65,6 +65,7 @@ copyreg.pickle(types.MethodType, _pickle_method)
 class Predictor(object):
 
     def __init__(self, type_of_estimator, column_descriptions, verbose=True, name=None):
+        self.training_features = None
         if type_of_estimator.lower() in [
             'regressor', 'regression', 'regressions', 'regressors', 'number', 'numeric',
             'continuous'
@@ -468,7 +469,6 @@ class Predictor(object):
         self.optimize_final_model = optimize_final_model
         self.write_gs_param_results_to_file = write_gs_param_results_to_file
         self.ml_for_analytics = ml_for_analytics
-        self.training_features = None
 
         if X_test is not None:
             X_test, y_test = utils.drop_missing_y_values(X_test, y_test, self.output_column)
@@ -1016,14 +1016,6 @@ class Predictor(object):
         percent_uncertain = sum(is_uncertain_predictions) * 1.0 / len(is_uncertain_predictions)
         print(percent_uncertain)
         if percent_uncertain == 1.0:
-            print('Using the current definition, all rows are classified as uncertain')
-            print('Here is our current definition:')
-            print('self.uncertainty_delta')
-            print(self.uncertainty_delta)
-            print('self.uncertainty_delta_units')
-            print(self.uncertainty_delta_units)
-            print('And here is a summary of our predictions:')
-            print(pd.Series(y_uncertainty).describe(include='all'))
             warnings.warn(
                 'All predictions in our uncertainty training data are classified as uncertain. '
                 'Please redefine uncertainty so there is a mix of certain and uncertain '
@@ -1149,9 +1141,8 @@ class Predictor(object):
             if scipy_sparse.issparse(X_test_processed):
                 X_test_processed = X_test_processed.toarray()
 
-                calibrated_classifier = calibrated_classifier.fit(X_test_processed, y_test)
-            else:
-                raise e
+                return calibrated_classifier.fit(X_test_processed, y_test)
+            raise e
 
         return calibrated_classifier
 
@@ -1693,21 +1684,6 @@ class Predictor(object):
         # TODO: Make sure that trained_final_model is initialized
         return trained_final_model
 
-    def get_relevant_categorical_rows(self, X_df, y, category):
-        mask = X_df[self.categorical_column] == category
-
-        relevant_indices = []
-        relevant_y = []
-        # TODO: Mask is a bool from only a few lines above?
-        for idx, val in enumerate(mask):
-            if val is True:
-                relevant_indices.append(idx)
-                relevant_y.append(y[idx])
-
-        relevant_X = X_df.iloc[relevant_indices]
-
-        return relevant_X, relevant_y
-
     # TODO: Simplify
     def train_categorical_ensemble(self,
                                    data,
@@ -1830,26 +1806,21 @@ class Predictor(object):
             try:
                 category_trained_final_model = self.train_ml_estimator(
                     self.model_names, relevant_X, relevant_y)
-            except ValueError as e:
-                if 'BinomialDeviance requires 2 classes' in str(e) \
-                        or 'BinomialDeviance requires 2 classes' in e \
-                        or 'BinomialDeviance requires 2 classes':
-                    print('Found a category with only one label')
-                    print('category: ' + str(category) + ', label: ' + str(relevant_y[0]))
-                    print('We will put in place a weak estimator trained on only this '
-                          'category/single-label, but consider some feature engineering work to '
-                          'combine this with a different category, or remove it altogether and use '
-                          'the default category when getting predictions for this category. ')
-                    # This handles the edge case of having only one label for a given category.
+            except ValueError:
+                print('Found a category with only one label')
+                print('category: ' + str(category) + ', label: ' + str(relevant_y[0]))
+                print('We will put in place a weak estimator trained on only this '
+                      'category/single-label, but consider some feature engineering work to '
+                      'combine this with a different category, or remove it altogether and use '
+                      'the default category when getting predictions for this category. ')
+                # This handles the edge case of having only one label for a given category.
 
-                    # In that case, some models are perfectly fine being 100% correct,
-                    # while others freak out. RidgeClassifier seems ok at just picking the same
-                    # value each time. And using it instead of a custom function means we don't
-                    # need to add in any custom logic for predict_proba or anything
-                    category_trained_final_model = self.train_ml_estimator(
-                        ['RidgeClassifier'], relevant_X, relevant_y)
-                else:
-                    raise
+                # In that case, some models are perfectly fine being 100% correct,
+                # while others freak out. RidgeClassifier seems ok at just picking the same
+                # value each time. And using it instead of a custom function means we don't
+                # need to add in any custom logic for predict_proba or anything
+                category_trained_final_model = self.train_ml_estimator(
+                    ['RidgeClassifier'], relevant_X, relevant_y)
 
             self.trained_category_models[category] = category_trained_final_model
 
@@ -1858,12 +1829,12 @@ class Predictor(object):
             except TypeError:
                 category_length = relevant_X.shape[0]
 
-            result = {
+            result_to_return = {
                 'trained_category_model': category_trained_final_model,
                 'category': category,
                 'len_relevant_X': category_length
             }
-            return result
+            return result_to_return
 
         if os.environ.get('is_test_suite', False) == 'True':
             # If this is the test_suite, do not run things in parallel

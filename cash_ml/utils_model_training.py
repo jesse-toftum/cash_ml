@@ -16,7 +16,6 @@ from sklearn.model_selection import train_test_split
 from cash_ml import utils_models
 from cash_ml.utils_models import get_name_from_model
 
-keras_installed = False
 try:
     from keras import Sequential
     from keras.layers import Dense
@@ -26,7 +25,7 @@ try:
 
     keras_installed = True
 except ImportError:
-    pass
+    keras_installed = False
 
 
 # This is the Air Traffic Controller (ATC) that is a wrapper around sklearn estimators.
