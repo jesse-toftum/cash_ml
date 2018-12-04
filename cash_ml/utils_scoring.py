@@ -10,18 +10,15 @@ from tabulate import tabulate
 
 from cash_ml import utils
 
-bad_vals_as_strings = {
-    str(float('nan')),
-    str(float('inf')),
-    str(float('-inf')), 'None', 'none', 'NaN', 'NAN', 'nan', 'NULL', 'null', '', 'inf', '-inf',
-    'np.nan', 'numpy.nan'
+bad_string_values = {
+    str(float('nan')), str(float('inf')), str(float('-inf')), 'None', 'none',
+    'NaN', 'NAN', 'nan', 'NULL', 'null', '', 'inf', '-inf', 'np.nan', 'numpy.nan'
 }
 
 
-def advanced_scoring_classifiers(probas, actuals, name=None):
+def advanced_scoring_classifiers(probabilities, actuals, name=None):
     # pandas Series don't play nice here. Make sure our actuals list is indeed a list
     actuals = list(actuals)
-    predictions = list(probas)
 
     print('Here is our brier-score-loss, which is the default value we optimized for while '
           'training, and is the value returned from .score() unless you requested a custom '
@@ -34,17 +31,18 @@ def advanced_scoring_classifiers(probas, actuals, name=None):
     # label), while other times we might be given "nested" probabilities (probabilities of both
     # positive and negative, in a list, for each item).
     try:
-        probas = [proba[1] for proba in probas]
+        probabilities = [proba[1] for proba in probabilities]
     except:
+        # TODO: Fix bare Except
         pass
 
-    brier_score = brier_score_loss(actuals, probas)
+    brier_score = brier_score_loss(actuals, probabilities)
     print(format(brier_score, '.4f'))
 
     print('\nHere is the trained estimator\'s overall accuracy (when it predicts a label, '
           'how frequently is that the correct label?) ')
     predicted_labels = []
-    for pred in probas:
+    for pred in probabilities:
         if pred >= 0.5:
             predicted_labels.append(1)
         else:
@@ -78,15 +76,16 @@ def advanced_scoring_classifiers(probas, actuals, name=None):
     # qcut is super fickle. so, try to use 10 buckets first, then 5 if that fails, then nothing
     try:
         try:
-            bucket_results = pd.qcut(probas, q=10, duplicates='drop')
+            bucket_results = pd.qcut(probabilities, q=10, duplicates='drop')
         except:
-            bucket_results = pd.qcut(probas, q=5, duplicates='drop')
+            # TODO: Fix bare Except
+            bucket_results = pd.qcut(probabilities, q=5, duplicates='drop')
 
-        df_probas = pd.DataFrame(probas, columns=['Predicted Probability Of Bucket'])
-        df_probas['Actual Probability of Bucket'] = actuals
-        df_probas['Bucket Edges'] = bucket_results
+        df_probabilities = pd.DataFrame(probabilities, columns=['Predicted Probability Of Bucket'])
+        df_probabilities['Actual Probability of Bucket'] = actuals
+        df_probabilities['Bucket Edges'] = bucket_results
 
-        df_buckets = df_probas.groupby(df_probas['Bucket Edges'])
+        df_buckets = df_probabilities.groupby(df_probabilities['Bucket Edges'])
         try:
             print(
                 tabulate(
@@ -104,6 +103,7 @@ def advanced_scoring_classifiers(probas, actuals, name=None):
               '-probability-buckets-for-classifiers ')
 
     except:
+        # TODO: Fix bare Except
         pass
 
     print('\n\n')
@@ -182,11 +182,11 @@ def advanced_scoring_regressors(predictions, actuals, verbose=2, name=None):
     # 5. pos and neg differences
     calculate_and_print_differences(predictions=predictions, actuals=actuals, name=name)
 
-    actuals_preds = list(zip(actuals, predictions))
+    actual_predictions = list(zip(actuals, predictions))
     # Sort by PREDICTED value, since this is what what we will know at the time we make a prediction
-    actuals_preds.sort(key=lambda pair: pair[1])
-    actuals_sorted = [act for act, pred in actuals_preds]
-    predictions_sorted = [pred for act, pred in actuals_preds]
+    actual_predictions.sort(key=lambda pair: pair[1])
+    actuals_sorted = [actual for actual, prediction in actual_predictions]
+    predictions_sorted = [prediction for actual, prediction in actual_predictions]
 
     if verbose > 2:
         print('Here\'s how the trained predictor did on each successive decile (ten percent chunk) '
@@ -264,7 +264,7 @@ class RegressionScorer(object):
               advanced_scoring=False,
               verbose=2,
               name=None):
-        X, y = utils.drop_missing_y_vals(X, y, output_column=None)
+        X, y = utils.drop_missing_y_values(X, y, output_column=None)
 
         if isinstance(estimator, GradientBoostingRegressor):
             X = X.toarray()
@@ -281,7 +281,7 @@ class RegressionScorer(object):
 
             bad_val_indices = []
             for idx, val in enumerate(y):
-                if str(val) in bad_vals_as_strings or str(predictions[idx]) in bad_vals_as_strings:
+                if str(val) in bad_string_values or str(predictions[idx]) in bad_string_values:
                     bad_val_indices.append(idx)
 
             predictions = [val for idx, val in enumerate(predictions) if idx not in bad_val_indices]
@@ -321,7 +321,7 @@ class ClassificationScorer(object):
             return default
 
     @staticmethod
-    def clean_probas(probas):
+    def clean_probabilities(probabilities):
         print('Warning: We have found some values in the predicted probabilities that fall outside '
               'the range {0, 1}')
         print(
@@ -332,31 +332,31 @@ class ClassificationScorer(object):
               'careful to have similar safeguards in place in prod if you use this model')
 
         # TODO: Check new code
-        # if not isinstance(probas[0], list):
-        #     probas = [val if str(val) not in bad_vals_as_strings else 0 for val in probas]
-        #     probas = [min(max(pred, 0), 1) for pred in probas]
-        #     return probas
+        # if not isinstance(probabilities[0], list):
+        #     probabilities = [val if str(val) not in bad_string_values else 0 for val in probabilities]
+        #     probabilities = [min(max(pred, 0), 1) for pred in probabilities]
+        #     return probabilities
         # else:
-        #     cleaned_probas = []
-        #     for proba_tuple in probas:
+        #     cleaned_probabilities = []
+        #     for proba_tuple in probabilities:
         #         cleaned_tuple = []
-        #         for item in proba_tuple:
-        #             if str(item) in bad_vals_as_strings:
+        #         for item in probability_tuples:
+        #             if str(item) in bad_string_values:
         #                 item = 0
         #             cleaned_tuple.append(max(min(item, 1), 0))
-        #         cleaned_probas.append(cleaned_tuple)
-        #     return cleaned_probas
+        #         cleaned_probabilities.append(cleaned_tuple)
+        #     return cleaned_probabilities
         # Start new code
-        probas = np.array(probas)
-        np.place(probas, np.isin(probas.astype(str), bad_vals_as_strings), 0)
-        np.place(probas, probas > 1, 1)
-        np.place(probas, probas < 0, 0)
-        return probas
+        probabilities = np.array(probabilities)
+        np.place(probabilities, np.isin(probabilities.astype(str), bad_string_values), 0)
+        np.place(probabilities, probabilities > 1, 1)
+        np.place(probabilities, probabilities < 0, 0)
+        return probabilities
         # End new code
 
     # TODO: Simplify
     def score(self, estimator, X, y, advanced_scoring=False):
-        X, y = utils.drop_missing_y_vals(X, y, output_column=None)
+        X, y = utils.drop_missing_y_values(X, y, output_column=None)
 
         if isinstance(estimator, GradientBoostingClassifier):
             X = X.toarray()
@@ -383,8 +383,8 @@ class ClassificationScorer(object):
             # At the moment, Microsoft's LightGBM returns probabilities > 1 and < 0, which can
             # break some scoring functions. So we have to take the max of 1 and the pred,
             # and the min of 0 and the pred.
-            probas = [max(min(row[1], 1), 0) for row in predictions]
-            predictions = probas
+            probabilities = [max(min(row[1], 1), 0) for row in predictions]
+            predictions = probabilities
 
         try:
             # TODO: Check new code
@@ -392,10 +392,10 @@ class ClassificationScorer(object):
             # Start new code
             score = self.scoring_func(y, predictions, **kwargs)
             # End new code
-        except ValueError as e:
+        except ValueError:
             bad_val_indices = []
             for idx, val in enumerate(y):
-                if str(val) in bad_vals_as_strings:
+                if str(val) in bad_string_values:
                     bad_val_indices.append(idx)
 
             predictions = [val for idx, val in enumerate(predictions) if idx not in bad_val_indices]
@@ -409,10 +409,10 @@ class ClassificationScorer(object):
             except ValueError:
                 # Sometimes, particularly for a badly fit model using either too little data,
                 # or a really bad set of hyperparameters during a grid search, we can predict
-                # probas that are > 1 or < 0. We'll cap those here, while warning the user about
+                # probabilities that are > 1 or < 0. We'll cap those here, while warning the user about
                 # them, because they're unlikely to occur in a model that's properly trained with
                 #  enough data and reasonable params
-                predictions = self.clean_probas(predictions)
+                predictions = self.clean_probabilities(predictions)
                 score = self.scoring_func(y, predictions)
         # TODO: Check new code
         # Start new code

@@ -3,8 +3,8 @@ import os
 import dill
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, ExtraTreesRegressor, \
-    AdaBoostRegressor, GradientBoostingRegressor, GradientBoostingClassifier, ExtraTreesClassifier, \
-    AdaBoostClassifier
+    AdaBoostRegressor, GradientBoostingRegressor, GradientBoostingClassifier, \
+    ExtraTreesClassifier, AdaBoostClassifier
 from sklearn.linear_model import RANSACRegressor, LinearRegression, Ridge, Lasso, ElasticNet, \
     LassoLars, OrthogonalMatchingPursuit, BayesianRidge, ARDRegression, SGDRegressor, \
     PassiveAggressiveRegressor, LogisticRegression, RidgeClassifier, SGDClassifier, Perceptron, \
@@ -48,10 +48,8 @@ try:
 
     keras_installed = True
 except:
+    # TODO: Fix bare Except
     pass
-
-
-# maxnorm = None
 
 # Note: it's important that importing tensorflow come last. We can run into OpenCL issues if we
 # import it ahead of some other packages. At the moment, it's a known behavior with tensorflow,
@@ -239,6 +237,7 @@ def get_model_from_name(model_name, training_params=None, is_hp_search=False):
                 from tensorflow import logging
                 logging.set_verbosity(logging.INFO)
             except:
+                # TODO: Fix bare Except
                 pass
 
         model_map['DeepLearningClassifier'] = KerasClassifier(
@@ -344,82 +343,42 @@ def get_name_from_model(model):
 
 # Hyperparameter search spaces for each model
 def get_search_params(model_name):
+    deep_learning_params = {
+        'hidden_layers': [[1], [0.5], [2], [1, 1], [0.5, 0.5], [2, 2], [1, 1, 1], [1, 0.5, 0.5],
+                          [0.5, 1, 1], [1, 0.5, 0.25], [1, 2, 1], [1, 1, 1, 1],
+                          [1, 0.66, 0.33, 0.1], [1, 2, 2, 1]],
+        'batch_size': [16, 32, 64, 128, 256, 512],
+        'optimizer': ['SGD', 'RMSprop', 'Adagrad', 'Adadelta', 'Adam', 'Adamax', 'Nadam'],
+        'activation': [
+            'tanh', 'softmax', 'elu', 'softplus', 'softsign', 'relu', 'sigmoid', 'hard_sigmoid',
+            'linear', 'LeakyReLU', 'PReLU', 'ELU', 'ThresholdedReLU'
+        ],
+        # , 'epochs': [2, 4, 6, 10, 20]
+        # , 'batch_size': [10, 25, 50, 100, 200, 1000]
+        # , 'lr': [0.001, 0.01, 0.1, 0.3]
+        # , 'momentum': [0.0, 0.3, 0.6, 0.8, 0.9]
+        # , 'init_mode': ['uniform', 'lecun_uniform', 'normal', 'zero', 'glorot_normal',
+        #                 'glorot_uniform', 'he_normal', 'he_uniform']
+        # , 'activation': ['softmax', 'softplus', 'softsign', 'relu', 'tanh', 'sigmoid',
+        #                  'hard_sigmoid', 'linear']
+        # , 'weight_constraint': [1, 3, 5]
+        'input_dropout_rate': [0.0, 0.1, 0.15, 0.2, 0.25, 0.3],
+        'dropout_rate': [
+            0.0,
+            0.1,
+            0.2,
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7,
+            0.8,
+            0.9,
+        ]
+    }
     grid_search_params = {
-        'DeepLearningRegressor': {
-            'hidden_layers': [[1], [1, 0.1], [1, 1, 1], [1, 0.5, 0.1], [2], [5],
-                              [1, 0.5, 0.25, 0.1, 0.05], [1, 1, 1, 1], [1, 1]
-
-                              # [1],
-                              # [0.5],
-                              # [2],
-                              # [1, 1],
-                              # [0.5, 0.5],
-                              # [2, 2],
-                              # [1, 1, 1],
-                              # [1, 0.5, 0.5],
-                              # [0.5, 1, 1],
-                              # [1, 0.5, 0.25],
-                              # [1, 2, 1],
-                              # [1, 1, 1, 1],
-                              # [1, 0.66, 0.33, 0.1],
-                              # [1, 2, 2, 1]
-                              ],
-            'dropout_rate': [
-                0.0,
-                0.1,
-                0.2,
-                0.3,
-                0.4,
-                0.5,
-                0.6,
-                0.7,
-                0.8,
-                0.9,
-            ],
-            'kernel_initializer': [
-                'uniform', 'lecun_uniform', 'normal', 'zero', 'glorot_normal', 'glorot_uniform',
-                'he_normal', 'he_uniform'
-            ],
-            'activation': [
-                'tanh', 'softmax', 'elu', 'softplus', 'softsign', 'relu', 'sigmoid', 'hard_sigmoid',
-                'linear', 'LeakyReLU', 'PReLU', 'ELU', 'ThresholdedReLU'
-            ],
-            'batch_size': [16, 32, 64, 128, 256, 512],
-            'optimizer': ['SGD', 'RMSprop', 'Adagrad', 'Adadelta', 'Adam', 'Adamax', 'Nadam']
-        },
-        'DeepLearningClassifier': {
-            'hidden_layers': [[1], [0.5], [2], [1, 1], [0.5, 0.5], [2, 2], [1, 1, 1], [1, 0.5, 0.5],
-                              [0.5, 1, 1], [1, 0.5, 0.25], [1, 2, 1], [1, 1, 1, 1],
-                              [1, 0.66, 0.33, 0.1], [1, 2, 2, 1]],
-            'batch_size': [16, 32, 64, 128, 256, 512],
-            'optimizer': ['SGD', 'RMSprop', 'Adagrad', 'Adadelta', 'Adam', 'Adamax', 'Nadam'],
-            'activation': [
-                'tanh', 'softmax', 'elu', 'softplus', 'softsign', 'relu', 'sigmoid', 'hard_sigmoid',
-                'linear', 'LeakyReLU', 'PReLU', 'ELU', 'ThresholdedReLU'
-            ],
-            # , 'epochs': [2, 4, 6, 10, 20]
-            # , 'batch_size': [10, 25, 50, 100, 200, 1000]
-            # , 'lr': [0.001, 0.01, 0.1, 0.3]
-            # , 'momentum': [0.0, 0.3, 0.6, 0.8, 0.9]
-            # , 'init_mode': ['uniform', 'lecun_uniform', 'normal', 'zero', 'glorot_normal',
-            #                 'glorot_uniform', 'he_normal', 'he_uniform']
-            # , 'activation': ['softmax', 'softplus', 'softsign', 'relu', 'tanh', 'sigmoid',
-            #                  'hard_sigmoid', 'linear']
-            # , 'weight_constraint': [1, 3, 5]
-
-            'dropout_rate': [
-                0.0,
-                0.1,
-                0.2,
-                0.3,
-                0.4,
-                0.5,
-                0.6,
-                0.7,
-                0.8,
-                0.9,
-            ]
-        },
+        'DeepLearningRegressor': deep_learning_params,
+        'DeepLearningClassifier': deep_learning_params,
         'XGBClassifier': {
             'max_depth': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15],
             'learning_rate': [0.01, 0.05, 0.1, 0.2],
@@ -720,8 +679,8 @@ def get_optimizer(name='Adadelta'):
 def make_deep_learning_model(hidden_layers=None,
                              num_cols=None,
                              optimizer='Adadelta',
-                             dropout_rate=0.2,
-                             weight_constraint=0,
+                             input_dropout_rate=0.2,
+                             dropout_rate=0.5,
                              feature_learning=False,
                              kernel_initializer='normal',
                              activation='elu'):
@@ -753,6 +712,7 @@ def make_deep_learning_model(hidden_layers=None,
             kernel_initializer=kernel_initializer,
             kernel_regularizer=regularizers.l2(0.01)))
     model.add(get_activation_layer(activation))
+    model.add(Dropout(input_dropout_rate))
 
     for layer_size in scaled_layers[1:-1]:
         model.add(
@@ -761,6 +721,7 @@ def make_deep_learning_model(hidden_layers=None,
                 kernel_initializer=kernel_initializer,
                 kernel_regularizer=regularizers.l2(0.01)))
         model.add(get_activation_layer(activation))
+        model.add(Dropout(dropout_rate))
 
     # There are times we will want the output from our penultimate layer, not the final layer,
     # so give it a name that makes the penultimate layer easy to find
@@ -787,8 +748,8 @@ def make_deep_learning_model(hidden_layers=None,
 def make_deep_learning_classifier(hidden_layers=None,
                                   num_cols=None,
                                   optimizer='Adadelta',
-                                  dropout_rate=0.2,
-                                  weight_constraint=0,
+                                  input_dropout_rate=0.2,
+                                  dropout_rate=0.5,
                                   final_activation='sigmoid',
                                   feature_learning=False,
                                   activation='elu',
@@ -823,6 +784,7 @@ def make_deep_learning_classifier(hidden_layers=None,
             kernel_initializer=kernel_initializer,
             kernel_regularizer=regularizers.l2(0.01)))
     model.add(get_activation_layer(activation))
+    model.add(Dropout(input_dropout_rate))
 
     for layer_size in scaled_layers[1:-1]:
         model.add(
@@ -831,6 +793,7 @@ def make_deep_learning_classifier(hidden_layers=None,
                 kernel_initializer=kernel_initializer,
                 kernel_regularizer=regularizers.l2(0.01)))
         model.add(get_activation_layer(activation))
+        model.add(Dropout(dropout_rate))
 
     model.add(
         Dense(

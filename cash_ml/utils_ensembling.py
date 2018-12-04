@@ -55,9 +55,10 @@ class Ensembler(BaseEstimator, TransformerMixin):
                 pool = pathos.multiprocessing.ProcessPool()
 
                 # Since we may have already closed the pool, try to restart it
+                # TODO: Try to improve flow control
                 try:
                     pool.restart()
-                except AssertionError as e:
+                except AssertionError:
                     pass
                 predictions_from_all_estimators = pool.map(
                     lambda predictor: get_predictions_for_one_estimator(predictor, X),
@@ -66,6 +67,7 @@ class Ensembler(BaseEstimator, TransformerMixin):
                 # Once we have gotten all we need from the pool, close it so it's not taking up
                 # unnecessary memory
                 pool.close()
+                # TODO: Try to improve flow control
                 try:
                     pool.join()
                 except AssertionError:
@@ -100,23 +102,24 @@ class Ensembler(BaseEstimator, TransformerMixin):
         if X.shape[0] == 1:
             # predictions is just a dictionary where all the values are the predicted values from
             # one of our sub-predictors. we'll want that as a list
-            predicted_vals = list(predictions.values())
+            predicted_values = list(predictions.values())
             if self.ensemble_method == 'median':
-                return np.median(predicted_vals)
+                return np.median(predicted_values)
             elif self.ensemble_method == 'average' \
                     or self.ensemble_method == 'mean' \
                     or self.ensemble_method == 'avg':
-                return np.average(predicted_vals)
+                return np.average(predicted_values)
             elif self.ensemble_method == 'max':
-                return np.max(predicted_vals)
+                return np.max(predicted_values)
             elif self.ensemble_method == 'min':
-                return np.min(predicted_vals)
+                return np.min(predicted_values)
 
         else:
 
             if self.ensemble_method == 'median':
                 return predictions.apply(np.median, axis=1).values
-            elif self.ensemble_method == 'average' or self.ensemble_method == 'mean' or self.ensemble_method == 'avg':
+            elif self.ensemble_method == 'average' or self.ensemble_method == 'mean' \
+                    or self.ensemble_method == 'avg':
                 return predictions.apply(np.average, axis=1).values
             elif self.ensemble_method == 'max':
                 return predictions.apply(np.max, axis=1).values
@@ -126,8 +129,8 @@ class Ensembler(BaseEstimator, TransformerMixin):
     def get_predictions_by_class(self, predictions):
         predictions_by_class = []
         for class_idx in range(self.num_classes):
-            class_preds = [pred[class_idx] for pred in predictions]
-            predictions_by_class.append(class_preds)
+            class_predictions = [pred[class_idx] for pred in predictions]
+            predictions_by_class.append(class_predictions)
 
         return predictions_by_class
 
@@ -139,24 +142,26 @@ class Ensembler(BaseEstimator, TransformerMixin):
         if X.shape[0] == 1:
             # predictions is just a dictionary where all the values are the predicted values from
             # one of our sub-predictors. we'll want that as a list
-            predicted_vals = list(predictions.values())
-            predicted_vals = self.get_predictions_by_class(predicted_vals)
+            predicted_values = list(predictions.values())
+            predicted_values = self.get_predictions_by_class(predicted_values)
 
             if self.ensemble_method == 'median':
-                return [np.median(class_preds) for class_preds in predicted_vals]
-            elif self.ensemble_method == 'average' or self.ensemble_method == 'mean' or self.ensemble_method == 'avg':
-                return [np.average(class_preds) for class_preds in predicted_vals]
+                return [np.median(class_predictions) for class_predictions in predicted_values]
+            elif self.ensemble_method == 'average' or self.ensemble_method == 'mean' \
+                    or self.ensemble_method == 'avg':
+                return [np.average(class_predictions) for class_predictions in predicted_values]
             elif self.ensemble_method == 'max':
-                return [np.max(class_preds) for class_preds in predicted_vals]
+                return [np.max(class_predictions) for class_predictions in predicted_values]
             elif self.ensemble_method == 'min':
-                return [np.min(class_preds) for class_preds in predicted_vals]
+                return [np.min(class_predictions) for class_predictions in predicted_values]
 
         else:
             classed_predictions = predictions.apply(self.get_predictions_by_class, axis=1)
 
             if self.ensemble_method == 'median':
                 return classed_predictions.apply(np.median, axis=1)
-            elif self.ensemble_method == 'average' or self.ensemble_method == 'mean' or self.ensemble_method == 'avg':
+            elif self.ensemble_method == 'average' or self.ensemble_method == 'mean' \
+                    or self.ensemble_method == 'avg':
                 return classed_predictions.apply(np.average, axis=1)
             elif self.ensemble_method == 'max':
                 return classed_predictions.apply(np.max, axis=1)
