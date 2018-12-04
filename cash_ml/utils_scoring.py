@@ -405,9 +405,9 @@ class ClassificationScorer(object):
             except ValueError:
                 # Sometimes, particularly for a badly fit model using either too little data,
                 # or a really bad set of hyperparameters during a grid search, we can predict
-                # probabilities that are > 1 or < 0. We'll cap those here, while warning the user about
-                # them, because they're unlikely to occur in a model that's properly trained with
-                #  enough data and reasonable params
+                # probabilities that are > 1 or < 0. We'll cap those here, while warning the user
+                # about them, because they're unlikely to occur in a model that's properly
+                # trained with enough data and reasonable params
                 predictions = self.clean_probabilities(predictions)
                 score = self.scoring_func(y, predictions)
         # TODO: Check new code
