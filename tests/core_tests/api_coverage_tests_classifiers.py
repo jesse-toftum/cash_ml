@@ -10,7 +10,7 @@ import sys
 import numpy as np
 from sklearn.metrics import accuracy_score
 
-import tests.utils_testing as utils
+from tests import utils_testing as utils
 from cash_ml import Predictor
 from cash_ml.utils_models import load_ml_model
 

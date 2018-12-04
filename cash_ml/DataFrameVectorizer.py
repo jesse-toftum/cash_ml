@@ -16,13 +16,6 @@ bad_values = {
     '-inf'
 }
 
-
-def strip_non_ascii(string):
-    """ Returns the string without non ASCII characters"""
-    stripped = (c for c in string if 0 < ord(c) < 127)
-    return ''.join(stripped)
-
-
 class DataFrameVectorizer(BaseEstimator, TransformerMixin):
 
     def __init__(self,
@@ -255,9 +248,8 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
                 return df_result
 
             if num_trained_cols != (max_transformed_idx - min_transformed_idx + 1):
-                print('We have somehow ended up with categorical column behavior we were not '
-                      'expecting ')
-                raise ValueError
+                raise ValueError('We have somehow ended up with categorical column '
+                                 'behavior we were not expecting ')
 
             for row_idx, val in enumerate(col_values):
                 if not isinstance(val, str):

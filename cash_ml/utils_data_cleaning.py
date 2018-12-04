@@ -396,7 +396,7 @@ class BasicDataCleaning(BaseEstimator, TransformerMixin):
 
 
 def minutes_into_day_parts(minutes_into_day):
-    if minutes_into_day < 6 * 60:
+    if minutes_into_day < 6 * 60 or minutes_into_day > 23.5 * 60:
         return 'late_night'
     elif minutes_into_day < 10 * 60:
         return 'morning'
@@ -408,10 +408,8 @@ def minutes_into_day_parts(minutes_into_day):
         return 'afternoon'
     elif minutes_into_day < 20.5 * 60:
         return 'dinnertime'
-    elif minutes_into_day < 23.5 * 60:
-        return 'early_night'
     else:
-        return 'late_night'
+        return 'early_night'
 
 
 # Note: assumes that the column is already formatted as a pandas date type

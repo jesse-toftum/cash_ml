@@ -13,32 +13,30 @@ from sklearn.svm import LinearSVC, LinearSVR
 
 from cash_ml import utils_categorical_ensembling
 
-xgb_installed = False
+
 try:
     from xgboost import XGBClassifier, XGBRegressor
 
     xgb_installed = True
 except ImportError:
-    pass
+    xgb_installed = False
 
-lgb_installed = False
+
 try:
     from lightgbm import LGBMRegressor, LGBMClassifier
 
     lgb_installed = True
 except ImportError:
-    pass
-except OSError:
-    pass
+    lgb_installed = False
 
-catboost_installed = False
+
 try:
     from catboost import CatBoostRegressor, CatBoostClassifier
 
     catboost_installed = True
 except ImportError:
-    pass
-keras_installed = False
+    catboost_installed = False
+
 try:
     from keras import Sequential, regularizers, optimizers
     from keras.models import load_model as keras_load_model
@@ -47,9 +45,8 @@ try:
         Dense, Dropout, Activation
 
     keras_installed = True
-except:
-    # TODO: Fix bare Except
-    pass
+except ImportError:
+    keras_installed = False
 
 # Note: it's important that importing tensorflow come last. We can run into OpenCL issues if we
 # import it ahead of some other packages. At the moment, it's a known behavior with tensorflow,
@@ -634,11 +631,6 @@ def load_ml_model(file_name):
                 pass
 
     return base_pipeline
-
-
-# Keeping this here for legacy support
-def load_keras_model(file_name):
-    return load_ml_model(file_name)
 
 
 # For many activations, we can just pass the activation name into Activations
