@@ -9,7 +9,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 from cash_ml.utils import CustomLabelEncoder
 
-bad_vals = {
+bad_values = {
     float('nan'),
     float('inf'),
     float('-inf'), None, np.nan, 'None', 'none', 'NaN', 'NAN', 'nan', 'NULL', 'null', '', 'inf',
@@ -27,17 +27,17 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
 
     def __init__(self,
                  column_descriptions=None,
-                 dtype=np.float32,
+                 datatype=np.float32,
                  separator="=",
                  sparse=True,
                  keep_cat_features=False):
-        self.dtype = dtype
+        self.datatype = datatype
         self.separator = separator
         self.sparse = sparse
         if column_descriptions is None:
             column_descriptions = {}
         self.column_descriptions = column_descriptions
-        self.vals_to_drop = {'ignore', 'output', 'regressor', 'classifier'}
+        self.values_to_drop = {'ignore', 'output', 'regressor', 'classifier'}
         self.has_been_restricted = False
         self.keep_cat_features = keep_cat_features
         self.label_encoders = {}
@@ -69,7 +69,7 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
             col_desc = self.column_descriptions.get(col, False)
             if col_desc in [False, 'continuous', 'int', 'float', 'numerical']:
                 numerical_columns.append(col)
-            elif col_desc in self.vals_to_drop:
+            elif col_desc in self.values_to_drop:
                 continue
             elif col_desc == 'categorical':
                 categorical_columns.append(col)
@@ -127,7 +127,7 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
     # TODO: Simplify
     def _transform(self, X):
 
-        dtype = self.dtype
+        datatype = self.datatype
         vocab = self.vocabulary_
 
         if isinstance(X, dict):
@@ -136,26 +136,26 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
             indptr = array("i", [0])
             values = []
 
-            for f, val in X.items():
-                if self.column_descriptions.get(f, False) == 'categorical':
+            for feature, value in X.items():
+                if self.column_descriptions.get(feature, False) == 'categorical':
                     if not self.get('keep_cat_features', False):
-                        if not isinstance(val, str):
-                            if isinstance(val, numbers.Number) or val is None:
-                                val = str(val)
+                        if not isinstance(value, str):
+                            if isinstance(value, numbers.Number) or value is None:
+                                value = str(value)
                             else:
-                                val = val.encode('utf-8').decode('utf-8')
-                        f = f + self.separator + val
-                        val = 1
+                                value = value.encode('utf-8').decode('utf-8')
+                        feature = feature + self.separator + value
+                        value = 1
                     else:
-                        if val in bad_vals:
-                            val = '_None'
-                        val = self.get('label_encoders')[f].transform([val])
+                        if value in bad_values:
+                            value = '_None'
+                        value = self.get('label_encoders')[feature].transform([value])
 
-                if f in vocab and val not in bad_vals and (self.get('keep_cat_features', False)
-                                                           or not np.isnan(val)):
-                    indices.append(vocab[f])
-                    # Convert the val to the correct dtype, then append to our values list
-                    values.append(dtype(val))
+                if feature in vocab and value not in bad_values and (self.get(
+                        'keep_cat_features', False) or not np.isnan(value)):
+                    indices.append(vocab[feature])
+                    # Convert the value to the correct datatype, then append to our values list
+                    values.append(datatype(value))
 
             indptr.append(len(indices))
 
@@ -166,7 +166,7 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
             indptr = np.frombuffer(indptr, dtype=np.intc)
             shape = (len(indptr) - 1, len(vocab))
 
-            result_matrix = sp.csr_matrix((values, indices, indptr), shape=shape, dtype=dtype)
+            result_matrix = sp.csr_matrix((values, indices, indptr), shape=shape, dtype=datatype)
 
             if self.sparse:
                 result_matrix.sort_indices()
@@ -193,15 +193,15 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
 
             # Running this in parallel can cause memory crashes if the dataset is too large.
             # TODO: With as complex as this lambda is, consider refactoring into an actual function
-            categorical_vals = list(map(
-                lambda col_name: self.transform_categorical_col(col_vals=list(X[col_name]),
+            categorical_values = list(map(
+                lambda col_name: self.transform_categorical_col(col_values=list(X[col_name]),
                                                                 col_name=col_name),
                 self.categorical_columns))
 
             X = X[self.numerical_columns]
             # X.drop(self.categorical_columns, inplace=True, axis=1)
             X.reset_index(drop=True, inplace=True)
-            for result in categorical_vals:
+            for result in categorical_values:
                 result.reset_index(drop=True, inplace=True)
                 X[result.columns] = result
                 del result
@@ -215,10 +215,10 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
     # We are assuming that each categorical column got a contiguous block of result columns (ie,
     # the 5 categories in City get columns 5-9, not columns 0, 8, 26, 4, and 20)
     # TODO: Simplify
-    def transform_categorical_col(self, col_vals, col_name):
+    def transform_categorical_col(self, col_values, col_name):
         if self.get('keep_cat_features', False):
-            return_vals = self.get('label_encoders')[col_name].transform(col_vals)
-            result = {col_name: return_vals}
+            return_values = self.get('label_encoders')[col_name].transform(col_values)
+            result = {col_name: return_values}
 
             result = pd.DataFrame(result)
             # result[col_name] = pd.to_numeric(result[col_name], downcast='integer')
@@ -248,7 +248,7 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
             encoded_col_names = sorted(encoded_col_names, key=lambda tup: tup[1])
             encoded_col_names = [tup[0] for tup in encoded_col_names]
 
-            result = sp.lil_matrix((len(col_vals), num_trained_cols))
+            result = sp.lil_matrix((len(col_values), num_trained_cols))
 
             if num_trained_cols == 0:
                 df_result = pd.DataFrame(result.toarray(), columns=encoded_col_names)
@@ -259,7 +259,7 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
                       'expecting ')
                 raise ValueError
 
-            for row_idx, val in enumerate(col_vals):
+            for row_idx, val in enumerate(col_values):
                 if not isinstance(val, str):
                     if isinstance(val, numbers.Number) or val is None:
                         val = str(val)
@@ -276,12 +276,11 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
             df_result = pd.DataFrame(result.toarray(), columns=encoded_col_names)
             return df_result
 
-    def transform(self, X, y=None):
+    def transform(self, X):
         return self._transform(X)
 
     def get_feature_names(self):
         """Returns a list of feature names, ordered by their indices.
-
         If one-of-K coding is applied to categorical features, this will
         include the constructed feature names but not the original ones.
         """
@@ -300,9 +299,7 @@ class DataFrameVectorizer(BaseEstimator, TransformerMixin):
 
     def restrict(self, support):
         """Restrict the features to those in support using feature selection.
-
         This function modifies the estimator in-place.
-
         """
         if self.has_been_restricted:
             return self

@@ -1,4 +1,4 @@
-import scipy
+from scipy import sparse as scipy_sparse
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.feature_selection import GenericUnivariateSelect, RFECV, SelectFromModel
@@ -49,16 +49,8 @@ class FeatureSelectionTransformer(BaseEstimator, TransformerMixin):
         self.selector = get_feature_selection_model_from_name(self.type_of_estimator,
                                                               self.feature_selection_model)
 
-        if self.selector == 'KeepAll':
-            if scipy.sparse.issparse(X):
-                num_cols = X.shape[0]
-            else:
-                num_cols = len(X[0])
-
-            self.support_mask = [True for col_idx in range(num_cols)]
-        else:
+        if self.selector != 'KeepAll':
             if self.feature_selection_model == 'SelectFromModel':
-                num_cols = X.shape[1]
                 num_rows = X.shape[0]
                 if self.type_of_estimator == 'regressor':
                     self.estimator = RandomForestRegressor(n_jobs=-1, max_depth=10, n_estimators=15)
@@ -92,15 +84,15 @@ class FeatureSelectionTransformer(BaseEstimator, TransformerMixin):
                 self.support_mask = self.selector.get_support()
 
         # Get a mask of which indices it is we want to keep
-        self.index_mask = [idx for idx, val in enumerate(self.support_mask) if val == True]
+        self.index_mask = [idx for idx, val in enumerate(self.support_mask) if val is True]
         return self
 
-    def transform(self, X, y=None):
+    def transform(self, X):
 
         if self.selector == 'KeepAll':
             return X
 
-        if scipy.sparse.issparse(X):
+        if scipy_sparse.issparse(X):
             if X.getformat() == 'csr':
                 # convert to a csc (column) matrix, rather than a csr (row) matrix
                 X = X.tocsc()

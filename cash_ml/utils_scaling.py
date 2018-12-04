@@ -7,25 +7,25 @@ booleans = {True, False, 'true', 'false', 'True', 'False', 'TRUE', 'FALSE'}
 
 # Used in CustomSparseScaler
 def calculate_scaling_ranges(X, col, min_percentile=0.05, max_percentile=0.95):
-    series_vals = X[col]
-    good_vals_indexes = series_vals.notnull()
+    series_values = X[col]
+    good_values_indexes = series_values.notnull()
 
-    series_vals = list(series_vals[good_vals_indexes])
-    series_vals = sorted(series_vals)
+    series_values = list(series_values[good_values_indexes])
+    series_values = sorted(series_values)
 
-    max_val_idx = int(max_percentile * len(series_vals)) - 1
-    min_val_idx = int(min_percentile * len(series_vals))
+    index_of_max_value = int(max_percentile * len(series_values)) - 1
+    index_of_min_value = int(min_percentile * len(series_values))
 
-    if len(series_vals) > 0:
-        max_val = series_vals[max_val_idx]
-        min_val = series_vals[min_val_idx]
+    if len(series_values) > 0:
+        max_value = series_values[index_of_max_value]
+        min_value = series_values[index_of_min_value]
     else:
         return 'ignore'
 
-    if max_val in booleans or min_val in booleans:
+    if max_value in booleans or min_value in booleans:
         return 'pass_on_col'
 
-    inner_range = max_val - min_val
+    inner_range = max_value - min_value
 
     if inner_range == 0:
         # Used to do recursion here, which is prettier and uses less code, but since we've
@@ -33,22 +33,22 @@ def calculate_scaling_ranges(X, col, min_percentile=0.05, max_percentile=0.95):
         # duplicate computation. Grab the absolute largest max and min vals, and see if there is
         # any difference in them, since our 95th and 5th percentile vals had no difference
         # between them.
-        max_val = series_vals[len(series_vals) - 1]
-        min_val = series_vals[0]
-        inner_range = max_val - min_val
+        max_value = series_values[len(series_values) - 1]
+        min_value = series_values[0]
+        inner_range = max_value - min_value
 
         if inner_range == 0:
             # If this is a binary field, keep all the values in it, just make sure they're scaled
             # to 1 or 0.
-            if max_val == 1:
-                min_val = 0
+            if max_value == 1:
+                min_value = 0
                 inner_range = 1
             else:
                 # If this is just a column that holds all the same values for everything though,
                 # delete the column to save some space
                 return 'ignore'
 
-    col_summary = {'max_val': max_val, 'min_val': min_val, 'inner_range': inner_range}
+    col_summary = {'max_val': max_value, 'min_val': min_value, 'inner_range': inner_range}
 
     return col_summary
 

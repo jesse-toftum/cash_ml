@@ -45,7 +45,6 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                  model_name=None,
                  ml_for_analytics=False,
                  type_of_estimator='classifier',
-                 output_column=None,
                  name=None,
                  _scorer=None,
                  training_features=None,
@@ -79,11 +78,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
         self.X_test = X_test
         self.y_test = y_test
         self.memory_optimized = False
-
-        if self.type_of_estimator == 'classifier':
-            self._scorer = _scorer
-        else:
-            self._scorer = _scorer
+        self._scorer = _scorer
 
     def get(self, prop_name, default=None):
         try:
@@ -105,7 +100,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
         ]:
 
             if self.model_name[:3] == 'XGB' and scipy_sparse.issparse(X):
-                ones = [[1] for x in range(X.shape[0])]
+                ones = [[1] for _ in range(X.shape[0])]
                 # Trying to force XGBoost to play nice with sparse matrices
                 X_fit = scipy_sparse.hstack((X, ones))
 
@@ -127,10 +122,12 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                 try:
                     del model_params['feature_learning']
                 except:
+                    # TODO: Fix bare Except
                     pass
                 try:
                     del model_params['num_cols']
                 except:
+                    # TODO: Fix bare Except
                     pass
 
                 if self.type_of_estimator == 'regressor':
@@ -160,9 +157,10 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                 if isinstance(X_test, pd.DataFrame):
                     X_test = X_test.values
                 else:
+                    # TODO: Try to improve flow control
                     try:
                         X_test = X_test.toarray()
-                    except AttributeError as e:
+                    except AttributeError:
                         pass
 
                 if not self.is_hp_search:
@@ -202,11 +200,12 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                 if self.is_hp_search is False:
                     self.model = keras_load_model(temp_file_name)
 
+                    # TODO: Try to improve flow control
                 try:
                     os.remove(temp_file_name)
-                except OSError as e:
+                except OSError:
                     pass
-            except KeyboardInterrupt as e:
+            except KeyboardInterrupt:
                 print('Stopping training at this point because we heard a KeyboardInterrupt')
                 print('If the deep learning model is functional at this point, we will output the '
                       'model in its latest form ')
@@ -214,10 +213,12 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                       'to fail on occasion ')
 
                 if self.is_hp_search is False:
+                    # TODO: Make sure that temp_file_name is initialized
                     self.model = keras_load_model(temp_file_name)
+                    # TODO: Try to improve flow control
                 try:
                     os.remove(temp_file_name)
-                except OSError as e:
+                except OSError:
                     pass
 
         elif self.model_name[:4] == 'LGBM':
@@ -235,9 +236,10 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
 
                 X_fit, y, X_test, y_test = self.get_X_test(X_fit, y)
 
+                # TODO: Try to improve flow control
                 try:
                     X_test = X_test.toarray()
-                except AttributeError as e:
+                except AttributeError:
                     pass
 
                 if self.X_test is not None:
@@ -266,8 +268,10 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                     self.model.fit(
                         X_fit,
                         y,
+                        # TODO: Make sure that these are initialized
                         eval_set=[(X_test, y_test)],
                         early_stopping_rounds=100,
+                        # TODO: Make sure that eval_metric and eval_names are initialized
                         eval_metric=eval_metric,
                         eval_names=[eval_name],
                         verbose=verbose)
@@ -278,6 +282,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                     self.model.fit(
                         X_fit,
                         y,
+                        # TODO: Similar to above; make sure that all of these are initialized
                         eval_set=[(X_test, y_test)],
                         early_stopping_rounds=100,
                         eval_metric=eval_metric,
@@ -343,7 +348,8 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                     else:
                         try:
                             val_loss = self._scorer.score(self, X_test, y_test)
-                        except Exception as e:
+                        except Exception:
+                            # TODO: Fix bare Except
                             val_loss = self.model.score(X_test, y_test)
 
                     if val_loss - self.min_step_improvement > best_val_loss:
@@ -418,10 +424,12 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                     # that is not present in their prediction data
                     column_vals = X[key].unique()
                     for val in column_vals:
+                        # TODO: Make sure that prediction_features is initialized
                         prediction_features.add(key + '=' + str(val))
 
                     categorical_col_names.append(key)
                 except:
+                    # TODO: Fix bare Except
                     print('\nFound a column in your column_descriptions that is not present '
                           'in your prediction data: ')
                     print(key)
@@ -434,6 +442,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                 date_col_names.append(raw_date_col_name)
 
             elif value == 'output':
+                # TODO: Try to improve flow control
                 try:
                     prediction_features.remove(key)
                 except KeyError:
@@ -522,7 +531,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
             'prediction_not_training': prediction_not_training
         }
 
-    def score(self, X, y, verbose=False):
+    def score(self, X, y):
         # At the time of writing this, GradientBoosting does not support sparse matrices for
         # predictions
         if (self.model_name[:16] == 'GradientBoosting' or self.model_name in [
@@ -537,17 +546,15 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
             return self.model.score(X, y)
 
     # TODO: Simplify
-    def predict_proba(self, X, verbose=False):
+    def predict_proba(self, X):
 
         if self.model_name[:3] == 'XGB':
-            ones = [[1] for x in range(X.shape[0])]
+            ones = [[1] for _ in range(X.shape[0])]
             if scipy_sparse.issparse(X):
                 # Trying to force XGBoost to play nice with sparse matrices
                 X = scipy_sparse.hstack((X, ones))
             else:
                 X = np.column_stack([X, ones])
-
-        X_predict = X
 
         if (self.model_name[:16] == 'GradientBoosting' or self.model_name[:12] == 'DeepLearning'
                 or self.model_name in [
@@ -573,15 +580,15 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
             else:
                 predictions = self.model.predict_proba(X)
 
-        except AttributeError as e:
+        except AttributeError:
             try:
                 predictions = self.model.predict(X)
-            except TypeError as e:
+            except TypeError:
                 if scipy_sparse.issparse(X):
                     X = X.todense()
                 predictions = self.model.predict(X)
 
-        except TypeError as e:
+        except TypeError:
             if scipy_sparse.issparse(X):
                 X = X.todense()
             predictions = self.model.predict_proba(X)
@@ -620,10 +627,10 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
             return predictions
 
     # TODO: Simplify
-    def predict(self, X, verbose=False):
+    def predict(self, X):
 
         if self.model_name[:3] == 'XGB':
-            ones = [[1] for x in range(X.shape[0])]
+            ones = [[1] for _ in range(X.shape[0])]
             if scipy_sparse.issparse(X):
                 # Trying to force XGBoost to play nice with sparse matrices
                 X = scipy_sparse.hstack((X, ones))
@@ -649,7 +656,6 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
             X_predict = X
 
         if self.model_name[:4] == 'LGBM':
-            best_iteration = 0
             try:
                 best_iteration = self.model.best_iteration_
             except AttributeError:
@@ -794,6 +800,7 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
                         max_bucket_proba = self.uc_results[bucket_num]['max_proba']
                         bucket_num += 1
 
+                    # TODO: Make sure that calibration_result is initialized
                     for key, value in calibration_result.items():
                         calibration_results[key].append(value)
                 # TODO: grab the uncertainty_calibration data for DataFrames
@@ -803,19 +810,19 @@ class FinalModelATC(BaseEstimator, TransformerMixin):
 
                 results = pd.concat([results, df_calibration_results], axis=1)
 
-        else:
-            if self.uc_results is not None:
-                # TODO: grab the uncertainty_calibration data for dictionaries
-                for bucket_name, bucket_result in self.uc_results.items():
-                    # Where is this supposed to come from?
-                    if proba > bucket_result['max_proba']:
-                        break
-                    results.update(bucket_result)
-                    del results['max_proba']
+        # else:
+        #     if self.uc_results is not None:
+        #         # TODO: grab the uncertainty_calibration data for dictionaries
+        #         for bucket_name, bucket_result in self.uc_results.items():
+        #             # Where is this supposed to come from?
+        #             if proba > bucket_result['max_proba']:
+        #                 break
+        #             results.update(bucket_result)
+        #             del results['max_proba']
 
         return results
 
-    def score_uncertainty(self, X, y, verbose=False):
+    def score_uncertainty(self, X, y):
         return self.uncertainty_model.score(X, y, verbose=False)
 
     def get_categorical_feature_indices(self):

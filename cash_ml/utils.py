@@ -6,7 +6,7 @@ import os
 import numpy as np
 import pandas as pd
 import pkg_resources
-import scipy
+from scipy import sparse as scipy_sparse
 from sklearn.datasets import load_boston
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
@@ -74,6 +74,7 @@ def write_most_recent_gs_result_to_file(trained_gs, most_recent_filename, timest
 
         for k, v in score[0].items():
             if make_header:
+                # TODO: Make sure that header_row is initialized
                 header_row.append(k)
             row.append(v)
         rows_to_write.append(row)
@@ -128,7 +129,7 @@ def get_boston_dataset():
     return df_boston_train, df_boston_test
 
 
-bad_vals_as_strings = {
+bad_string_values = {
     str(float('nan')),
     str(float('inf')),
     str(float('-inf')), 'None', 'none', 'NaN', 'NAN', 'nan', 'NULL', 'null', '', 'inf', '-inf'
@@ -139,7 +140,7 @@ def delete_rows_csr(mat, indices):
     """
     Remove the rows denoted by ``indices`` form the CSR sparse matrix ``mat``.
     """
-    if not isinstance(mat, scipy.sparse.csr_matrix):
+    if not isinstance(mat, scipy_sparse.csr_matrix):
         raise ValueError("works only for CSR format -- use .tocsr() first")
     indices = list(indices)
     mask = np.ones(mat.shape[0], dtype=bool)
@@ -148,10 +149,9 @@ def delete_rows_csr(mat, indices):
 
 
 # TODO: Simplify
-def drop_missing_y_vals(df, y, output_column=None):
+def drop_missing_y_values(df, y, output_column=None):
     y = list(y)
     indices_to_drop = []
-    indices_to_keep = []
     for idx, val in enumerate(y):
         if not isinstance(val, str):
             if isinstance(val, numbers.Number) or val is None or isinstance(val, np.generic):
@@ -159,7 +159,7 @@ def drop_missing_y_vals(df, y, output_column=None):
             else:
                 val = val.encode('utf-8').decode('utf-8')
 
-        if val in bad_vals_as_strings:
+        if val in bad_string_values:
             indices_to_drop.append(idx)
 
     if len(indices_to_drop) > 0:
@@ -177,13 +177,10 @@ def drop_missing_y_vals(df, y, output_column=None):
             print(y[df_idx])
         print('We will remove these values, and continue with training on the cleaned dataset')
 
-        support_mask = [
-            True if idx not in set_of_indices_to_drop else False for idx in range(df.shape[0])
-        ]
         if isinstance(df, pd.DataFrame):
             df.drop(df.index[indices_to_drop], axis=0, inplace=True)
             # df = df.loc[support_mask,]
-        elif scipy.sparse.issparse(df):
+        elif scipy_sparse.issparse(df):
             df = delete_rows_csr(df, indices_to_drop)
         elif isinstance(df, np.ndarray):
             df = np.delete(df, indices_to_drop, axis=0)
@@ -210,9 +207,9 @@ class CustomLabelEncoder:
             self.label_map[val] = idx
         return self
 
-    def transform(self, in_vals):
-        return_vals = []
-        for val in in_vals:
+    def transform(self, in_values):
+        return_values = []
+        for val in in_values:
             if not isinstance(val, str):
                 if isinstance(val, float) or isinstance(val, int) or val is None or isinstance(
                         val, np.generic):
@@ -222,12 +219,12 @@ class CustomLabelEncoder:
 
             if val not in self.label_map:
                 self.label_map[val] = len(self.label_map.keys())
-            return_vals.append(self.label_map[val])
+            return_values.append(self.label_map[val])
 
-        if len(in_vals) == 1:
-            return return_vals[0]
+        if len(in_values) == 1:
+            return return_values[0]
         else:
-            return return_vals
+            return return_values
 
 
 class ExtendedLabelEncoder(LabelEncoder):
@@ -257,6 +254,7 @@ def get_versions():
         try:
             versions[lib] = pkg_resources.get_distribution(lib).version
         except:
+            # TODO: Fix bare Except
             pass
 
     return versions

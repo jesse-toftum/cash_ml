@@ -13,7 +13,7 @@ import dill
 import numpy as np
 import pandas as pd
 import pathos
-import scipy
+from scipy import sparse as scipy_sparse
 # evolutionary_search uses deap
 from evolutionary_search import EvolutionaryAlgorithmSearchCV
 from six import get_method_function, get_method_self
@@ -99,7 +99,7 @@ class Predictor(object):
     def _validate_input_col_descriptions(self):
         found_output_column = False
         self.cols_to_ignore = []
-        expected_vals = set(['categorical', 'text', 'nlp'])
+        expected_values = {'categorical', 'text', 'nlp'}
 
         for key, value in self.column_descriptions.items():
             value = value.lower()
@@ -111,7 +111,7 @@ class Predictor(object):
                 self.date_cols.append(key)
             elif value == 'ignore':
                 self.cols_to_ignore.append(key)
-            elif value in expected_vals:
+            elif value in expected_values:
                 pass
             else:
                 raise ValueError(
@@ -177,8 +177,6 @@ class Predictor(object):
                 pipeline_list.append(('scaler', trained_pipeline.named_steps['scaler']))
             else:
                 if model_name[:12] == 'DeepLearning':
-                    min_percentile = 0.0
-                    max_percentile = 1.0
                     pipeline_list.append(('scaler',
                                           utils_scaling.CustomSparseScaler(
                                               self.column_descriptions,
@@ -232,17 +230,19 @@ class Predictor(object):
             try:
                 training_features = self._get_trained_feature_names()
             except:
+                # TODO: Fix bare Except
                 training_features = None
 
             training_prediction_intervals = False
             params = None
 
             if prediction_interval is not False:
-                params = {}
-                params['loss'] = 'quantile'
-                params['alpha'] = prediction_interval
-                params['n_estimators'] = 100
-                params['learning_rate'] = 0.15
+                params = {
+                    'loss': 'quantile',
+                    'alpha': prediction_interval,
+                    'n_estimators': 100,
+                    'learning_rate': 0.15
+                }
                 params.update(self.prediction_interval_params)
                 training_prediction_intervals = True
 
@@ -331,15 +331,16 @@ class Predictor(object):
             try:
                 os.remove(self.gs_param_file_name)
             except:
+                # TODO: Fix bare Except
                 pass
 
-        # Remove the output column from the dataset, and store it into the y varaible
+        # Remove the output column from the dataset, and store it into the y variable
         y = list(X_df[self.output_column])
         X_df.drop(self.output_column, axis=1, inplace=True)
 
         # Drop all rows that have an empty value for our output column
         # User logging so they can adjust if they pass in a bunch of bad values:
-        X_df, y = utils.drop_missing_y_vals(X_df, y, self.output_column)
+        X_df, y = utils.drop_missing_y_values(X_df, y, self.output_column)
 
         # If this is a classifier, try to turn all the y values into proper ints. Some
         # classifiers play more nicely if you give them category labels as ints rather than
@@ -353,20 +354,21 @@ class Predictor(object):
                     y_ints.append(int(val))
                 y = y_ints
             except:
+                # TODO: Fix bare Except
                 pass
         else:
             # If this is a regressor, turn all the values into floats if possible, and remove
             # this row if they cannot be turned into floats
             indices_to_delete = []
             y_floats = []
-            bad_vals = []
+            bad_values = []
             for idx, val in enumerate(y):
                 try:
                     float_val = utils_data_cleaning.clean_val(val)
                     y_floats.append(float_val)
-                except ValueError as err:
+                except ValueError:
                     indices_to_delete.append(idx)
-                    bad_vals.append(val)
+                    bad_values.append(val)
 
             y = y_floats
 
@@ -379,7 +381,7 @@ class Predictor(object):
                       'be turned into a float: ')
                 print(indices_to_delete)
                 print('These were the bad values')
-                print(bad_vals)
+                print(bad_values)
                 X_df.drop(X_df.index[indices_to_delete], axis=0, inplace=True)
 
         clean_descriptions = {}
@@ -398,6 +400,7 @@ class Predictor(object):
         # and combines several transforms into a single, easy step.
         # It also significantly reduces the size of dv.vocabulary_ which can get quite large
 
+        # TODO: Try to improve flow control
         try:
             feature_selection = transformation_pipeline.named_steps['feature_selection']
             feature_selection_mask = feature_selection.support_mask
@@ -424,7 +427,6 @@ class Predictor(object):
                                 optimize_final_model=None,
                                 write_gs_param_results_to_file=True,
                                 perform_feature_selection=None,
-                                verbose=True,
                                 X_test=None,
                                 y_test=None,
                                 ml_for_analytics=True,
@@ -434,7 +436,6 @@ class Predictor(object):
                                 calibrate_final_model=False,
                                 _scorer=None,
                                 scoring=None,
-                                verify_features=False,
                                 training_params=None,
                                 grid_search_params=None,
                                 compare_all_models=False,
@@ -470,7 +471,7 @@ class Predictor(object):
         self.training_features = None
 
         if X_test is not None:
-            X_test, y_test = utils.drop_missing_y_vals(X_test, y_test, self.output_column)
+            X_test, y_test = utils.drop_missing_y_values(X_test, y_test, self.output_column)
 
         self.X_test = X_test
         self.y_test = y_test
@@ -492,7 +493,9 @@ class Predictor(object):
         if self.model_names is None or (len(self.model_names) == 1 and self.model_names[0] is None):
             self.model_names = self._get_estimator_names()
 
-        if 'DeepLearningRegressor' in self.model_names or 'DeepLearningClassifier' in self.model_names or feature_learning is True:
+        if 'DeepLearningRegressor' in self.model_names \
+                or 'DeepLearningClassifier' in self.model_names \
+                or feature_learning is True:
             if perform_feature_scaling is None or perform_feature_scaling is True:
                 self.perform_feature_scaling = True
             else:
@@ -704,7 +707,7 @@ class Predictor(object):
 
     # We are taking in scoring here to deal with the unknown behavior around multilabel
     # classification below
-    def _clean_data_and_prepare_for_training(self, data, scoring):
+    def _clean_data_and_prepare_for_training(self, data):
 
         X_df, y = self._prepare_for_training(data)
 
@@ -723,11 +726,11 @@ class Predictor(object):
             else:
                 self.perform_feature_selection = True
 
-        self.set_scoring(y, scoring=scoring)
+        self.set_scoring(y)
 
         return X_df, y
 
-    def set_scoring(self, y, scoring=None):
+    def set_scoring(self, y):
         # TODO: we're not using ClassificationScorer for multilabel classification. Why?
         #  It looks like it is below, so this is confusing.
         # Probably has to do with self.scoring vs self._scorer = scoring
@@ -749,7 +752,7 @@ class Predictor(object):
         self._scorer = scoring
 
     def fit_feature_learning_and_transformation_pipeline(self, X_df, fl_data, y):
-        fl_data_cleaned, fl_y = self._clean_data_and_prepare_for_training(fl_data, self.scoring)
+        fl_data_cleaned, fl_y = self._clean_data_and_prepare_for_training(fl_data)
         # Only import this if we have to, because it takes a while to import in some environments
         from keras.models import Model
 
@@ -767,6 +770,7 @@ class Predictor(object):
         # from a trained estimator is typically super quick. We can easily get predictions from
         # 10 trained models in a production-ready amount of time.But the transformation pipeline
         # is not so quick that we can duplicate it 10 times.
+        # TODO: Make sure that fl_estimator_names is initialized
         combined_transformed_data = self.fit_transformation_pipeline(combined_training_data,
                                                                      combined_y, fl_estimator_names)
 
@@ -775,7 +779,7 @@ class Predictor(object):
 
         # fit a train_final_estimator
         feature_learning_step = self.train_ml_estimator(
-            fl_estimator_names, self._scorer, fl_data_transformed, fl_y, feature_learning=True)
+            fl_estimator_names, fl_data_transformed, fl_y, feature_learning=True)
 
         # Split off the final layer/find a way to get the output from the penultimate layer
         fl_model = feature_learning_step.model
@@ -799,7 +803,7 @@ class Predictor(object):
             final_model_step_name='feature_learning_model')
 
         # Pass our already-transformed X_df just through the feature_learning_step.transform.
-        # This avoids duplicate computationn
+        # This avoids duplicate computation
         indices = [i for i in range(len_X_df)]
         X_df_transformed = combined_transformed_data[indices]
         X_df = feature_learning_step.transform(X_df_transformed)
@@ -830,7 +834,6 @@ class Predictor(object):
               cv=2,
               feature_learning=False,
               fl_data=None,
-              optimize_feature_learning=False,
               train_uncertainty_model=False,
               uncertainty_data=None,
               uncertainty_delta=None,
@@ -839,8 +842,6 @@ class Predictor(object):
               uncertainty_calibration_settings=None,
               uncertainty_calibration_data=None,
               uncertainty_delta_direction=None,
-              advanced_analytics=None,
-              analytics_config=None,
               prediction_intervals=None,
               predict_intervals=None,
               ensemble_config=None,
@@ -858,7 +859,6 @@ class Predictor(object):
             optimize_final_model=optimize_final_model,
             write_gs_param_results_to_file=write_gs_param_results_to_file,
             perform_feature_selection=perform_feature_selection,
-            verbose=verbose,
             X_test=X_test,
             y_test=y_test,
             ml_for_analytics=ml_for_analytics,
@@ -868,14 +868,12 @@ class Predictor(object):
             calibrate_final_model=calibrate_final_model,
             _scorer=_scorer,
             scoring=scoring,
-            verify_features=verify_features,
             training_params=training_params,
             grid_search_params=grid_search_params,
             compare_all_models=compare_all_models,
             cv=cv,
             feature_learning=feature_learning,
             fl_data=fl_data,
-            optimize_feature_learning=False,
             train_uncertainty_model=train_uncertainty_model,
             uncertainty_data=uncertainty_data,
             uncertainty_delta=uncertainty_delta,
@@ -904,7 +902,7 @@ class Predictor(object):
             print('You are running on version {}'.format(cash_ml_version))
 
         if transformed_X is None:
-            X_df, y = self._clean_data_and_prepare_for_training(raw_training_data, scoring)
+            X_df, y = self._clean_data_and_prepare_for_training(raw_training_data)
             del raw_training_data
             self.training_features = list(X_df.columns)
 
@@ -924,12 +922,13 @@ class Predictor(object):
             else:
                 X_df = self.transformation_pipeline.transform(X_df)
         else:
-            X_df, y = utils.drop_missing_y_vals(transformed_X, transformed_y)
+            X_df, y = utils.drop_missing_y_values(transformed_X, transformed_y)
             del transformed_X
             del transformed_y
             try:
                 self.training_features = list(X_df.columns)
             except:
+                # TODO: Fix bare Except
                 pass
 
             self.set_scoring(y)
@@ -938,13 +937,13 @@ class Predictor(object):
             self.X_test = self.transformation_pipeline.transform(self.X_test)
 
         # This is our main logic for how we train the final model
-        self.trained_final_model = self.train_ml_estimator(self.model_names, self._scorer, X_df, y)
+        self.trained_final_model = self.train_ml_estimator(self.model_names, X_df, y)
 
         if self.ensemble_config is not None and len(self.ensemble_config) > 0:
             self._train_ensemble(X_df, y)
 
         if self.need_to_train_uncertainty_model is True:
-            self._create_uncertainty_model(uncertainty_data, scoring, y,
+            self._create_uncertainty_model(uncertainty_data, y,
                                            uncertainty_calibration_data)
 
         # Calibrate the probability predictions from our final model
@@ -957,7 +956,6 @@ class Predictor(object):
             interval_predictors = []
             for percentile in self.prediction_intervals:
                 interval_predictor = self.train_ml_estimator(['GradientBoostingRegressor'],
-                                                             self._scorer,
                                                              X_df,
                                                              y,
                                                              prediction_interval=percentile)
@@ -985,7 +983,7 @@ class Predictor(object):
             return self.transformation_pipeline
         return self
 
-    def _create_uncertainty_model(self, uncertainty_data, scoring, y, uncertainty_calibration_data):
+    def _create_uncertainty_model(self, uncertainty_data, y, uncertainty_calibration_data):
         # 1. Add base_prediction to our dv for analytics purposes. Note that we will have to be
         # cautious that things all happen in the exact same order as we expand what we do post-DV
         # over time. Adding this one directly- we don't want dfv to transform it necessarily,
@@ -993,14 +991,14 @@ class Predictor(object):
         self.transformation_pipeline.named_steps['dv'].feature_names_.append('base_prediction')
         # 2. Get predictions from our base predictor on our uncertainty data
         uncertainty_data, y_uncertainty = self._clean_data_and_prepare_for_training(
-            uncertainty_data, scoring)
+            uncertainty_data)
 
         uncertainty_data_transformed = self.transformation_pipeline.transform(uncertainty_data)
 
         base_predictions = self.trained_final_model.predict(uncertainty_data_transformed)
         base_predictions = [[val] for val in base_predictions]
         base_predictions = np.array(base_predictions)
-        uncertainty_data_transformed = scipy.sparse.hstack(
+        uncertainty_data_transformed = scipy_sparse.hstack(
             [uncertainty_data_transformed, base_predictions], format='csr')
 
         # 2A. Grab the user's definition of uncertainty, and create the output values
@@ -1013,7 +1011,6 @@ class Predictor(object):
         is_uncertain_predictions = self.define_uncertain_predictions(base_predictions,
                                                                      y_uncertainty)
 
-        analytics_results = pd.Series(is_uncertain_predictions)
         print('\n\nHere is the percent of values in our uncertainty training data that are '
               'classified as uncertain: ')
         percent_uncertain = sum(is_uncertain_predictions) * 1.0 / len(is_uncertain_predictions)
@@ -1037,7 +1034,7 @@ class Predictor(object):
         uncertainty_estimator_names = ['GradientBoostingClassifier']
 
         self.trained_uncertainty_model = self.train_ml_estimator(
-            uncertainty_estimator_names, self._scorer, uncertainty_data_transformed,
+            uncertainty_estimator_names, uncertainty_data_transformed,
             is_uncertain_predictions)
 
         # 4. grab the entire uncertainty FinalModelATC object, and put it as a property on our
@@ -1093,9 +1090,9 @@ class Predictor(object):
                 # FUTURE: add in max_value for each bucket_num
                 uc_results[bucket]['max_proba'] = np.max(dataset['uncertainty_prediction'])
 
-                for perc in self.uncertainty_calibration_settings['percentiles']:
-                    delta_at_percentile = np.percentile(deltas, perc)
-                    uc_results[bucket]['percentile_' + str(perc) + '_delta'] = delta_at_percentile
+                for percentile in self.uncertainty_calibration_settings['percentiles']:
+                    delta_at_percentile = np.percentile(deltas, percentile)
+                    uc_results[bucket]['percentile_' + str(percentile) + '_delta'] = delta_at_percentile
 
             # make the max_proba of our last bucket_num 1
             uc_results[bucket_labels[-1]]['max_proba'] = 1
@@ -1149,12 +1146,12 @@ class Predictor(object):
         try:
             calibrated_classifier = calibrated_classifier.fit(X_test_processed, y_test)
         except TypeError as e:
-            if scipy.sparse.issparse(X_test_processed):
+            if scipy_sparse.issparse(X_test_processed):
                 X_test_processed = X_test_processed.toarray()
 
                 calibrated_classifier = calibrated_classifier.fit(X_test_processed, y_test)
             else:
-                raise (e)
+                raise e
 
         return calibrated_classifier
 
@@ -1187,6 +1184,7 @@ class Predictor(object):
 
         ppl.fit(X_df, y)
 
+        # TODO: Make sure that start_time is initialized
         if self.verbose:
             print('Finished training the pipeline!')
             print('Total training time:')
@@ -1243,7 +1241,6 @@ class Predictor(object):
             row_multiplier = 0.25
 
         if orig_row_count <= 10000:
-            num_rows_to_use = orig_row_count
             if row_multiplier < 1:
                 X, ignored_X, y, ignored_y = train_test_split(
                     X_transformed, y, train_size=row_multiplier)
@@ -1256,7 +1253,7 @@ class Predictor(object):
             X, ignored_X, y, ignored_y = train_test_split(
                 X_transformed, y, train_size=num_rows_to_use)
 
-        if scipy.sparse.issparse(X):
+        if scipy_sparse.issparse(X):
             X = X.toarray()
 
         # Get our baseline predictions
@@ -1271,25 +1268,24 @@ class Predictor(object):
         def create_one_feature_response(col_idx, col_name):
             if col_name not in top_features:
                 return None
-            col_result = {}
-            col_result['Feature Name'] = col_name
+            col_result = {'Feature Name': col_name}
             if col_name[:4] != 'nlp_' and '=' not in col_name and self.column_descriptions.get(
                     col_name, False) != 'categorical':
 
                 if isinstance(X, pd.DataFrame):
-                    col_vals = X[col_name]
+                    column_values = X[col_name]
                 else:
-                    col_vals = X[:, col_idx]
+                    column_values = X[:, col_idx]
 
-                col_std = np.nanstd(col_vals)
+                col_std = np.nanstd(column_values)
                 col_delta = self.analytics_config['col_std_multiplier'] * col_std
                 col_result['Delta'] = col_delta
 
                 # TODO: min_delta
-                # get the unique vals
+                # get the unique values
                 # sort them
-                # go through and find the min_delta between consecutive vals
-                # make srue col_std is greater than min_delta
+                # go through and find the min_delta between consecutive values
+                # make sure col_std is greater than min_delta
                 # if it is not, set col_std to min_delta
 
                 # Increment the values of this column by the std
@@ -1304,6 +1300,7 @@ class Predictor(object):
                     predictions = [x[1] for x in predictions]
 
                 deltas = []
+                # TODO: Make sure that predictions is initialized
                 for pred_idx, pred in enumerate(predictions):
                     delta = pred - base_predictions[pred_idx]
                     deltas.append(delta)
@@ -1376,6 +1373,7 @@ class Predictor(object):
                 'XGBRegressor', 'GradientBoostingRegressor', 'GradientBoostingClassifier',
                 'LGBMRegressor', 'LGBMClassifier', 'CatBoostRegressor', 'CatBoostClassifier'
             ]:
+                # TODO: Try to improve flow control
                 try:
                     df_model_results = self._print_ml_analytics_results_random_forest(model)
                     sorted_model_results = df_model_results.sort_values(
@@ -1393,7 +1391,7 @@ class Predictor(object):
                     if model_name == 'XGBRegressor':
                         pass
                     else:
-                        raise (e)
+                        raise e
 
             else:
                 feature_responses = self.create_feature_responses(model, X, y)
@@ -1412,6 +1410,7 @@ class Predictor(object):
                 print('Here are our feature responses for the trained model')
                 print(tabulate(feature_responses, headers='keys', floatfmt='.4f', tablefmt='psql'))
         except:
+            # TODO: Fix bare Except
             pass
 
     # TODO: Simplify
@@ -1587,7 +1586,6 @@ class Predictor(object):
     # TODO: Simplify
     def train_ml_estimator(self,
                            estimator_names,
-                           scoring,
                            X_df,
                            y,
                            feature_learning=False,
@@ -1692,6 +1690,7 @@ class Predictor(object):
             # final model up on more epochs, or with more trees. Run a two-stage GSCV. First
             # stage figures out activation function, second stage figures out architecture
 
+        # TODO: Make sure that trained_final_model is initialized
         return trained_final_model
 
     def get_relevant_categorical_rows(self, X_df, y, category):
@@ -1699,6 +1698,7 @@ class Predictor(object):
 
         relevant_indices = []
         relevant_y = []
+        # TODO: Mask is a bool from only a few lines above?
         for idx, val in enumerate(mask):
             if val is True:
                 relevant_indices.append(idx)
@@ -1721,6 +1721,7 @@ class Predictor(object):
         try:
             self.cols_to_ignore.remove(categorical_column)
         except:
+            # TODO: Fix bare Except
             pass
         self.min_category_size = min_category_size
 
@@ -1733,7 +1734,7 @@ class Predictor(object):
 
         self.set_params_and_defaults(data, **kwargs)
 
-        X_df, y = self._clean_data_and_prepare_for_training(data, self.scoring)
+        X_df, y = self._clean_data_and_prepare_for_training(data)
         X_df = X_df.reset_index(drop=True)
         X_df = utils_categorical_ensembling.clean_categorical_definitions(X_df, categorical_column)
 
@@ -1783,7 +1784,6 @@ class Predictor(object):
 
         categories_and_indices = []
         for category in unique_categories:
-            rel_column = X_df[self.categorical_column]
             indices = list(np.flatnonzero(X_df[self.categorical_column] == category))
             categories_and_indices.append([category, indices])
 
@@ -1807,7 +1807,7 @@ class Predictor(object):
                 if isinstance(all_small_categories['relevant_transformed_rows'], list):
                     all_small_categories['relevant_transformed_rows'] = relevant_transformed_rows
                 else:
-                    all_small_categories['relevant_transformed_rows'] = scipy.sparse.vstack(
+                    all_small_categories['relevant_transformed_rows'] = scipy_sparse.vstack(
                         [
                             all_small_categories['relevant_transformed_rows'],
                             relevant_transformed_rows
@@ -1829,7 +1829,7 @@ class Predictor(object):
 
             try:
                 category_trained_final_model = self.train_ml_estimator(
-                    self.model_names, self._scorer, relevant_X, relevant_y)
+                    self.model_names, relevant_X, relevant_y)
             except ValueError as e:
                 if 'BinomialDeviance requires 2 classes' in str(e) \
                         or 'BinomialDeviance requires 2 classes' in e \
@@ -1847,7 +1847,7 @@ class Predictor(object):
                     # value each time. And using it instead of a custom function means we don't
                     # need to add in any custom logic for predict_proba or anything
                     category_trained_final_model = self.train_ml_estimator(
-                        ['RidgeClassifier'], self._scorer, relevant_X, relevant_y)
+                        ['RidgeClassifier'], relevant_X, relevant_y)
                 else:
                     raise
 
@@ -1874,9 +1874,10 @@ class Predictor(object):
             pool = pathos.multiprocessing.ProcessPool()
 
             # Since we may have already closed the pool, try to restart it
+            # TODO: Try to improve flow control
             try:
                 pool.restart()
-            except AssertionError as e:
+            except AssertionError:
                 pass
 
             try:
@@ -1896,6 +1897,7 @@ class Predictor(object):
             # Once we have gotten all we need from the pool, close it so it's not taking up
             # unnecessary memory
             pool.close()
+            # TODO: Try to improve flow control
             try:
                 pool.join()
             except AssertionError:
@@ -1905,8 +1907,8 @@ class Predictor(object):
             if result['trained_category_model'] is not None:
                 category = result['category']
                 self.trained_category_models[category] = result['trained_category_model']
-                if self.search_for_default_category is True and result[
-                    'len_relevant_X'] > self.len_largest_category:
+                if self.search_for_default_category is True \
+                        and result['len_relevant_X'] > self.len_largest_category:
                     self.default_category = category
                     self.len_largest_category = result['len_relevant_X']
 
@@ -1970,7 +1972,7 @@ class Predictor(object):
               'explain is due to this column ')
         print('FR_delta = Feature Response Delta Amount')
         print('Explanation: Amount this column was incremented or decremented by to calculate the '
-              'feature reponses ')
+              'feature responses ')
         print('FR_Decrementing = Feature Response From Decrementing Values In This Column By One '
               'FR_delta ')
         print('Explanation: Represents how much the predicted output values respond to subtracting '
@@ -2003,6 +2005,7 @@ class Predictor(object):
         try:
             final_model_obj = trained_model_for_analytics.named_steps['final_model']
         except:
+            # TODO: Fix bare Except
             final_model_obj = trained_model_for_analytics
 
         print('\n\nHere are the results from our ' + final_model_obj.model_name)
@@ -2014,25 +2017,14 @@ class Predictor(object):
 
         try:
             trained_feature_importances = final_model_obj.model.feature_importances_
-        except AttributeError as e:
+        except AttributeError:
+            # TODO: Try to improve flow control
             try:
                 # There was a version of LightGBM that had this misnamed to miss the "s" at the end
                 trained_feature_importances = final_model_obj.model.feature_importance_
-            except AttributeError as e:
+            except AttributeError:
                 # There is a version of XGBoost does not have feature_importance_
-                try:
-                    # There was a version of LightGBM that had this misnamed to miss the "s" at
-                    # the end
-                    trained_feature_importances = final_model_obj.model.feature_importance_
-                except AttributeError as e:
-                    # There is a version of XGBoost does not have feature_importance_
-                    imp_vals = final_model_obj.model.get_booster().get_fscore()
-                except AttributeError:
-                    imp_vals = final_model_obj.model.booster().get_fscore()
-                imp_dict = {trained_feature_names[i]: float(imp_vals.get('f' + str(i), 0.)) \
-                            for i in range(len(trained_feature_names))}
-                total = np.array(imp_dict.values()).sum()
-                trained_feature_importances = {k: v / total for k, v in imp_dict.items()}
+                pass
 
         feature_infos = zip(trained_feature_names, trained_feature_importances)
 
@@ -2053,6 +2045,7 @@ class Predictor(object):
         try:
             final_model_obj = trained_model_for_analytics.named_steps['final_model']
         except:
+            # TODO: Fix bare Except
             final_model_obj = trained_model_for_analytics
         print('\n\nHere are the results from our ' + final_model_obj.model_name + ' model')
 
@@ -2131,6 +2124,7 @@ class Predictor(object):
                 try:
                     df_raw_scores = df_raw_scores.drop('DROPME', axis=1)
                 except:
+                    # TODO: Fix bare Except
                     pass
 
                 cleaned_params = list(df_raw_scores['params'].apply(utils.clean_params))
@@ -2153,26 +2147,26 @@ class Predictor(object):
                 if os.environ.get('is_test_suite', False) == 'True':
                     pass
                 else:
-                    raise (e)
+                    raise e
 
     def predict(self, prediction_data):
         if isinstance(prediction_data, list):
             prediction_data = pd.DataFrame(prediction_data)
         prediction_data = prediction_data.copy()
 
-        predicted_vals = self.trained_pipeline.predict(prediction_data)
+        predicted_values = self.trained_pipeline.predict(prediction_data)
         if self.took_log_of_y:
-            for idx, val in predicted_vals:
-                predicted_vals[idx] = math.exp(val)
+            for idx, val in predicted_values:
+                predicted_values[idx] = math.exp(val)
 
-        return predicted_vals
+        return predicted_values
 
     def predict_uncertainty(self, prediction_data):
         prediction_data = prediction_data.copy()
 
-        predicted_vals = self.trained_pipeline.predict_uncertainty(prediction_data)
+        predicted_values = self.trained_pipeline.predict_uncertainty(prediction_data)
 
-        return predicted_vals
+        return predicted_values
 
     def predict_intervals(self, prediction_data, return_type=None):
 
@@ -2193,7 +2187,7 @@ class Predictor(object):
             X_test = pd.DataFrame(X_test)
         y_test = list(y_test)
 
-        X_test, y_test = utils.drop_missing_y_vals(X_test, y_test, self.output_column)
+        X_test, y_test = utils.drop_missing_y_values(X_test, y_test, self.output_column)
 
         if self._scorer is not None:
             if self.type_of_estimator == 'regressor':
@@ -2284,7 +2278,7 @@ class Predictor(object):
 
         return is_uncertain_predictions
 
-    def score_uncertainty(self, X, y, advanced_scoring=True, verbose=2):
+    def score_uncertainty(self, X, y):
 
         df_uncertainty_predictions = self.predict_uncertainty(X)
         is_uncertain_predictions = self.define_uncertain_predictions(
@@ -2315,6 +2309,7 @@ class Predictor(object):
                 final_model = self.trained_pipeline.named_steps['final_model'].model
                 importances = final_model.feature_importances_
 
+                # TODO: Make sure that feature_names is initialized
                 for idx, name in enumerate(feature_names):
                     importances_dict[name] = importances[idx]
             except AttributeError:
@@ -2324,6 +2319,7 @@ class Predictor(object):
             self.trained_pipeline.feature_importances_ = importances_dict
 
         def save_one_step(pipeline_step, used_deep_learning):
+            # TODO: Try to improve flow control
             try:
                 if pipeline_step.model_name[:12] == 'DeepLearning':
                     used_deep_learning = True
@@ -2339,7 +2335,7 @@ class Predictor(object):
                     # Save the Keras model (which we have to extract from the sklearn wrapper)
                     try:
                         pipeline_step.model.save(keras_file_name)
-                    except AttributeError as e:
+                    except AttributeError:
                         # I'm not entirely clear why, but sometimes we need to access the
                         # ".model" property within a KerasRegressor or KerasClassifier,
                         # and sometimes we don't
@@ -2352,7 +2348,7 @@ class Predictor(object):
                     # put back into place in the pipeline when we save this later
                     pipeline_step.model = random_name
 
-            except AttributeError as e:
+            except AttributeError:
                 pass
 
             return used_deep_learning
@@ -2394,6 +2390,7 @@ class Predictor(object):
                 for step in self.trained_pipeline.transformation_pipeline.named_steps:
                     pipeline_step = self.trained_pipeline.transformation_pipeline.named_steps[step]
 
+                    # TODO: Try to improve flow control
                     try:
                         model_name = pipeline_step.model
                         pipeline_step.model = model_name_map[model_name]
@@ -2403,6 +2400,7 @@ class Predictor(object):
                 for step in self.trained_pipeline.trained_models:
                     pipeline_step = self.trained_pipeline.trained_models[step]
 
+                    # TODO: Try to improve flow control
                     try:
                         model_name = pipeline_step.model
                         if isinstance(model_name, str):
@@ -2414,12 +2412,13 @@ class Predictor(object):
 
                 for step in self.trained_pipeline.named_steps:
                     pipeline_step = self.trained_pipeline.named_steps[step]
+                    # TODO: Try to improve flow control
                     try:
                         if pipeline_step.get('model_name',
                                              'nonsensicallongstring')[:12] == 'DeepLearning':
                             model_name = pipeline_step.model
                             pipeline_step.model = model_name_map[model_name]
-                    except AttributeError as e:
+                    except AttributeError:
                         pass
 
         if verbose:
@@ -2467,7 +2466,6 @@ class Predictor(object):
             # TODO: subset the data here, pass through transformation_pipeline again to
             #  transform it
             trained_model = self.train_ml_estimator([model_params['model_name']],
-                                                    scoring=self.scoring,
                                                     X_df=X_train,
                                                     y=y_train)
 
