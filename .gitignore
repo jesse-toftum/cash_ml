@@ -36,3 +36,6 @@ xgboost/*
 *.ori
 *.orig
 *.tmp
+
+# For my own test file
+testfile.py

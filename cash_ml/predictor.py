@@ -23,16 +23,9 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.preprocessing import FunctionTransformer
 from tabulate import tabulate
 
-from cash_ml import DataFrameVectorizer
-from cash_ml import utils
-from cash_ml import utils_categorical_ensembling
-from cash_ml import utils_data_cleaning
-from cash_ml import utils_ensembling
-from cash_ml import utils_feature_selection
-from cash_ml import utils_model_training
-from cash_ml import utils_models
-from cash_ml import utils_scaling
-from cash_ml import utils_scoring
+from cash_ml import DataFrameVectorizer, utils, utils_categorical_ensembling, \
+    utils_data_cleaning, utils_ensembling, utils_feature_selection, \
+    utils_model_training, utils_models, utils_scaling, utils_scoring
 from cash_ml._version import __version__ as cash_ml_version
 
 # TODO: Warn user of issues arising with deap not having correct dependencies.
@@ -1923,9 +1916,9 @@ class Predictor(object):
         else:
             df_results = df_features
 
+        df_results = df_results.sort_values(by=sort_field, ascending=True)
         df_results = df_results.reset_index(drop=True)
         df_results = df_results.head(n=100)
-        df_results = df_results.sort_values(by=sort_field, ascending=True)
 
         analytics_file_name = self.analytics_config['file_name']
 
