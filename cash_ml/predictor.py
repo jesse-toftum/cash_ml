@@ -36,7 +36,7 @@ class Predictor(object):
                 name=name)
 
     def train(self, *args, **kwargs):
-        self.model.train(*args, **kwargs)
+        return self.model.train(*args, **kwargs)
 
     def score(self, *args, **kwargs):
         return self.model.score(*args, **kwargs)
@@ -51,13 +51,13 @@ class Predictor(object):
         return self.model.predict_intervals(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        self.model.save(*args, **kwargs)
+        return self.model.save(*args, **kwargs)
 
     def train_categorical_ensemble(self, *args, **kwargs):
-        self.model.train_categorical_ensemble(*args, **kwargs)
+        return self.model.train_categorical_ensemble(*args, **kwargs)
 
     def transform_only(self, *args, **kwargs):
-        self.model.transform_only(*args, **kwargs)
+        return self.model.transform_only(*args, **kwargs)
 
     def predict_uncertainty(self, *args, **kwargs):
         return self.model.predict_uncertainty(*args, **kwargs)
