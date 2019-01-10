@@ -99,7 +99,7 @@ Depending on your machine, they can occasionally be difficult to install, so the
 
 
 ## Feature Responses
-Get linear-model-esque interpretations from non-linear models. More information available in the documentation: https://cash-ml.readthedocs.io
+Get linear-model-esque interpretations from non-linear models. More information available in the documentation: https://cash-ml.readthedocs.io/en/latest/feature_responses.html
 
 
 ## Classification
