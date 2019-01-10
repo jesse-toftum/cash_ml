@@ -121,7 +121,8 @@ This feature only supports regression and binary classification currently. The r
 
 ## Categorical Ensembling
 
-Ever wanted to train one market for every store/customer, but didn't want to maintain hundreds of thousands of independent models? With `ml_predictor.train_categorical_ensemble()`, we will handle that for you. You'll still have just one consistent API, `ml_predictor.predict(data)`, but behind this single API will be one model for each category you included in your training data.
+Ever wanted to train one model for every store/customer, but didn't want to maintain hundreds of 
+thousands of independent models? With `ml_predictor.train_categorical_ensemble()`, we will handle that for you. You'll still have just one consistent API, `ml_predictor.predict(data)`, but behind this single API will be one model for each category you included in your training data.
 
 Just tell us which column holds the category you want to split on, and we'll handle the rest. As always, saving the model, loading it in a different environment, and getting speedy predictions live in production is baked right in.
 
