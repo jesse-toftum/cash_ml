@@ -1,4 +1,6 @@
 ## cash_ml
+Current status: Barely even being maintained, if you can call it that
+
 You've found cash_ml!
 
 cash_ml is an acronym for "Combined Algorithm Selection and Hyperparameter optimization for Machine Learning"
